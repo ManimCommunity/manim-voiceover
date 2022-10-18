@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "manim-voiceover"
+version = "0.1.0"
+description = "Manim plugin for all things voiceover"
+authors = ["The Manim Community Developers <contact@manim.community>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "manim_voiceover"}]
+repository = "https://github.com/ManimCommunity/manim-voiceover"
+keywords = ["packaging", "poetry"]
+
+
+[tool.poetry.dependencies]
+python = ">=3.7,<3.11"
+manim = "^0.16.0.post0"
+sox = "^1.4.1"
+python-dotenv = "^0.21.0"
+azure-cognitiveservices-speech = {version = "^1.24.0", extras = ["azure"]}
+mutagen = "^1.46.0"
+pydub = "^0.25.1"
+gTTS = {version = "^2.2.4", extras = ["google"]}
+pyttsx3 = {version = "^2.90", extras = ["pyttsx3"]}
+
+
+[tool.poetry.group.dev.dependencies]
+Pygments = "^2.13.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
