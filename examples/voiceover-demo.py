@@ -2,11 +2,11 @@ from manim import *
 import pygments.styles as code_styles
 from manim_voiceover import VoiceoverScene
 
-from manim_voiceover.interfaces.azure import AzureSpeechSynthesizer
+from manim_voiceover.services.azure import AzureService
 
-# from manim_voiceover.interfaces.pyttsx3 import PyTTSX3SpeechSynthesizer
-# from manim_voiceover.interfaces.gtts import GTTSSpeechSynthesizer
-from manim_voiceover.interfaces.recording_mapper import RecordingMapper
+# from manim_voiceover.interfaces.pyttsx3 import PyTTSX3Service
+# from manim_voiceover.interfaces.gtts import GTTSService
+from manim_voiceover.services.stitcher import StitcherService
 
 # import pyttsx3
 
@@ -16,19 +16,19 @@ code_style = code_styles.get_style_by_name("one-dark")
 class VoiceoverDemo(VoiceoverScene):
     def construct(self):
         # Initialize speech synthesis using Azure's TTS API
-        self.set_speech_synthesizer(
-            AzureSpeechSynthesizer(
+        self.set_speech_service(
+            AzureService(
                 voice="en-US-AriaNeural",
                 style="newscast-casual",  # global_speed=1.15
             )
         )
         dirname = os.path.dirname(os.path.abspath(__file__))
-        # self.set_speech_synthesizer(
-        #     RecordingMapper(dirname + "/voiceover_demo_recording.mp3")
+        # self.set_speech_service(
+        #     StitcherService(dirname + "/voiceover_demo_recording.mp3")
         # )
 
-        # self.set_speech_synthesizer(PyTTSX3SpeechSynthesizer(pyttsx3.init(), global_speed=1.15))
-        # self.set_speech_synthesizer(GTTSSpeechSynthesizer())
+        # self.set_speech_service(PyTTSX3Service(pyttsx3.init(), global_speed=1.15))
+        # self.set_speech_service(GTTSService())
 
         banner = ManimBanner().scale(0.5)
 
@@ -97,8 +97,8 @@ self.play(Write(demo_code), run_time=tracker.duration)''',
         demo_code2 = Code(
             code="""class VoiceoverDemo(VoiceoverScene):
     def construct(self):
-        self.set_speech_synthesizer(
-            AzureSpeechSynthesizer(
+        self.set_speech_service(
+            AzureService(
                 voice="en-US-AriaNeural",
                 style="newscast-casual",
                 global_speed=1.15
@@ -188,15 +188,15 @@ self.play(Write(demo_code), run_time=tracker.duration)''',
         demo_code3 = Code(
             code="""class VoiceoverDemo(VoiceoverScene):
     def construct(self):
-        self.set_speech_synthesizer(
-            AzureSpeechSynthesizer(
+        self.set_speech_service(
+            AzureService(
                 voice="en-US-AriaNeural",
                 style="newscast-casual",
                 global_speed=1.15
             )
         )
-        # self.set_speech_synthesizer(
-        #     RecordingMapper("my_voice_recording.mp3")
+        # self.set_speech_service(
+        #     StitcherService("my_voice_recording.mp3")
         # )
         """,
             insert_line_no=False,
@@ -210,15 +210,15 @@ self.play(Write(demo_code), run_time=tracker.duration)''',
             Code(
                 code="""class VoiceoverDemo(VoiceoverScene):
     def construct(self):
-        # self.set_speech_synthesizer(
-        #     AzureSpeechSynthesizer(
+        # self.set_speech_service(
+        #     AzureService(
         #         voice="en-US-AriaNeural",
         #         style="newscast-casual",
         #         global_speed=1.15
         #     )
         # )
-        # self.set_speech_synthesizer(
-        #     RecordingMapper("my_voice_recording.mp3")
+        # self.set_speech_service(
+        #     StitcherService("my_voice_recording.mp3")
         # )
         """,
                 insert_line_no=False,
@@ -235,15 +235,15 @@ self.play(Write(demo_code), run_time=tracker.duration)''',
             Code(
                 code="""class VoiceoverDemo(VoiceoverScene):
     def construct(self):
-        # self.set_speech_synthesizer(
-        #     AzureSpeechSynthesizer(
+        # self.set_speech_service(
+        #     AzureService(
         #         voice="en-US-AriaNeural",
         #         style="newscast-casual",
         #         global_speed=1.15
         #     )
         # )
-        self.set_speech_synthesizer(
-            RecordingMapper("my_voice_recording.mp3")
+        self.set_speech_service(
+            StitcherService("my_voice_recording.mp3")
         )
         """,
                 insert_line_no=False,
@@ -273,13 +273,12 @@ self.play(Write(demo_code), run_time=tracker.duration)''',
             self.play(FadeOut(text1, text2, arrow))
 
         with self.voiceover(
-            text="To do that, you record an MP3 of the final text of your video with 2 second pauses."
+            text="To do that, you record an MP3 of the final text of your video."
         ):
             self.play(FadeIn(demo_code3))
 
         with self.voiceover(
-            text="""Then you simply replace the AI speech synthesizer with a class called recording mapper, giving your MP3 file as input.
-            Manim-voiceover automatically splits your audio and replaces the AI generated voice with your real recording, wherever it is needed."""
+            text="""Manim-voiceover then splits your audio automatically and replaces the AI generated voice with your real recording."""
         ):
             self.play(FadeOut(demo_code3.code), FadeIn(demo_code4.code))
             self.play(FadeOut(demo_code4.code), FadeIn(demo_code5.code))
@@ -292,7 +291,7 @@ self.play(Write(demo_code), run_time=tracker.duration)''',
             self.play(FadeOut(demo_code5.code, demo_code3.background_mobject))
 
         with self.voiceover(
-            text="Visit the GitHub repo shown on your screen to start using it in your project."
+            text="Visit the GitHub repo to start using it in your project."
         ):
             self.play(
                 FadeIn(Tex(r"\texttt{https://github.com/ManimCommunity/manim-voiceover}"))

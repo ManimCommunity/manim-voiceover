@@ -1,12 +1,12 @@
 from manim import *
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.interfaces.azure import AzureSpeechSynthesizer
+from manim_voiceover.services.azure import AzureService
 
 
 class AzureExample(VoiceoverScene):
     def construct(self):
-        self.set_speech_synthesizer(
-            AzureSpeechSynthesizer(
+        self.set_speech_service(
+            AzureService(
                 voice="en-US-AriaNeural",
                 style="newscast-casual",
             )
