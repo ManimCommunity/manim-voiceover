@@ -1,5 +1,9 @@
 # manim-voiceover
 
+![Github Actions Status](https://github.com/ManimCommunity/manim-voiceover/workflows/Build/badge.svg)
+[![License](https://img.shields.io/github/license/ManimCommunity/manim-voiceover.svg?color=blue)](https://github.com/ManimCommunity/manim-voiceover/blob/main/LICENSE)
+[![](https://dcbadge.vercel.app/api/server/qY23bthHTY?style=flat)](https://manim.community/discord)
+
 `manim-voiceover` is a [Manim](https://manim.community) plugin for all things voiceover:
 
 - Add voiceovers to Manim videos _directly in Python_ without having to use a video editor.
