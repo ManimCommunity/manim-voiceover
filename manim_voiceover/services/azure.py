@@ -4,12 +4,12 @@ import azure.cognitiveservices.speech as speechsdk
 import json
 from dotenv import load_dotenv
 
-from ..speech_synthesizer import SpeechSynthesizer
+from manim_voiceover.services.base import SpeechService
 
 load_dotenv()
 
 
-class AzureSpeechSynthesizer(SpeechSynthesizer):
+class AzureService(SpeechService):
     def __init__(
         self,
         voice: str = "en-US-AriaNeural",
@@ -21,9 +21,9 @@ class AzureSpeechSynthesizer(SpeechSynthesizer):
         self.voice = voice
         self.style = style
         self.output_format = output_format
-        SpeechSynthesizer.__init__(self, **kwargs)
+        SpeechService.__init__(self, **kwargs)
 
-    def _synthesize_text(self, text: str, output_dir: str = None, path: str = None, **kwargs) -> dict:
+    def generate_from_text(self, text: str, output_dir: str = None, path: str = None, **kwargs) -> dict:
         inner = text
         # Remove bookmarks
         inner = re.sub("<bookmark\s*mark\s*=['\"]\w*[\"']\s*/>", "", inner)
@@ -101,7 +101,7 @@ class AzureSpeechSynthesizer(SpeechSynthesizer):
         )
         audio_config = speechsdk.audio.AudioOutputConfig(filename=audio_path)
 
-        speech_synthesizer = speechsdk.SpeechSynthesizer(
+        speech_service = speechsdk.SpeechSynthesizer(
             speech_config=speech_config, audio_config=audio_config
         )
         word_boundaries = []
@@ -115,11 +115,11 @@ class AzureSpeechSynthesizer(SpeechSynthesizer):
             result["text_offset"] = result["text_offset"] - 222  # TODO: make more clear
             return result
 
-        speech_synthesizer.synthesis_word_boundary.connect(
+        speech_service.synthesis_word_boundary.connect(
             lambda evt: word_boundaries.append(process_event(evt))
         )
 
-        speech_synthesis_result = speech_synthesizer.speak_ssml(ssml)
+        speech_synthesis_result = speech_service.speak_ssml(ssml)
         json_dict = {
             "input_text": text,
             "ssml": ssml,

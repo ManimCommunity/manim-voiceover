@@ -1,11 +1,12 @@
+from abc import ABC, abstractmethod
 import os
 import json
 import hashlib
 
-from .modify_audio import adjust_speed
+from manim_voiceover.modify_audio import adjust_speed
 
 
-class SpeechSynthesizer:
+class SpeechService(ABC):
     def __init__(self, global_speed: float = None, output_dir: str = None):
         # self.tts_config = tts_config
         if output_dir is None:
@@ -23,7 +24,7 @@ class SpeechSynthesizer:
         # Replace newlines with lines, reduce multiple consecutive spaces to single
         text = " ".join(text.split())
 
-        dict_ = self._synthesize_text(text, output_dir=None, path=path, **kwargs)
+        dict_ = self.generate_from_text(text, output_dir=None, path=path, **kwargs)
         # path = dict_["original_audio"]
         # import ipdb; ipdb.set_trace()
 
@@ -48,7 +49,6 @@ class SpeechSynthesizer:
         data_hash = hashlib.sha256(dumped_data.encode("utf-8")).hexdigest()
         return data_hash
 
-    def _synthesize_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
-        raise NotImplementedError(
-            "This is the base class. Please extend this and implement the required methods."
-        )
+    @abstractmethod
+    def generate_from_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
+        raise NotImplementedError

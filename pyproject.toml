@@ -42,7 +42,7 @@ python-dotenv = "^0.21.0"
 azure-cognitiveservices-speech = { version = "^1.24.0", extras = ["azure"] }
 mutagen = "^1.46.0"
 pydub = "^0.25.1"
-gTTS = { version = "^2.2.4", extras = ["google"] }
+gTTS = { version = "^2.2.4", extras = ["gtts"] }
 pyttsx3 = { version = "^2.90", extras = ["pyttsx3"] }
 
 

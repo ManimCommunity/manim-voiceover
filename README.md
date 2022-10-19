@@ -2,7 +2,7 @@
 
 `manim-voiceover` is a [Manim](https://manim.community) plugin for all things voiceover:
 
-- Add voiceovers to Manim videos *directly in Python*, without using a video editor.
+- Add voiceovers to Manim videos _directly in Python_ without having to use a video editor.
 - Develop an animation with an auto-generated AI voice without having to re-record and re-sync the audio.
 - Record a voiceover and have it stitched back onto the video instantly. (Note that this is not the same as AI voice cloning)
 
@@ -12,46 +12,37 @@ Currently supported TTS services:
 - [gTTS](https://github.com/pndurette/gTTS/)
 - [pyttsx3](https://github.com/nateshmbhat/pyttsx3)
 
-## Install in development mode
+## Installation
 
-`manim-voiceover` is in active development, so we recommend you to install it in development mode:
+Install from PyPI with the extras `azure` and `gtts`:
 
 ```sh
-# Clone the repository and change directory
-git clone git@github.com:ManimCommunity/manim-voiceover.git
-cd manim-voiceover/
+pip install manim-voiceover manim-voiceover[azure] manim-voiceover[gtts]
+```
 
-# Install the package in development mode
-pip3 install --editable .
+Check whether your installation works correctly:
 
-# Render and play an example
+```sh
 manim -pql examples/gtts-example.py --disable_caching
 ```
 
-If you only hear the first line, you need to run `manim` with the `--disable_caching` flag. This is due to a bug in Manim and will be fixed in the future.
+The `--disable_caching` flag is required due to a Manim bug. TODO: Remove once the bug is fixed.
 
 [The example above](examples/gtts-example.py) uses [gTTS](https://github.com/pndurette/gTTS/) which calls the Google Translate API and therefore needs an internet connection to work. If it throws an error, there might be a problem with your internet connection or the Google Translate API.
 
-<!-- Once SoX is installed, proceed with installing `manim-voiceover`:
-
-```sh
-cd manim-voiceover
-python setup.py install
-``` -->
-
 ### Installing SoX
 
-`manim-voiceover` can make the output from speech synthesizers faster or slower using [SoX](http://sox.sourceforge.net/). For this to work, version 14.4.2 or higher needs to be installed.
+`manim-voiceover` can make the output from speech synthesizers faster or slower using [SoX](http://sox.sourceforge.net/) (version 14.4.2 or higher is required).
 
-To install SoX on Mac with Homebrew:
+Install SoX on Mac with Homebrew:
 
-```brew install sox```
+`brew install sox`
 
-On Debian based distros:
+Install SoX on Debian based distros:
 
-```sudo apt-get install sox```
+`sudo apt-get install sox`
 
-or install [from source](https://sourceforge.net/projects/sox/files/sox/).
+Or install [from source](https://sourceforge.net/projects/sox/files/sox/).
 
 ## Basic Usage
 
@@ -73,11 +64,11 @@ class MyAwesomeScene(VoiceoverScene):
 
 ```py
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.interfaces import GTTSSpeechSynthesizer
+from manim_voiceover.interfaces import GTTSService
 
 class MyAwesomeScene(VoiceoverScene):
     def construct(self):
-        self.set_speech_synthesizer(GTTSSpeechSynthesizer())
+        self.set_speech_service(GTTSService())
 ```
 
 The logic for adding a voiceover is pretty simple. Wrap the animation inside a `with` block that calls `self.voiceover()`:

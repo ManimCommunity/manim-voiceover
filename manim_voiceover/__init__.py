@@ -9,7 +9,7 @@ import re
 
 from manim import Scene, config
 from manim_voiceover.modify_audio import get_duration
-from manim_voiceover.speech_synthesizer import SpeechSynthesizer
+from manim_voiceover.services.base import SpeechService
 from .helper import chunks
 
 from scipy.interpolate import interp1d
@@ -88,18 +88,18 @@ class VoiceoverTracker:
 
 class VoiceoverScene(Scene):
 
-    speech_synthesizer: SpeechSynthesizer
+    speech_service: SpeechService
     current_tracker: Optional[VoiceoverTracker]
     create_subcaption: bool
     create_script: bool
 
-    def set_speech_synthesizer(
+    def set_speech_service(
         self,
-        speech_synthesizer: SpeechSynthesizer,
+        speech_service: SpeechService,
         create_subcaption: bool = True,
         create_script: bool = True,
     ) -> None:
-        self.speech_synthesizer = speech_synthesizer
+        self.speech_service = speech_service
         self.current_tracker = None
         self.create_subcaption = create_subcaption
         self.create_script = create_script
@@ -110,12 +110,12 @@ class VoiceoverScene(Scene):
         self, text: str, subcaption_buff: float = 0.1,
         max_subcaption_len: int = 70, subcaption: Optional[str] = None, **kwargs,
     ) -> VoiceoverTracker:
-        if not hasattr(self, "speech_synthesizer"):
+        if not hasattr(self, "speech_service"):
             raise Exception(
                 "You need to call init_voiceover() before adding a voiceover."
             )
 
-        dict_ = self.speech_synthesizer.synthesize_from_text(text, **kwargs)
+        dict_ = self.speech_service.synthesize_from_text(text, **kwargs)
         tracker = VoiceoverTracker(self, dict_["json_path"])
         self.add_sound(dict_["final_audio"])
         self.current_tracker = tracker

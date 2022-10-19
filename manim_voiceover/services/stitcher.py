@@ -9,7 +9,7 @@ from typing import Tuple, Iterable
 from pydub.silence import detect_nonsilent
 import hashlib
 
-from ..speech_synthesizer import SpeechSynthesizer
+from manim_voiceover.services.base import SpeechService
 
 
 # Had to modify `split_on_silence` from pydub to allow for
@@ -83,7 +83,7 @@ def split_on_silence_modified(
     ]
 
 
-class RecordingMapper(SpeechSynthesizer):
+class StitcherService(SpeechService):
     def __init__(
         self,
         source_path: str,
@@ -101,7 +101,7 @@ class RecordingMapper(SpeechSynthesizer):
             "keep_silence": keep_silence,
         }
 
-        SpeechSynthesizer.__init__(self, **kwargs)
+        SpeechService.__init__(self, **kwargs)
         self.process_audio()
         self.current_segment_index = 0
 
@@ -153,7 +153,7 @@ class RecordingMapper(SpeechSynthesizer):
     def get_json_path(self) -> str:
         return os.path.splitext(self.params["source_path"])[0] + ".json"
 
-    def _synthesize_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
+    def generate_from_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
         config = json.load(open(self.get_json_path(), "r"))
         audio_path = config["segments"][self.current_segment_index]["path"]
         json_path = os.path.splitext(audio_path)[0] + ".json"

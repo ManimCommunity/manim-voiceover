@@ -3,18 +3,18 @@ import json
 import hashlib
 from dotenv import load_dotenv
 
-from ..speech_synthesizer import SpeechSynthesizer
+from manim_voiceover.services.base import SpeechService
 from pyttsx3 import Engine
 
 load_dotenv()
 
 
-class PyTTSX3SpeechSynthesizer(SpeechSynthesizer):
+class PyTTSX3Service(SpeechService):
     def __init__(self, engine: Engine, **kwargs):
         self.engine = engine
-        SpeechSynthesizer.__init__(self, **kwargs)
+        SpeechService.__init__(self, **kwargs)
 
-    def _synthesize_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
+    def generate_from_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
         if output_dir is None:
             output_dir = self.output_dir
 

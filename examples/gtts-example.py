@@ -1,11 +1,11 @@
 from manim import *
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.interfaces.gtts import GTTSSpeechSynthesizer
+from manim_voiceover.services.gtts import GTTSService
 
 
 class GTTSExample(VoiceoverScene):
     def construct(self):
-        self.set_speech_synthesizer(GTTSSpeechSynthesizer())
+        self.set_speech_service(GTTSService())
 
         circle = Circle()
         square = Square().shift(2 * RIGHT)
