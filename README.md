@@ -10,6 +10,10 @@
 - Develop an animation with an auto-generated AI voice without having to re-record and re-sync the audio.
 - Record a voiceover and have it stitched back onto the video instantly. (Note that this is not the same as AI voice cloning)
 
+Here is a demo:
+
+https://user-images.githubusercontent.com/2453968/198145393-6a1bd709-4441-4821-8541-45d5f5e25be7.mp4
+
 Currently supported TTS services:
 
 - [Azure Text to Speech](https://azure.microsoft.com/en-us/services/cognitive-services/text-to-speech/) (Recommended)
