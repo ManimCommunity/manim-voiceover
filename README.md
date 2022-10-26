@@ -21,7 +21,7 @@ Currently supported TTS services:
 Install from PyPI with the extras `azure` and `gtts`:
 
 ```sh
-pip install manim-voiceover manim-voiceover[azure] manim-voiceover[gtts]
+pip install manim-voiceover "manim-voiceover[azure]" "manim-voiceover[gtts]"
 ```
 
 Check whether your installation works correctly:
