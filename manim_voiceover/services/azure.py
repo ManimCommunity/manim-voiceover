@@ -9,6 +9,17 @@ from manim_voiceover.services.base import SpeechService
 load_dotenv()
 
 
+def serialize_word_boundary(wb):
+    return {
+        "audio_offset": wb["audio_offset"],
+        "duration_milliseconds": int(wb["duration_milliseconds"].microseconds / 1000),
+        "text_offset": wb["text_offset"],
+        "word_length": wb["word_length"],
+        "text": wb["text"],
+        "boundary_type": wb["boundary_type"],
+    }
+
+
 class AzureService(SpeechService):
     def __init__(
         self,
@@ -23,7 +34,9 @@ class AzureService(SpeechService):
         self.output_format = output_format
         SpeechService.__init__(self, **kwargs)
 
-    def generate_from_text(self, text: str, output_dir: str = None, path: str = None, **kwargs) -> dict:
+    def generate_from_text(
+        self, text: str, output_dir: str = None, path: str = None, **kwargs
+    ) -> dict:
         inner = text
         # Remove bookmarks
         inner = re.sub("<bookmark\s*mark\s*=['\"]\w*[\"']\s*/>", "", inner)
@@ -119,17 +132,17 @@ class AzureService(SpeechService):
             lambda evt: word_boundaries.append(process_event(evt))
         )
 
-        speech_synthesis_result = speech_service.speak_ssml(ssml)
+        speech_synthesis_result = speech_service.speak_ssml_async(ssml).get()
+
         json_dict = {
             "input_text": text,
             "ssml": ssml,
-            "word_boundaries": word_boundaries,
+            "word_boundaries": [serialize_word_boundary(wb) for wb in word_boundaries],
             "original_audio": audio_path,
             "json_path": json_path,
         }
 
         # open(json_path, "w").write(json.dumps(json_dict, indent=2))
-
         if (
             speech_synthesis_result.reason
             == speechsdk.ResultReason.SynthesizingAudioCompleted
