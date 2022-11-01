@@ -72,7 +72,7 @@ class MyAwesomeScene(VoiceoverScene):
 
 ```py
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.interfaces import GTTSService
+from manim_voiceover.services.gtts import GTTSService
 
 class MyAwesomeScene(VoiceoverScene):
     def construct(self):
