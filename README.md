@@ -72,7 +72,7 @@ class MyAwesomeScene(VoiceoverScene):
 
 ```py
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.interfaces import GTTSService
+from manim_voiceover.services.gtts import GTTSService
 
 class MyAwesomeScene(VoiceoverScene):
     def construct(self):
@@ -101,6 +101,12 @@ See the [examples directory](./examples) for more examples. We recommend startin
 
 The highest quality text-to-speech services available to the public is currently offered by Microsoft Azure. To use it, you need to create an Azure account.
 
+Install `manim-voiceover` with the `azure` extras in order to be able to use `AzureService`:
+
+```sh
+pip install manim-voiceover "manim-voiceover[azure]"
+```
+
 Then, you need to find out your subscription key and service region. Check out [Azure docs](https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/) for more details.
 
 Create a file called `.env` that contains your authentication information in the same directory where you call Manim.
@@ -109,3 +115,4 @@ Create a file called `.env` that contains your authentication information in the
 AZURE_SUBSCRIPTION_KEY="..."
 AZURE_SERVICE_REGION="..."
 ```
+
