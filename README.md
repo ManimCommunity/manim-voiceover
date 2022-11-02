@@ -93,6 +93,16 @@ with self.voiceover(text="This circle is drawn as I speak.") as tracker:
     self.play(Create(circle), run_time=tracker.duration)
 ```
 
+The `text` argument is automatically reused for video subcaptions. Alternatively, you can supply a custom subcaption:
+
+```py
+with self.voiceover(
+    text="This circle is drawn as I speak.", 
+    subcaption="What a cute circle! :)"
+) as tracker:
+    self.play(Create(circle))
+```
+
 Using with-blocks results in clean code, allows you to chain sentences back to back and also serve as a documentation of sorts, as the video is neatly compartmentalized according to whatever lines are spoken during the animations.
 
 See the [examples directory](./examples) for more examples. We recommend starting with the [gTTS example](https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/gtts-example.py).
