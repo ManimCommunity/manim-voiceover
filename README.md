@@ -93,9 +93,13 @@ with self.voiceover(text="This circle is drawn as I speak.") as tracker:
     self.play(Create(circle), run_time=tracker.duration)
 ```
 
-The `text` argument is automatically reused for video subcaptions. Alternatively, you can supply a custom subcaption: 
+The `text` argument is automatically reused for video subcaptions. Alternatively, you can supply a custom subcaption:
+
 ```py
-with self.voiceover(text="This circle is drawn as I speak.", subcaption="What a cute circle! :)") as tracker:
+with self.voiceover(
+    text="This circle is drawn as I speak.", 
+    subcaption="What a cute circle! :)"
+) as tracker:
     self.play(Create(circle))
 ```
 
