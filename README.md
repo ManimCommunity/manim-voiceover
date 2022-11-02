@@ -109,3 +109,7 @@ Create a file called `.env` that contains your authentication information in the
 AZURE_SUBSCRIPTION_KEY="..."
 AZURE_SERVICE_REGION="..."
 ```
+
+To connect to the server, you will need to install a library for Azure:
+
+`pip install azure-cognitiveservices-speech`
