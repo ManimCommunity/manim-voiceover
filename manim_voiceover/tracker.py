@@ -27,7 +27,15 @@ class TimeInterpolator:
 
 
 class VoiceoverTracker:
+    """Class to track the progress of a voiceover in a scene."""
+
     def __init__(self, scene: Scene, path: str):
+        """Initializes a VoiceoverTracker object.
+
+        Args:
+            scene (Scene): The scene to which the voiceover belongs.
+            path (str): The path to the JSON file containing the voiceover data.
+        """
         self.scene = scene
         self.path = path
         self.data = json.loads(open(path, "r").read())
@@ -65,6 +73,14 @@ class VoiceoverTracker:
             self.bookmark_times[mark] = self.start_t + elapsed
 
     def get_remaining_duration(self, buff: int = 0) -> int:
+        """Returns the remaining duration of the voiceover.
+
+        Args:
+            buff (int, optional): A buffer to add to the remaining duration. Defaults to 0.
+
+        Returns:
+            int: The remaining duration of the voiceover in seconds.
+        """
         # result= max(self.end_t - self.scene.last_t, 0)
         result = max(self.end_t - self.scene.renderer.time + buff, 0)
         # print(result)
@@ -73,6 +89,16 @@ class VoiceoverTracker:
     def time_until_bookmark(
         self, mark: str, buff: int = 0, limit: Optional[int] = None
     ) -> int:
+        """Returns the time until a bookmark.
+
+        Args:
+            mark (str): The `mark` attribute of the bookmark to count up to.
+            buff (int, optional): A buffer to add to the remaining duration, in seconds. Defaults to 0.
+            limit (Optional[int], optional): A maximum value to return. Defaults to None.
+
+        Returns:
+            int:
+        """
         if not mark in self.bookmark_times:
             raise Exception("There is no <bookmark mark='%s' />" % mark)
         result = max(self.bookmark_times[mark] - self.scene.renderer.time + buff, 0)

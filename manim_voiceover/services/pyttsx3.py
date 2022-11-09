@@ -4,8 +4,13 @@ import hashlib
 from dotenv import load_dotenv
 
 from manim_voiceover.services.base import SpeechService
-from pyttsx3 import Engine
 
+try:
+    from pyttsx3 import Engine
+except ImportError:
+    raise Exception(
+        'Missing packages. Run `pip install manim-voiceover "manim-voiceover[pyttsx3]"` to use Pyttsx3Service.'
+    )
 load_dotenv()
 
 
@@ -14,7 +19,9 @@ class PyTTSX3Service(SpeechService):
         self.engine = engine
         SpeechService.__init__(self, **kwargs)
 
-    def generate_from_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
+    def generate_from_text(
+        self, text: str, output_dir: str = None, path: str = None
+    ) -> dict:
         if output_dir is None:
             output_dir = self.output_dir
 

@@ -1,7 +1,13 @@
 import os
 import json
 import hashlib
-from gtts import gTTS, gTTSError
+
+try:
+    from gtts import gTTS, gTTSError
+except ImportError:
+    raise Exception(
+        'Missing packages. Run `pip install manim-voiceover "manim-voiceover[gtts]"` to use GoogleService.'
+    )
 
 from manim_voiceover.services.base import SpeechService
 
@@ -10,7 +16,9 @@ class GTTSService(SpeechService):
     def __init__(self, **kwargs):
         SpeechService.__init__(self, **kwargs)
 
-    def generate_from_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
+    def generate_from_text(
+        self, text: str, output_dir: str = None, path: str = None
+    ) -> dict:
         if output_dir is None:
             output_dir = self.output_dir
 

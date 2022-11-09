@@ -1,4 +1,6 @@
 # Copyright (c) 2022, Nour-eddine Rahmani
+# License: MIT (see LICENSE for details)
+# Rendered version: https://www.youtube.com/watch?v=Sflx0aoFrVg
 
 from manim import *
 from pathlib import Path

@@ -1,8 +1,14 @@
 import os
 import re
-import azure.cognitiveservices.speech as speechsdk
 import json
 from dotenv import load_dotenv
+
+try:
+    import azure.cognitiveservices.speech as speechsdk
+except ImportError:
+    raise Exception(
+        'Missing packages. Run `pip install manim-voiceover "manim-voiceover[azure]"` to use AzureService.'
+    )
 
 from manim_voiceover.services.base import SpeechService
 

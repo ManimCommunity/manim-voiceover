@@ -49,6 +49,27 @@ pyttsx3 = ["pyttsx3==^2.90"]
 
 [tool.poetry.group.dev.dependencies]
 Pygments = "^2.13.0"
+pytest-cov = "^3.0.0"
+pytest = "^6.0"
+pylint = "^2.12.2"
+Sphinx = "^5"
+sphinx-copybutton = "^0.4.0"
+sphinxext-opengraph = "^0.5.1"
+furo = "^2022.9.29"
+recommonmark = "^0.7.1"
+matplotlib = "^3.3.2"
+pre-commit = "^2.11.1"
+gitpython = "^3"
+pygithub = "^1"
+isort = "^5.8.0"
+pytest-xdist = "^2.2"
+mypy = "^0.931"
+types-requests = "^2.25.6"
+sphinxcontrib-programoutput = "^0.17"
+psutil-wheels = {version = "5.8.0", python = ">=3.10"}
+psutil = {version = "^5.8.0", python = "<3.10"}
+sphinxcontrib-video = "^0.0.1.dev3"
+
 
 [tool.poetry.plugins."manim.plugins"]
 "manim_voiceover" = "manim_voiceover"
