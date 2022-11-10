@@ -10,8 +10,7 @@ class SpeechService(ABC):
     """Abstract base class for a speech service.
     """
     def __init__(self, global_speed: float = 1.00, output_dir: str = "media/tts", **kwargs):
-        """Initializes a new SpeechService.
-
+        """
         Args:
             global_speed (float, optional): The speed at which to play the audio. Defaults to 1.00.
             output_dir (str, optional): The directory to save the audio files to. Defaults to "media/tts".

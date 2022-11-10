@@ -85,8 +85,8 @@ r_preamble = r"""
            [ Script=Default, Language=Default]{Libertinus Sans}
  \babelfont[arabic]{sf}
             [Language=Default]{noto naskh arabic}
+"""
 
-        """
 ar_tex = TexTemplate(
     preamble=r_preamble,
     tex_compiler="lualatex",

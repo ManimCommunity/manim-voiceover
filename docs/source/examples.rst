@@ -6,25 +6,23 @@ This gallery contains a collection of best practice code snippets
 together with their corresponding video/image output, illustrating
 different functionalities all across the library.
 These are all under the MIT license, so feel free to copy & paste them to your projects.
-Enjoy this taste of Manim!
 
-.. tip::
+See the `examples directory <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples>`__ for a complete list.
 
-   This gallery is not the only place in our documentation where you can see explicit
-   code and video examples: there are many more in our
-   :doc:`reference manual </reference>` -- see, for example, our documentation for
-   the modules :mod:`~.tex_mobject`, :mod:`~.geometry`, :mod:`~.moving_camera_scene`,
-   and many more.
+Demo video
+----------
 
-   Check out our `interactive Jupyter environment <https://mybinder.org/v2/gh/ManimCommunity/jupyter_examples/HEAD?filepath=basic_example_scenes.ipynb>`_
-   which allows running the examples online, without requiring a local
-   installation.
+.. video:: https://user-images.githubusercontent.com/2453968/198145393-6a1bd709-4441-4821-8541-45d5f5e25be7.mp4
+   :width: 100%
 
-   Also, visit our `Twitter <https://twitter.com/manim_community/>`_ for more
-   *manimations*!
+`Source <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/voiceover-demo.py>`__
 
+Quadratic formula in Arabic
+---------------------------
 
+The following video was created by Nour-eddine Rahmani and generously shared with the community.
 
-Basic Concepts
-==============
+.. video:: https://user-images.githubusercontent.com/2453968/201092084-b8911337-13d0-4adc-994b-04037ee6f051.mp4
+   :width: 100%
 
+`Source <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/quadratic-formula-arabic.py>`__

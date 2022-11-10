@@ -15,13 +15,16 @@ load_dotenv()
 
 
 class PyTTSX3Service(SpeechService):
+    """Speech service class for pyttsx3."""
     def __init__(self, engine: Engine, **kwargs):
+        ""
         self.engine = engine
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
         self, text: str, output_dir: str = None, path: str = None
     ) -> dict:
+        ""
         if output_dir is None:
             output_dir = self.output_dir
 

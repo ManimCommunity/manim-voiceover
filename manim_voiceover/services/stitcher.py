@@ -84,6 +84,7 @@ def split_on_silence_modified(
 
 
 class StitcherService(SpeechService):
+    """Speech service for stitching audio recordings back onto a Manim scene"""
     def __init__(
         self,
         source_path: str,
