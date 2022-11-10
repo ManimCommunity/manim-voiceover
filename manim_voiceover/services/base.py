@@ -7,20 +7,22 @@ from manim_voiceover.modify_audio import adjust_speed
 
 
 class SpeechService(ABC):
-    def __init__(self, global_speed: float = None, output_dir: str = None):
-        # self.tts_config = tts_config
-        if output_dir is None:
-            output_dir = "media/tts"
-        if global_speed is None:
-            global_speed = 1.00
-
+    """Abstract base class for a speech service.
+    """
+    def __init__(self, global_speed: float = 1.00, output_dir: str = "media/tts", **kwargs):
+        """
+        Args:
+            global_speed (float, optional): The speed at which to play the audio. Defaults to 1.00.
+            output_dir (str, optional): The directory to save the audio files to. Defaults to "media/tts".
+        """
+        # TODO: Get output_dir from Manim config
         self.global_speed = global_speed
         self.output_dir = output_dir
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-    def synthesize_from_text(self, text: str, path: str = None, **kwargs) -> dict:
+    def _wrap_generate_from_text(self, text: str, path: str = None, **kwargs) -> dict:
         # Replace newlines with lines, reduce multiple consecutive spaces to single
         text = " ".join(text.split())
 
@@ -51,4 +53,14 @@ class SpeechService(ABC):
 
     @abstractmethod
     def generate_from_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
+        """Implement this method for each speech service. Refer to `AzureService` for an example.
+
+        Args:
+            text (str): The text to synthesize speech from.
+            output_dir (str, optional): The output directory to save the audio file and data to. Defaults to None.
+            path (str, optional): The path to save the audio file to. Defaults to None.
+
+        Returns:
+            dict: Output data dictionary. TODO: Define the format.
+        """
         raise NotImplementedError

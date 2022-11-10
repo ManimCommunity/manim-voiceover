@@ -1,8 +1,14 @@
 import os
 import re
-import azure.cognitiveservices.speech as speechsdk
 import json
 from dotenv import load_dotenv
+
+try:
+    import azure.cognitiveservices.speech as speechsdk
+except ImportError:
+    raise Exception(
+        'Missing packages. Run `pip install manim-voiceover "manim-voiceover[azure]"` to use AzureService.'
+    )
 
 from manim_voiceover.services.base import SpeechService
 
@@ -21,29 +27,45 @@ def serialize_word_boundary(wb):
 
 
 class AzureService(SpeechService):
+    """Speech service for Azure TTS API."""
     def __init__(
         self,
         voice: str = "en-US-AriaNeural",
         # style="newscast-casual",
         style: str = None,
         output_format: str = "Audio48Khz192KBitRateMonoMp3",
+        prosody: dict = None,
         **kwargs,
     ):
+        """
+        Args:
+            voice (str, optional): The voice to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support?tabs=stt-tts>`__ for all the available options. Defaults to "en-US-AriaNeural".
+            style (str, optional): The style to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/rest-text-to-speech?tabs=streaming#style>`__ to see how you can see available styles for a given voice. Defaults to None.
+            output_format (str, optional): The output format to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/rest-text-to-speech?tabs=streaming#audio-outputs>`__ for all the available options. Defaults to "Audio48Khz192KBitRateMonoMp3".
+            prosody (dict, optional): Global prosody settings to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup#adjust-prosody>`__ for all the available options. Defaults to None.
+        """
         self.voice = voice
         self.style = style
         self.output_format = output_format
+        self.prosody = prosody
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
         self, text: str, output_dir: str = None, path: str = None, **kwargs
     ) -> dict:
+        ""
         inner = text
         # Remove bookmarks
         inner = re.sub("<bookmark\s*mark\s*=['\"]\w*[\"']\s*/>", "", inner)
         if output_dir is None:
             output_dir = self.output_dir
 
+        # Apply prosody
+        prosody = self.prosody
         if "prosody" in kwargs:
+            prosody = kwargs["prosody"]
+
+        if prosody is not None:
             prosody = kwargs["prosody"]
             if not isinstance(prosody, dict):
                 raise ValueError(
