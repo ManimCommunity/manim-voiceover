@@ -58,8 +58,19 @@ gives you finer control over the scene:
    with self.voiceover(text="This circle is drawn as I speak.") as tracker:
        self.play(Create(circle), run_time=tracker.duration)
 
-Using with-blocks allows you to chain sentences back to back and
-results in code that is easier to read, since voiceover calls are practically comments.
+.. tip::
+    Using with-blocks allows you to chain sentences back to back and results in code that is easier to read, since voiceover calls are practically comments.
+
+
+The ``text`` argument is automatically reused for video subcaptions. Alternatively, you can supply a custom subcaption:
+
+.. code:: py
+
+   with self.voiceover(
+       text="This circle is drawn as I speak.",
+       subcaption="What a cute circle! :)"
+   ) as tracker:
+       self.play(Create(circle))
 
 See the `examples directory <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples>`__
 for more examples. We recommend starting with the `gTTS

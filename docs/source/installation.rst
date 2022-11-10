@@ -37,11 +37,11 @@ Install SoX on Mac with Homebrew:
 
    brew install sox
 
-Install SoX on Debian based distros:
+Install SoX (and a necessary mp3 handler) on Debian based distros:
 
 .. code:: sh
 
-   sudo apt-get install sox
+   sudo apt-get install sox libsox-fmt-all
 
 Or install `from
 source <https://sourceforge.net/projects/sox/files/sox/>`__.
