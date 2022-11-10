@@ -1,8 +1,13 @@
 # Manim Voiceover
 
-![Github Actions Status](https://github.com/ManimCommunity/manim-voiceover/workflows/Build/badge.svg)
-[![License](https://img.shields.io/github/license/ManimCommunity/manim-voiceover.svg?color=blue)](https://github.com/ManimCommunity/manim-voiceover/blob/main/LICENSE)
-[![](https://dcbadge.vercel.app/api/server/qY23bthHTY?style=flat)](https://manim.community/discord)
+<p>
+    <a href="https://github.com/ManimCommunity/manim-voiceover/workflows/Build/badge.svg"><img src="https://github.com/ManimCommunity/manim-voiceover/workflows/Build/badge.svg" alt="Github Actions Status"></a>
+    <a href="https://pypi.org/project/manim_voiceover/"><img src="https://img.shields.io/pypi/v/manim_voiceover.svg?style=flat&logo=pypi" alt="PyPI Latest Release"></a>
+    <a href="https://pepy.tech/project/manim_voiceover"><img src="https://pepy.tech/badge/manim_voiceover/month?" alt="Downloads"> </a>
+    <a href="https://manim_voiceover.readthedocs.io/en/latest/?badge=latest"><img src="https://readthedocs.org/projects/manim_voiceover/badge/?version=latest" alt="Documentation Status"></a>
+    <a href="https://github.com/ManimCommunity/manim-voiceover/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ManimCommunity/manim-voiceover.svg?color=blue" alt="License"></a>
+    <a href="https://manim.community/discord"><img src="https://dcbadge.vercel.app/api/server/qY23bthHTY?style=flat" alt="Discord"></a>
+</p>
 
 Manim Voiceover is a [Manim](https://manim.community) plugin for all things voiceover:
 
