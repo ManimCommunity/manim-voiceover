@@ -20,9 +20,11 @@ Currently supported TTS services:
 - [gTTS](https://github.com/pndurette/gTTS/)
 - [pyttsx3](https://github.com/nateshmbhat/pyttsx3)
 
+[Check out the documentation for more details.](https://voiceover.manim.community/)
+
 ## Installation
 
-[Check out the docs for installing Manim Voiceover.](https://voiceover.manim.community/en/latest/installation.html)
+[Installation instruction in Manim Voiceover docs.](https://voiceover.manim.community/en/latest/installation.html)
 
 ## Get started
 
