@@ -35,17 +35,23 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.11"
+python = ">=3.8,<3.11"
 manim = "^0.16.0.post0"
 sox = "^1.4.1"
 python-dotenv = "^0.21.0"
 mutagen = "^1.46.0"
 pydub = "^0.25.1"
+azure-cognitiveservices-speech = { version = "^1.24.0", optional = true }
+gTTS = { version = "^2.2.4", optional = true }
+pyttsx3 = { version = "^2.90", optional = true }
+torch = { version = "*", optional = true }
+TTS = { version = "*", optional = true }
 
 [tool.poetry.extras]
-azure = ["azure-cognitiveservices-speech==^1.24.0"]
-gtts = ["gTTS==^2.2.4"]
-pyttsx3 = ["pyttsx3==^2.90"]
+azure = ["azure-cognitiveservices-speech"]
+gtts = ["gTTS"]
+pyttsx3 = ["pyttsx3"]
+coqui = ["torch", "TTS"]
 
 [tool.poetry.group.dev.dependencies]
 Pygments = "^2.13.0"
@@ -66,8 +72,8 @@ pytest-xdist = "^2.2"
 mypy = "^0.931"
 types-requests = "^2.25.6"
 sphinxcontrib-programoutput = "^0.17"
-psutil-wheels = {version = "5.8.0", python = ">=3.10"}
-psutil = {version = "^5.8.0", python = "<3.10"}
+psutil-wheels = { version = "5.8.0", python = ">=3.10" }
+psutil = { version = "^5.8.0", python = "<3.10" }
 sphinxcontrib-video = "^0.0.1.dev3"
 
 

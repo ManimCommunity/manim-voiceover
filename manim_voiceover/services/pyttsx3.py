@@ -9,7 +9,7 @@ try:
     from pyttsx3 import Engine
 except ImportError:
     raise Exception(
-        'Missing packages. Run `pip install manim-voiceover "manim-voiceover[pyttsx3]"` to use Pyttsx3Service.'
+        'Missing packages. Run `pip install "manim-voiceover[pyttsx3]"` to use Pyttsx3Service.'
     )
 load_dotenv()
 
