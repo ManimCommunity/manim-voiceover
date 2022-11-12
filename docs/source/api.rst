@@ -22,9 +22,12 @@ Speech services
 
 .. automodule:: manim_voiceover.services.azure
    :members:
+   :show-inheritance:
 
 .. automodule:: manim_voiceover.services.gtts
    :members:
+   :show-inheritance:
 
 .. automodule:: manim_voiceover.services.pyttsx3
    :members:
+   :show-inheritance:
