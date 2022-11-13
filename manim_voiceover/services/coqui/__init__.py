@@ -3,14 +3,8 @@ import json
 from dotenv import load_dotenv
 import hashlib
 
-try:
-    from manim_voiceover.services.coqui.synthesize import synthesize
-except ImportError:
-    raise Exception(
-        'Missing packages. Run `pip install "manim-voiceover[coqui]"` to use CoquiService.'
-    )
-
 from manim_voiceover.services.base import SpeechService
+from manim_voiceover.services.coqui.synthesize import synthesize
 
 load_dotenv()
 
@@ -21,6 +15,7 @@ class CoquiService(SpeechService):
         self,
         **kwargs,
     ):
+        ""
         self.init_kwargs = kwargs
         SpeechService.__init__(self, **kwargs)
 

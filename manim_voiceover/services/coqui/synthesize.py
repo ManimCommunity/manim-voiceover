@@ -7,7 +7,7 @@ try:
     from TTS.utils.manage import ModelManager
     from TTS.utils.synthesizer import Synthesizer
 except ImportError:
-    raise Exception(
+    print(
         'Missing packages. Run `pip install "manim-voiceover[coqui]"` to use CoquiService.'
     )
 

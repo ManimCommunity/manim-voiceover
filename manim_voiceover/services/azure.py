@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 try:
     import azure.cognitiveservices.speech as speechsdk
 except ImportError:
-    raise Exception(
+    print(
         'Missing packages. Run `pip install "manim-voiceover[azure]"` to use AzureService.'
     )
 

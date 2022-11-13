@@ -22,6 +22,7 @@ A demo:
 
    installation
    quickstart
+   services
    examples
    .. changelog
    api

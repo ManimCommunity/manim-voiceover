@@ -1,11 +1,11 @@
 from manim import *
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.services.coqui import CoquiService
+from manim_voiceover.services.pyttsx3 import PyTTSX3Service
 
 
-class CoquiExample(VoiceoverScene):
+class GTTSExample(VoiceoverScene):
     def construct(self):
-        self.set_speech_service(CoquiService())
+        self.set_speech_service(PyTTSX3Service())
 
         circle = Circle()
         square = Square().shift(2 * RIGHT)

@@ -5,7 +5,7 @@ import hashlib
 try:
     from gtts import gTTS, gTTSError
 except ImportError:
-    raise Exception(
+    print(
         'Missing packages. Run `pip install "manim-voiceover[gtts]"` to use GoogleService.'
     )
 

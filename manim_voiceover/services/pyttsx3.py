@@ -8,7 +8,7 @@ from manim_voiceover.services.base import SpeechService
 try:
     from pyttsx3 import Engine
 except ImportError:
-    raise Exception(
+    print(
         'Missing packages. Run `pip install "manim-voiceover[pyttsx3]"` to use Pyttsx3Service.'
     )
 load_dotenv()
@@ -16,8 +16,11 @@ load_dotenv()
 
 class PyTTSX3Service(SpeechService):
     """Speech service class for pyttsx3."""
-    def __init__(self, engine: Engine, **kwargs):
+    def __init__(self, engine=None, **kwargs):
         ""
+        if engine is None:
+            engine = Engine()
+
         self.engine = engine
         SpeechService.__init__(self, **kwargs)
 
