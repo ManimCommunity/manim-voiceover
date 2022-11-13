@@ -5,7 +5,7 @@ Install Manim Voiceover from PyPI with the extras ``azure`` and ``gtts``:
 
 .. code:: sh
 
-   pip install manim-voiceover "manim-voiceover[azure]" "manim-voiceover[gtts]"
+   pip install "manim-voiceover[azure,gtts]"
 
 Check whether your installation works correctly:
 

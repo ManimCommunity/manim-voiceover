@@ -29,9 +29,14 @@ Currently supported TTS services:
 
 ## Installation
 
-[Installation instruction in Manim Voiceover docs.](https://voiceover.manim.community/en/latest/installation.html)
+[Installation instructions in Manim Voiceover docs.](https://voiceover.manim.community/en/latest/installation.html)
 
 ## Get started
 
-[Check out the docs for getting started with Manim Voiceover.](https://voiceover.manim.community/en/latest/quickstart.html)
+[Check out the docs to get started with Manim Voiceover.](https://voiceover.manim.community/en/latest/quickstart.html)
+
+## Examples
+
+[Check out the example gallery to get inspired.](https://voiceover.manim.community/en/latest/examples.html)
+
 

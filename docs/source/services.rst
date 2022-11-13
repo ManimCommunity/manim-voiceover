@@ -10,7 +10,7 @@ Choosing a speech service
 .. py:currentmodule:: manim_voiceover.services
 
 
-Manim Voiceover defines the :py:class:`~~base.SpeechService` class for extending its functionality to include various text-to-speech engines.
+Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding new speech synthesizers. The classes introduced below are all derived from :py:class:`~~base.SpeechService`.
 
 .. list-table:: Comparison of available speech services
    :widths: 20 20 10 10 40
@@ -58,7 +58,7 @@ Install Manim Voiceover with the ``azure`` extra in order to use :py:class:`~azu
 
 .. code:: sh
 
-   pip install manim-voiceover "manim-voiceover[azure]"
+   pip install "manim-voiceover[azure]"
 
 Then, you need to find out your subscription key and service region:
 
@@ -87,7 +87,7 @@ Install Manim Voiceover with the ``coqui`` extra in order to use :py:class:`~coq
 
 .. code:: sh
 
-   pip install manim-voiceover "manim-voiceover[coqui]"
+   pip install "manim-voiceover[coqui]"
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/coqui-example.py>`__ to get started.
 
@@ -98,7 +98,7 @@ Install Manim Voiceover with the ``gtts`` extra in order to use :py:class:`~gtts
 
 .. code:: sh
 
-   pip install manim-voiceover "manim-voiceover[gtts]"
+   pip install "manim-voiceover[gtts]"
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/gtts-example.py>`__ to get started.
 
@@ -109,6 +109,6 @@ Install Manim Voiceover with the ``pyttsx3`` extra in order to use :py:class:`~p
 
 .. code:: sh
 
-   pip install manim-voiceover "manim-voiceover[pyttsx3]"
+   pip install "manim-voiceover[pyttsx3]"
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/pyttsx3-example.py>`__ to get started.
