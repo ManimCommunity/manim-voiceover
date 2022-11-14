@@ -1,16 +1,11 @@
 from manim import *
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.services.azure import AzureService
+from manim_voiceover.services.coqui import CoquiService
 
 
 class BookmarkExample(VoiceoverScene):
     def construct(self):
-        self.set_speech_service(
-            AzureService(
-                voice="en-US-AriaNeural",
-                style="newscast-casual",
-            )
-        )
+        self.set_speech_service(CoquiService())
 
         banner = ManimBanner().scale(0.25)
         manim_voiceover_title = Tex(r"\texttt{manim-voiceover}", font_size=64)
@@ -54,7 +49,7 @@ class BookmarkExample(VoiceoverScene):
         xml_tag_box = SurroundingRectangle(xml_tag, color=MAROON)
 
         with self.voiceover(
-            text="You simply add an<bookmark mark='A'/>XML tag to where you want to trigger the animation."
+            text="You simply add an <bookmark mark='A'/>XML tag to where you want to trigger the animation."
         ) as tracker:
             self.play(Write(sentence), run_time=tracker.time_until_bookmark("A"))
             self.play(xml_tag.animate.set_color(MAROON), Create(xml_tag_box))
@@ -69,7 +64,7 @@ class BookmarkExample(VoiceoverScene):
 
         path_arc = Arc(radius=2, angle=TAU / 2, arc_center=dog.get_center()).flip()
         with self.voiceover(
-            text="Let's see it in action. The quick brown fox<bookmark mark='A'/>jumps <bookmark mark='B'/>over the lazy dog."
+            text="Let's see it in action. The quick brown fox <bookmark mark='A'/>jumps <bookmark mark='B'/>over the lazy dog."
         ) as tracker:
             self.play(FadeIn(fox, dog))
             self.wait_until_bookmark("A")
@@ -127,11 +122,4 @@ class BookmarkExample(VoiceoverScene):
             self.safe_wait(tracker.get_remaining_duration() - 1)
             self.play(FadeOut(s32s_text))
 
-        with self.voiceover(
-            text="You can check out this example in the GitHub repo shown on your screen."
-        ):
-            self.play(
-                FadeIn(Tex(r"\texttt{https://github.com/ManimCommunity/manim-voiceover}"))
-            )
-
-        self.wait(3)
+        self.wait(1)

@@ -5,7 +5,7 @@ from pydub import AudioSegment
 try:
     import TTS
     from TTS.utils.manage import ModelManager
-    from TTS.utils.synthesizer import Synthesizer
+    from .synthesizer import Synthesizer
 except ImportError:
     print(
         'Missing packages. Run `pip install "manim-voiceover[coqui]"` to use CoquiService.'
@@ -72,7 +72,7 @@ def synthesize(
 
     # RUN THE SYNTHESIS
     print(" > Text: {}".format(text))
-    wav = synthesizer.tts(
+    wav, word_boundaries = synthesizer.tts(
         text,
         speaker_idx,
         language_idx,
@@ -94,4 +94,4 @@ def synthesize(
 
     # Remove the .wav file
     os.remove(wav_path)
-    return
+    return wav_path, word_boundaries

@@ -23,7 +23,11 @@ class TimeInterpolator:
         self.f = interp1d(self.x, self.y)
 
     def interpolate(self, distance: int) -> np.ndarray:
-        return self.f(distance)
+        try:
+            return self.f(distance)
+        except:
+            import ipdb; ipdb.set_trace()
+            return self.y[-1]
 
 
 class VoiceoverTracker:

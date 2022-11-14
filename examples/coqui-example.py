@@ -19,6 +19,9 @@ class CoquiExample(VoiceoverScene):
         with self.voiceover(text="Now, let's transform it into a square.") as tracker:
             self.play(Transform(circle, square), run_time=tracker.duration)
 
+        with self.voiceover(text="This is a very very very very very very very very very very very very very very very very very long sentence."):
+            pass
+
         with self.voiceover(text="Thank you for watching."):
             self.play(Uncreate(circle))
 
