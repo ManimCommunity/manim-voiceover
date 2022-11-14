@@ -6,13 +6,16 @@ import re
 
 from manim_voiceover.helper import remove_bookmarks
 from manim_voiceover.services.base import SpeechService
-from manim_voiceover.services.coqui.synthesize import synthesize_coqui
+from manim_voiceover.services.coqui.synthesize import synthesize_coqui, DEFAULT_MODEL
 
 load_dotenv()
 
 
 class CoquiService(SpeechService):
-    """Speech service for Coqui TTS. See :func:`~manim_voiceover.services.coqui.synthesize.synthesize_coqui` for more details."""
+    """Speech service for Coqui TTS.
+    Default model: ``tts_models/en/ljspeech/tacotron2-DDC``.
+    See :func:`~manim_voiceover.services.coqui.synthesize.synthesize_coqui`
+    for more initialization options, e.g. setting different models."""
     def __init__(
         self,
         **kwargs,

@@ -12,9 +12,7 @@ except ImportError:
     )
 
 DEFAULT_MODEL = "tts_models/en/ljspeech/tacotron2-DDC"
-# DEFAULT_MODEL = "tts_models/en/ljspeech/tacotron2-DCA"
-# DEFAULT_MODEL = "tts_models/en/ljspeech/glow-tts"
-# DEFAULT_MODEL = "tts_models/en/ljspeech/vits"
+
 
 def synthesize_coqui(
     text,
