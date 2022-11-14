@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "manim-voiceover"
-version = "0.1.2"
+version = "0.1.3"
 description = "Manim plugin for all things voiceover"
 authors = ["The Manim Community Developers <contact@manim.community>"]
 license = "MIT"
