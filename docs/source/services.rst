@@ -94,10 +94,15 @@ Install Manim Voiceover with the ``coqui`` extra in order to use :py:class:`~coq
 
    pip install "manim-voiceover[coqui]"
 
+If you run into issues with PyTorch or NumPy, try changing your Python version to 3.9.
+
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/coqui-example.py>`__ to get started.
 
 :py:class:`~gtts.GTTSService`
 *****************************
+
+`gTTS <https://gtts.readthedocs.io/>`__ is a text-to-speech
+library that wraps Google Translate's text-to-speech API. It needs an internet connection to work.
 
 Install Manim Voiceover with the ``gtts`` extra in order to use :py:class:`~gtts.GTTSService`:
 
@@ -109,6 +114,9 @@ Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/b
 
 :py:class:`~pyttsx3.PyTTSX3Service`
 ***********************************
+
+`pyttsx3 <https://pyttsx3.readthedocs.io/>`__ is a text-to-speech
+library that wraps `espeak <https://espeak.sourceforge.net/>`__, a formant synthesis speech synthesizer.
 
 Install Manim Voiceover with the ``pyttsx3`` extra in order to use :py:class:`~pyttsx3.PyTTSX3Service`:
 
