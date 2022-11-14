@@ -1,39 +1,30 @@
 from manim import *
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.services.azure import AzureService
+
+from manim_voiceover.services.coqui import CoquiService
+# from manim_voiceover.services.azure import AzureService
 
 
 class BookmarkExample(VoiceoverScene):
     def construct(self):
-        self.set_speech_service(
-            AzureService(
-                voice="en-US-AriaNeural",
-                style="newscast-casual",
-            )
-        )
-
-        banner = ManimBanner().scale(0.25)
-        manim_voiceover_title = Tex(r"\texttt{manim-voiceover}", font_size=64)
-
-        VGroup(banner, manim_voiceover_title).arrange(buff=0.5).align_on_border(
-            UP, buff=1
-        )
+        self.set_speech_service(CoquiService())
+        # self.set_speech_service(
+        #     AzureService(
+        #         voice="en-US-AriaNeural",
+        #         style="newscast-casual",
+        #     )
+        # )
 
         blist = BulletedList(
             "Trigger animations", "At any word", "Bookmarks", font_size=64
-        ).shift(0.5 * DOWN)
+        )
 
         with self.voiceover(
             text="""Manim-Voiceover allows you to <bookmark mark='A'/>trigger
             animations <bookmark mark='B'/>at any word in the middle of a sentence by
             adding simple <bookmark mark='C'/>bookmarks to your text."""
         ) as tracker:
-            self.play(
-                FadeIn(banner),
-                Write(manim_voiceover_title),
-                Write(Underline(manim_voiceover_title)),
-                run_time=tracker.time_until_bookmark("A"),
-            )
+            self.wait_until_bookmark("A")
 
             self.play(
                 Write(blist[0]), run_time=tracker.time_until_bookmark("B", limit=1)
@@ -48,13 +39,13 @@ class BookmarkExample(VoiceoverScene):
         self.play(FadeOut(blist))
 
         sentence = Tex(
-            r"\texttt{''The quick brown fox <bookmark mark=\textquotesingle A\textquotesingle/>jumps\\over the lazy dog.``}"
+            r"\texttt{``The quick brown fox <bookmark mark=\textquotesingle A\textquotesingle/>jumps\\over the lazy dog.''}"
         )
-        xml_tag = sentence[0][17:36]
+        xml_tag = sentence[0][18:37]
         xml_tag_box = SurroundingRectangle(xml_tag, color=MAROON)
 
         with self.voiceover(
-            text="You simply add an<bookmark mark='A'/>XML tag to where you want to trigger the animation."
+            text="You simply add an <bookmark mark='A'/>XML tag to where you want to trigger the animation."
         ) as tracker:
             self.play(Write(sentence), run_time=tracker.time_until_bookmark("A"))
             self.play(xml_tag.animate.set_color(MAROON), Create(xml_tag_box))
@@ -69,7 +60,7 @@ class BookmarkExample(VoiceoverScene):
 
         path_arc = Arc(radius=2, angle=TAU / 2, arc_center=dog.get_center()).flip()
         with self.voiceover(
-            text="Let's see it in action. The quick brown fox<bookmark mark='A'/>jumps <bookmark mark='B'/>over the lazy dog."
+            text="Let's see it in action. The quick brown fox <bookmark mark='A'/>jumps <bookmark mark='B'/>over the lazy dog."
         ) as tracker:
             self.play(FadeIn(fox, dog))
             self.wait_until_bookmark("A")
@@ -122,16 +113,9 @@ class BookmarkExample(VoiceoverScene):
 
         with self.voiceover(
             text="""To sync animations with syllables, we do linear interpolation,
-            as the output from the TTS engine is not that fine yet."""
+            as the output from the text-to-speech engine is not that fine yet."""
         ) as tracker:
             self.safe_wait(tracker.get_remaining_duration() - 1)
             self.play(FadeOut(s32s_text))
 
-        with self.voiceover(
-            text="You can check out this example in the GitHub repo shown on your screen."
-        ):
-            self.play(
-                FadeIn(Tex(r"\texttt{https://github.com/ManimCommunity/manim-voiceover}"))
-            )
-
-        self.wait(3)
+        self.wait()

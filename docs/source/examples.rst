@@ -17,8 +17,8 @@ Demo video
 
 - `Source <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/voiceover-demo.py>`__
 
-Approximating Tau
------------------
+Approximating :math:`\tau`
+--------------------------
 
 The following video was created by `NutronStar45 <https://www.youtube.com/channel/UCLQh9Un0UDVF4l8wU8roMtg/>`__ and shared generously with the Manim community.
 It is a great example that shows how to use the bookmark feature.

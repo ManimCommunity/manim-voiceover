@@ -24,6 +24,10 @@ Speech services
    :members:
    :show-inheritance:
 
+.. automodule:: manim_voiceover.services.coqui
+   :members:
+   :show-inheritance:
+
 .. automodule:: manim_voiceover.services.gtts
    :members:
    :show-inheritance:
