@@ -6,13 +6,13 @@ import re
 
 from manim_voiceover.helper import remove_bookmarks
 from manim_voiceover.services.base import SpeechService
-from manim_voiceover.services.coqui.synthesize import synthesize
+from manim_voiceover.services.coqui.synthesize import synthesize_coqui
 
 load_dotenv()
 
 
 class CoquiService(SpeechService):
-    """Speech service for Coqui TTS."""
+    """Speech service for Coqui TTS. See :func:`~manim_voiceover.services.coqui.synthesize.synthesize_coqui` for more details."""
     def __init__(
         self,
         **kwargs,
@@ -22,7 +22,7 @@ class CoquiService(SpeechService):
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
-        self, text: str, output_dir: str = None, path: str = None
+        self, text: str, output_dir: str = None, path: str = None, **kwargs
     ) -> dict:
         ""
         if output_dir is None:
@@ -46,7 +46,10 @@ class CoquiService(SpeechService):
             audio_path = path
             json_path = os.path.splitext(path)[0] + ".json"
 
-        _, word_boundaries = synthesize(input_text, audio_path)
+        if not kwargs:
+            kwargs = self.init_kwargs
+
+        _, word_boundaries = synthesize_coqui(input_text, audio_path, **kwargs)
 
         json_dict = {
             "input_text": text,

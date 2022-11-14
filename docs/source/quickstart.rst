@@ -88,3 +88,15 @@ See :doc:`examples` and the `examples directory <https://github.com/ManimCommuni
 for more examples. We recommend starting with the `gTTS
 example <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/gtts-example.py>`__.
 
+Bookmarks
+*********
+
+One of the most important features of Manim Voiceover is bookmarks.
+Bookmarks allow you to trigger an animation at a specific word in the voiceover.
+
+.. video:: https://user-images.githubusercontent.com/2453968/201714175-ea5e7e46-9b33-40de-a4c1-ecc7bf55e42b.mp4
+   :width: 100%
+
+With bookmarks, you can time your animations much more precisely. See the `bookmark example <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/bookmark-example.py>`__ and `Approximating Tau <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/approximating-tau.py>`__ for more examples.
+
+

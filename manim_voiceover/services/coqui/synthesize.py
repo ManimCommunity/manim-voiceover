@@ -5,17 +5,21 @@ from pydub import AudioSegment
 try:
     import TTS
     from TTS.utils.manage import ModelManager
-    from .synthesizer import Synthesizer
+    from .utils_synthesizer import Synthesizer
 except ImportError:
     print(
         'Missing packages. Run `pip install "manim-voiceover[coqui]"` to use CoquiService.'
     )
 
+DEFAULT_MODEL = "tts_models/en/ljspeech/tacotron2-DDC"
+# DEFAULT_MODEL = "tts_models/en/ljspeech/tacotron2-DCA"
+# DEFAULT_MODEL = "tts_models/en/ljspeech/glow-tts"
+# DEFAULT_MODEL = "tts_models/en/ljspeech/vits"
 
-def synthesize(
+def synthesize_coqui(
     text,
     output_path,
-    model_name="tts_models/en/ljspeech/tacotron2-DDC",
+    model_name=DEFAULT_MODEL,
     vocoder_name=None,
     model_path=None,
     config_path=None,

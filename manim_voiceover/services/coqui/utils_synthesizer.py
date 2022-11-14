@@ -10,12 +10,15 @@ from TTS.tts.models import setup_model as setup_tts_model
 
 # pylint: disable=unused-wildcard-import
 # pylint: disable=wildcard-import
-from .synthesis import synthesis, transfer_voice, trim_silence
+# from .tts_utils_synthesis import synthesis, transfer_voice, trim_silence
+from TTS.tts.utils.synthesis import synthesis, transfer_voice, trim_silence
 from TTS.utils.audio import AudioProcessor
 from TTS.vocoder.models import setup_model as setup_vocoder_model
 from TTS.vocoder.utils.generic_utils import interpolate_vocoder_input
 
+from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
 
+# Forking the same class from Coqui for now
 class Synthesizer(object):
     def __init__(
         self,
@@ -344,7 +347,7 @@ class Synthesizer(object):
                 wavs += [0] * 10000
                 word_boundaries_list.append(
                     self.compute_word_boundaries(
-                        outputs["text_inputs"][0].tolist(), wavs, outputs["alignments"]
+                        outputs["text_inputs"][0].tolist(), outputs["alignments"]
                     )
                 )
 
@@ -453,14 +456,10 @@ class Synthesizer(object):
 
         return wavs, word_boundaries
 
-    def compute_word_boundaries(self, token_idx, wavs, alignments):
+    def compute_word_boundaries(self, token_idx, alignments):
         ret = []
         if alignments.dim() == 3:
             alignments = alignments[0]
-
-        # import matplotlib.pyplot as plt
-        # plt.imshow(alignments)
-        # plt.show()
 
         # To calculate elapsed seconds from the beginning of the audio:
         # seconds = # frames * hop_length / sample_rate
@@ -471,9 +470,10 @@ class Synthesizer(object):
         text_offset = 0
         for idx, token in zip(max_idx, token_idx):
             audio_offset = int(
-                10000000
+                AUDIO_OFFSET_RESOLUTION
                 * idx.item()
-                * self.vocoder_ap.hop_length
+                # * self.vocoder_ap.hop_length
+                * self.tts_config.audio["hop_length"]
                 / self.tts_config.audio["sample_rate"]
             )
             word = self.tts_model.tokenizer.ids_to_text([token])
