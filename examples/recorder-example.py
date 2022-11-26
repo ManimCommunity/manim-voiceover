@@ -1,11 +1,11 @@
 from manim import *
 from manim_voiceover import VoiceoverScene
-from manim_voiceover.services.coqui import CoquiService
+from manim_voiceover.services.recorder import RecorderService
 
 
-class CoquiExample(VoiceoverScene):
+class RecorderExample(VoiceoverScene):
     def construct(self):
-        self.set_speech_service(CoquiService())
+        self.set_speech_service(RecorderService())
 
         circle = Circle()
         square = Square().shift(2 * RIGHT)
@@ -18,11 +18,6 @@ class CoquiExample(VoiceoverScene):
 
         with self.voiceover(text="Now, let's transform it into a square.") as tracker:
             self.play(Transform(circle, square), run_time=tracker.duration)
-
-        with self.voiceover(
-            text="This is a very very very very very very very very very very very very very very very very very long sentence."
-        ):
-            pass
 
         with self.voiceover(text="Thank you for watching."):
             self.play(Uncreate(circle))

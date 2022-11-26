@@ -294,7 +294,9 @@ self.play(Write(demo_code), run_time=tracker.duration)''',
             text="Visit the GitHub repo to start using it in your project."
         ):
             self.play(
-                FadeIn(Tex(r"\texttt{https://github.com/ManimCommunity/manim-voiceover}"))
+                FadeIn(
+                    Tex(r"\texttt{https://github.com/ManimCommunity/manim-voiceover}")
+                )
             )
 
         self.wait(5)

@@ -7,9 +7,11 @@ from manim_voiceover.modify_audio import adjust_speed
 
 
 class SpeechService(ABC):
-    """Abstract base class for a speech service.
-    """
-    def __init__(self, global_speed: float = 1.00, output_dir: str = "media/tts", **kwargs):
+    """Abstract base class for a speech service."""
+
+    def __init__(
+        self, global_speed: float = 1.00, output_dir: str = "media/tts", **kwargs
+    ):
         """
         Args:
             global_speed (float, optional): The speed at which to play the audio. Defaults to 1.00.
@@ -52,7 +54,9 @@ class SpeechService(ABC):
         return data_hash
 
     @abstractmethod
-    def generate_from_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
+    def generate_from_text(
+        self, text: str, output_dir: str = None, path: str = None
+    ) -> dict:
         """Implement this method for each speech service. Refer to `AzureService` for an example.
 
         Args:

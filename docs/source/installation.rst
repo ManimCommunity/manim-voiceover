@@ -24,10 +24,40 @@ Translate API and therefore needs an internet connection to work. If it
 throws an error, there might be a problem with your internet connection
 or the Google Translate API.
 
+Installing PortAudio
+~~~~~~~~~~~~~~~~~~~~
+
+Manim Voiceover lets you record voiceovers during rendering using `PyAudio <https://people.csail.mit.edu/hubert/pyaudio/>`__.
+PyAudio depends on `PortAudio <http://www.portaudio.com/>`__ which needs to be installed separately.
+
+On Debian based distros:
+
+.. code:: sh
+
+   sudo apt install portaudio19-dev
+   sudo pip install pyaudio
+   # Or install the package from
+   sudo apt install python3-pyaudio
+
+On macOS, you can install it using `Homebrew <https://brew.sh/>`__:
+
+.. code:: sh
+
+   brew install portaudio
+   pip install pyaudio
+
+On Windows, PortAudio should come prepackaged with the binaries, so just install PyAudio with pip:
+
+.. code:: sh
+
+   python -m pip install pyaudio
+
+For more information, see the `PyAudio documentation <https://people.csail.mit.edu/hubert/pyaudio/#downloads>`__.
+
 Installing SoX
 ~~~~~~~~~~~~~~
 
-``manim-voiceover`` can make the output from speech synthesizers faster
+Manim Voiceover can make the output from speech synthesizers faster
 or slower using `SoX <http://sox.sourceforge.net/>`__ (version 14.4.2 or
 higher is required).
 

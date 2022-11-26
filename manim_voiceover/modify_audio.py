@@ -13,10 +13,7 @@ def adjust_speed(input_path: str, output_path: str, tempo: float) -> None:
 
     tfm = sox.Transformer()
     tfm.tempo(tempo)
-    tfm.build(
-        input_filepath=input_path,
-        output_filepath=output_path
-    )
+    tfm.build(input_filepath=input_path, output_filepath=output_path)
     if same_destination:
         os.rename(output_path, input_path)
 

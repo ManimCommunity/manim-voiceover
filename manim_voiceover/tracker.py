@@ -26,7 +26,9 @@ class TimeInterpolator:
         try:
             return self.f(distance)
         except:
-            import ipdb; ipdb.set_trace()
+            import ipdb
+
+            ipdb.set_trace()
             return self.y[-1]
 
 

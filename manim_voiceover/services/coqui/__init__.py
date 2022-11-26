@@ -1,14 +1,10 @@
 import os
 import json
-from dotenv import load_dotenv
 import hashlib
-import re
 
 from manim_voiceover.helper import remove_bookmarks
 from manim_voiceover.services.base import SpeechService
 from manim_voiceover.services.coqui.synthesize import synthesize_coqui, DEFAULT_MODEL
-
-load_dotenv()
 
 
 class CoquiService(SpeechService):
@@ -16,18 +12,19 @@ class CoquiService(SpeechService):
     Default model: ``tts_models/en/ljspeech/tacotron2-DDC``.
     See :func:`~manim_voiceover.services.coqui.synthesize.synthesize_coqui`
     for more initialization options, e.g. setting different models."""
+
     def __init__(
         self,
         **kwargs,
     ):
-        ""
+        """"""
         self.init_kwargs = kwargs
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
         self, text: str, output_dir: str = None, path: str = None, **kwargs
     ) -> dict:
-        ""
+        """"""
         if output_dir is None:
             output_dir = self.output_dir
 

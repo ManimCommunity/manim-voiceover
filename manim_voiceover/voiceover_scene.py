@@ -12,8 +12,7 @@ from manim_voiceover.helper import chunks
 
 
 class VoiceoverScene(Scene):
-    """A scene class that can be used to add voiceover to a scene.
-    """
+    """A scene class that can be used to add voiceover to a scene."""
 
     speech_service: SpeechService
     current_tracker: Optional[VoiceoverTracker]
@@ -35,7 +34,6 @@ class VoiceoverScene(Scene):
         self.speech_service = speech_service
         self.current_tracker = None
         self.create_subcaption = create_subcaption
-
 
     def add_voiceover_text(
         self,
@@ -135,8 +133,7 @@ class VoiceoverScene(Scene):
     #         f.write("\n\n")
 
     def wait_for_voiceover(self) -> None:
-        """Waits for the voiceover to finish.
-        """
+        """Waits for the voiceover to finish."""
         if not hasattr(self, "current_tracker"):
             return
         if self.current_tracker is None:

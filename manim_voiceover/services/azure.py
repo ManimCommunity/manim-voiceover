@@ -1,7 +1,7 @@
 import os
 import re
 import json
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 try:
     import azure.cognitiveservices.speech as speechsdk
@@ -12,7 +12,7 @@ except ImportError:
 
 from manim_voiceover.services.base import SpeechService
 
-load_dotenv()
+load_dotenv(find_dotenv(usecwd=True))
 
 
 def serialize_word_boundary(wb):
@@ -28,6 +28,7 @@ def serialize_word_boundary(wb):
 
 class AzureService(SpeechService):
     """Speech service for Azure TTS API."""
+
     def __init__(
         self,
         voice: str = "en-US-AriaNeural",
@@ -39,9 +40,9 @@ class AzureService(SpeechService):
     ):
         """
         Args:
-            voice (str, optional): The voice to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support?tabs=stt-tts>`__ for all the available options. Defaults to "en-US-AriaNeural".
+            voice (str, optional): The voice to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support?tabs=stt-tts>`__ for all the available options. Defaults to ``en-US-AriaNeural``.
             style (str, optional): The style to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/rest-text-to-speech?tabs=streaming#style>`__ to see how you can see available styles for a given voice. Defaults to None.
-            output_format (str, optional): The output format to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/rest-text-to-speech?tabs=streaming#audio-outputs>`__ for all the available options. Defaults to "Audio48Khz192KBitRateMonoMp3".
+            output_format (str, optional): The output format to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/rest-text-to-speech?tabs=streaming#audio-outputs>`__ for all the available options. Defaults to ``Audio48Khz192KBitRateMonoMp3``.
             prosody (dict, optional): Global prosody settings to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup#adjust-prosody>`__ for all the available options. Defaults to None.
         """
         self.voice = voice
@@ -53,7 +54,7 @@ class AzureService(SpeechService):
     def generate_from_text(
         self, text: str, output_dir: str = None, path: str = None, **kwargs
     ) -> dict:
-        ""
+        """"""
         inner = text
         # Remove bookmarks
         inner = re.sub("<bookmark\s*mark\s*=['\"]\w*[\"']\s*/>", "", inner)
