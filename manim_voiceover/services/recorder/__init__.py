@@ -7,10 +7,13 @@ from manim import logger
 try:
     import pyaudio
     from manim_voiceover.services.recorder.utility import Recorder
+    # Workaround to get this included in the docs
+    DEFAULT_FORMAT = pyaudio.paInt16
 except ImportError:
     logger.error(
         'Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.'
     )
+    DEFAULT_FORMAT = None
 
 
 class RecorderService(SpeechService):
@@ -18,7 +21,7 @@ class RecorderService(SpeechService):
 
     def __init__(
         self,
-        format: int = pyaudio.paInt16,
+        format: int = DEFAULT_FORMAT,
         channels: int = 1,
         rate: int = 44100,
         chunk: int = 512,
