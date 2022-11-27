@@ -1,5 +1,6 @@
 import re
 import os
+import textwrap
 from pydub import AudioSegment
 from pathlib import Path
 
@@ -32,6 +33,16 @@ def wav2mp3(wav_path, mp3_path=None, remove_wav=True, bitrate="312k"):
 
 def msg_box(msg, indent=1, width=None, title=None):
     """Print message-box with optional title."""
+    # Wrap lines that are longer than 80 characters
+    if width is None and len(msg) > 80:
+        width = 80
+        lines = []
+        for line in msg.splitlines():
+            if len(line) > width:
+                line = line[:width] + " " + line[width:]
+            lines.extend(textwrap.wrap(line, width))
+        msg = "\n".join(lines)
+
     lines = msg.split("\n")
     space = " " * indent
     if not width:

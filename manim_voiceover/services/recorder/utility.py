@@ -97,7 +97,9 @@ class Recorder:
             print("Wait for at least 1 second after you finish speaking.")
             print("This is to eliminate any sounds that may come from your keyboard.")
             print("The silence at the beginning and end will be trimmed automatically.")
-            print("The silence at the beginning and end will be trimmed automatically.")
+            print(
+                "You can adjust this setting using the `trim_silence_threshold` argument."
+            )
             print("These instructions are only shown once.")
 
         print("Release the 'r' key to end recording")

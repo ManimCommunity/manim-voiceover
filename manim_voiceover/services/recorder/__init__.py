@@ -1,34 +1,44 @@
 import os
-import re
 import json
-import time
-import wave
-import sched
-import sys
-from pynput import keyboard
 from manim_voiceover.helper import msg_box, remove_bookmarks
 
 from manim_voiceover.services.base import SpeechService
+from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
 
 try:
     import pyaudio
     from manim_voiceover.services.recorder.utility import Recorder
-    import whisper
+
+    # import whisper
+    import stable_whisper as whisper
 except ImportError:
     print(
         'Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.'
     )
 
 
-# def serialize_word_boundary(wb):
-#     return {
-#         "audio_offset": wb["audio_offset"],
-#         "duration_milliseconds": int(wb["duration_milliseconds"].microseconds / 1000),
-#         "text_offset": wb["text_offset"],
-#         "word_length": wb["word_length"],
-#         "text": wb["text"],
-#         "boundary_type": wb["boundary_type"],
-#     }
+def timestamps_to_word_boundaries(segments):
+    word_boundaries = []
+    current_text_offset = 0
+    for segment in segments:
+        for dict_ in segment["word_timestamps"]:
+            word = dict_["word"]
+            word_boundaries.append(
+                {
+                    "audio_offset": int(dict_["timestamp"] * AUDIO_OFFSET_RESOLUTION),
+                    # "duration_milliseconds": 0,
+                    "text_offset": current_text_offset,
+                    "word_length": len(dict_["word"]),
+                    "text": word,
+                    "boundary_type": "Word",
+                }
+            )
+            current_text_offset += len(dict_["word"])
+            # If word is not punctuation, add a space
+            if word not in [".", ",", "!", "?", ";", ":", "(", ")"]:
+                current_text_offset += 1
+
+    return word_boundaries
 
 
 class RecorderService(SpeechService):
@@ -45,10 +55,6 @@ class RecorderService(SpeechService):
         **kwargs,
     ):
 
-        # self.format = format
-        # self.channels = None
-        # self.rate = rate
-        # self.chunk = chunk
         self.recorder = Recorder(
             format=format,
             channels=channels,
@@ -57,6 +63,9 @@ class RecorderService(SpeechService):
             device_index=device_index,
             trim_silence_threshold=trim_silence_threshold,
         )
+
+        self.stt_model = whisper.load_model("base")
+        # result = model.transcribe("audio.mp3")
 
         SpeechService.__init__(self, **kwargs)
 
@@ -96,9 +105,16 @@ class RecorderService(SpeechService):
         box = msg_box("Voiceover:\n\n" + input_text)
         self.recorder.record(audio_path, box)
 
+        # Now, transcribe to get the word boundaries
+        transcription_result = self.stt_model.transcribe(audio_path)
+        print("Transcription:", transcription_result["text"])
+        word_boundaries = timestamps_to_word_boundaries(
+            transcription_result["segments"]
+        )
+
         json_dict = {
             "input_text": text,
-            # "word_boundaries": [serialize_word_boundary(wb) for wb in word_boundaries],
+            "word_boundaries": word_boundaries,
             "original_audio": audio_path,
             "json_path": json_path,
         }
