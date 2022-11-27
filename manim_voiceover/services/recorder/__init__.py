@@ -2,12 +2,13 @@ from pathlib import Path
 from manim_voiceover.helper import msg_box, remove_bookmarks
 
 from manim_voiceover.services.base import SpeechService
+from manim import logger
 
 try:
     import pyaudio
     from manim_voiceover.services.recorder.utility import Recorder
 except ImportError:
-    print(
+    logger.error(
         'Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.'
     )
 
@@ -82,8 +83,6 @@ class RecorderService(SpeechService):
 
 
 # TODO
-# Change bookmark interpolation domain to [0,1]
 # Add recorder to documentation
-# Test that word boundaries still work on azure
 # Release
 # Record a demo

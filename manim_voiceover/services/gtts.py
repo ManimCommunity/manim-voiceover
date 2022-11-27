@@ -1,12 +1,10 @@
-import os
-import json
-import hashlib
 from pathlib import Path
+from manim import logger
 
 try:
     from gtts import gTTS, gTTSError
 except ImportError:
-    print(
+    logger.error(
         'Missing packages. Run `pip install "manim-voiceover[gtts]"` to use GoogleService.'
     )
 

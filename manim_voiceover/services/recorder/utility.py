@@ -5,6 +5,7 @@ import sys
 import sched
 from pathlib import Path
 from pydub import AudioSegment
+from manim import logger
 
 from manim_voiceover.helper import trim_silence, wav2mp3
 
@@ -13,11 +14,11 @@ try:
     import pyaudio
     import playsound
 except ImportError:
-    print(
+    logger.error(
         'Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.'
     )
 
-CALLBACK_DELAY = 0.1
+CALLBACK_DELAY = 0.05
 
 
 class MyListener(keyboard.Listener):

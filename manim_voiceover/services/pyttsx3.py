@@ -1,16 +1,14 @@
-import os
-import json
-import hashlib
 from pathlib import Path
-
-from manim_voiceover.services.base import SpeechService
+from manim import logger
 
 try:
     from pyttsx3 import Engine
 except ImportError:
-    print(
+    logger.error(
         'Missing packages. Run `pip install "manim-voiceover[pyttsx3]"` to use Pyttsx3Service.'
     )
+
+from manim_voiceover.services.base import SpeechService
 
 
 class PyTTSX3Service(SpeechService):

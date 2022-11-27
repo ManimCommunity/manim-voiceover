@@ -82,6 +82,7 @@ def split_on_silence_modified(
         for start, end in output_ranges
     ]
 
+
 # Disable this for now
 class _StitcherService(SpeechService):
     """Speech service for stitching audio recordings back onto a Manim scene"""

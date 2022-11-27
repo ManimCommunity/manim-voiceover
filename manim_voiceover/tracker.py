@@ -1,14 +1,13 @@
 from pathlib import Path
 import re
-import json
 import numpy as np
+from manim import logger
 
 from typing import Optional, List
 from scipy.interpolate import interp1d
 
 from manim import Scene
 from manim_voiceover.modify_audio import get_duration
-
 
 AUDIO_OFFSET_RESOLUTION = 10_000_000
 
@@ -27,9 +26,9 @@ class TimeInterpolator:
         try:
             return self.f(distance)
         except:
-            import ipdb
-
-            ipdb.set_trace()
+            logger.warning(
+                "TimeInterpolator received weird input, there may be something wrong with the word boundaries."
+            )
             return self.y[-1]
 
 

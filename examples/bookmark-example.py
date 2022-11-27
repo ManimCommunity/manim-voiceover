@@ -1,20 +1,20 @@
 from manim import *
 from manim_voiceover import VoiceoverScene
 
-from manim_voiceover.services.coqui import CoquiService
+# from manim_voiceover.services.coqui import CoquiService
 
-# from manim_voiceover.services.azure import AzureService
+from manim_voiceover.services.azure import AzureService
 
 
 class BookmarkExample(VoiceoverScene):
     def construct(self):
-        self.set_speech_service(CoquiService())
-        # self.set_speech_service(
-        #     AzureService(
-        #         voice="en-US-AriaNeural",
-        #         style="newscast-casual",
-        #     )
-        # )
+        # self.set_speech_service(CoquiService())
+        self.set_speech_service(
+            AzureService(
+                voice="en-US-AriaNeural",
+                style="newscast-casual",
+            )
+        )
 
         blist = BulletedList(
             "Trigger animations", "At any word", "Bookmarks", font_size=64

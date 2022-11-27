@@ -1,14 +1,13 @@
 import os
 from pathlib import Path
-import re
-import json
 from dotenv import load_dotenv, find_dotenv
 from manim_voiceover.helper import remove_bookmarks
+from manim import logger
 
 try:
     import azure.cognitiveservices.speech as speechsdk
 except ImportError:
-    print(
+    logger.error(
         'Missing packages. Run `pip install "manim-voiceover[azure]"` to use AzureService.'
     )
 
@@ -178,10 +177,12 @@ class AzureService(SpeechService):
             pass
         elif speech_synthesis_result.reason == speechsdk.ResultReason.Canceled:
             cancellation_details = speech_synthesis_result.cancellation_details
-            print("Speech synthesis canceled: {}".format(cancellation_details.reason))
+            logger.error(
+                "Speech synthesis canceled: {}".format(cancellation_details.reason)
+            )
             if cancellation_details.reason == speechsdk.CancellationReason.Error:
                 if cancellation_details.error_details:
-                    print(
+                    logger.error(
                         "Error details: {}".format(cancellation_details.error_details)
                     )
             raise Exception("Speech synthesis failed")

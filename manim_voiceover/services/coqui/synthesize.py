@@ -3,13 +3,14 @@ from pathlib import Path
 from pydub import AudioSegment
 
 from manim_voiceover.helper import wav2mp3
+from manim import logger
 
 try:
     import TTS
     from TTS.utils.manage import ModelManager
     from .utils_synthesizer import Synthesizer
 except ImportError:
-    print(
+    logger.error(
         'Missing packages. Run `pip install "manim-voiceover[coqui]"` to use CoquiService.'
     )
 

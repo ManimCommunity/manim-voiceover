@@ -4,6 +4,7 @@ import os
 import textwrap
 from pydub import AudioSegment
 from pathlib import Path
+from manim import logger
 
 
 def chunks(lst: list, n: int):
@@ -28,7 +29,7 @@ def wav2mp3(wav_path, mp3_path=None, remove_wav=True, bitrate="312k"):
     if remove_wav:
         # Remove the .wav file
         os.remove(wav_path)
-    print("Saved", mp3_path)
+    logger.info(f"Saved {mp3_path}")
     return
 
 

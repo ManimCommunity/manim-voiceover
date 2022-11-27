@@ -2,11 +2,10 @@ from abc import ABC, abstractmethod
 import os
 import json
 import sys
-import pyaudio
 import hashlib
 import humanhash
 from pathlib import Path
-from manim import config
+from manim import config, logger
 from manim_voiceover.defaults import (
     DEFAULT_VOICEOVER_CACHE_DIR,
     DEFAULT_VOICEOVER_CACHE_JSON_FILENAME,
@@ -74,7 +73,7 @@ class SpeechService(ABC):
 
                 self._whisper_model = whisper.load_model(self.transcription_model)
             except ImportError:
-                print(
+                logger.error(
                     "Missing packages. Run `pip install manim-voiceover[whisper]` for transcription."
                 )
                 sys.exit(1)
@@ -95,11 +94,15 @@ class SpeechService(ABC):
             transcription_result = self._whisper_model.transcribe(
                 str(Path(self.cache_dir) / original_audio)
             )
-            print("Transcription:", transcription_result["text"])
+            logger.info("Transcription: " + transcription_result["text"])
             word_boundaries = timestamps_to_word_boundaries(
                 transcription_result["segments"]
             )
             dict_["word_boundaries"] = word_boundaries
+            dict_["transcribed_text"] = transcription_result["text"]
+
+        # Audio callback
+        self.audio_callback(original_audio, dict_, **kwargs)
 
         if self.global_speed != 1:
             split_path = os.path.splitext(original_audio)
@@ -153,3 +156,13 @@ class SpeechService(ABC):
                 if entry["input_data"] == input_data:
                     return entry
         return None
+
+    def audio_callback(self, audio_path: str, data: dict, **kwargs):
+        """Callback function for when the audio file is ready.
+        Override this method to do something with the audio file, e.g. noise reduction.
+
+        Args:
+            audio_path (str): The path to the audio file.
+            data (dict): The data dictionary.
+        """
+        pass
