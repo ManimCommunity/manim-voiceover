@@ -53,6 +53,7 @@ class SpeechService(ABC):
         Args:
             global_speed (float, optional): The speed at which to play the audio. Defaults to 1.00.
             cache_dir (str, optional): The directory to save the audio files to. Defaults to ``voiceovers/``.
+            transcription_model (str, optional): The `OpenAI Whisper model <https://github.com/openai/whisper#available-models-and-languages>`_ to use for transcription. Defaults to None.
         """
         self.global_speed = global_speed
 

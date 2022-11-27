@@ -36,7 +36,7 @@ On Debian based distros:
 
    sudo apt install portaudio19-dev
    sudo pip install pyaudio
-   # Or install the package from
+   # Or install from apt globally:
    sudo apt install python3-pyaudio
 
 On macOS, you can install it using `Homebrew <https://brew.sh/>`__:

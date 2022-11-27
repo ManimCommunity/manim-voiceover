@@ -14,7 +14,7 @@ except ImportError:
 
 
 class RecorderService(SpeechService):
-    """Speech service for that records from a microphone on the go."""
+    """Speech service that records from a microphone during rendering."""
 
     def __init__(
         self,
@@ -27,7 +27,17 @@ class RecorderService(SpeechService):
         transcription_model: str = "base",
         **kwargs,
     ):
+        """Initialize the speech service.
 
+        Args:
+            format (int, optional): Format of the audio. Defaults to pyaudio.paInt16.
+            channels (int, optional): Number of channels. Defaults to 1.
+            rate (int, optional): Sampling rate. Defaults to 44100.
+            chunk (int, optional): Chunk size. Defaults to 512.
+            trim_silence_threshold (float, optional): Threshold for trimming silence in decibels. Defaults to -40.0 dB.
+            device_index (int, optional): Device index, if you don't want to choose it every time you render. Defaults to None.
+            transcription_model (str, optional): The `OpenAI Whisper model <https://github.com/openai/whisper#available-models-and-languages>`_ to use for transcription. Defaults to "base".
+        """
         self.recorder = Recorder(
             format=format,
             channels=channels,
@@ -80,9 +90,3 @@ class RecorderService(SpeechService):
         }
 
         return json_dict
-
-
-# TODO
-# Add recorder to documentation
-# Release
-# Record a demo

@@ -9,8 +9,9 @@ Manim Voiceover
 `Manim Voiceover <https://voiceover.manim.community>`__ is a `Manim <https://manim.community>`__ plugin for all things voiceover:
 
 - Add voiceovers to Manim videos *directly in Python* without having to use a video editor.
-- Develop an animation with an auto-generated AI voice without having to re-record and re-sync the audio.
-- Record a voiceover and have it stitched back onto the video instantly. (Note that this is not the same as AI voice cloning)
+- Record voiceovers with your microphone during rendering with a simple command line interface (see :py:class:`~manim_voiceover.services.recorder.RecorderService`).
+- Develop animations with auto-generated AI voices from various free and proprietary services.
+- Per-word timing of animations, i.e. trigger animations at specific words in the voiceover, even for the recordings. This works thanks to `OpenAI Whisper <https://github.com/openai/whisper>`__.
 
 A demo:
 
@@ -24,5 +25,4 @@ A demo:
    quickstart
    services
    examples
-   .. changelog
    api
