@@ -2,6 +2,7 @@ import os
 import re
 import json
 from dotenv import load_dotenv, find_dotenv
+from manim_voiceover.helper import remove_bookmarks
 
 try:
     import azure.cognitiveservices.speech as speechsdk
@@ -57,7 +58,7 @@ class AzureService(SpeechService):
         """"""
         inner = text
         # Remove bookmarks
-        inner = re.sub("<bookmark\s*mark\s*=['\"]\w*[\"']\s*/>", "", inner)
+        inner = remove_bookmarks(inner)
         if output_dir is None:
             output_dir = self.output_dir
 
