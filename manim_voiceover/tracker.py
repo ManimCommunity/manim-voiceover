@@ -8,6 +8,7 @@ from scipy.interpolate import interp1d
 
 from manim import Scene
 from manim_voiceover.modify_audio import get_duration
+from manim_voiceover.helper import remove_bookmarks
 
 AUDIO_OFFSET_RESOLUTION = 10_000_000
 
@@ -60,6 +61,11 @@ class VoiceoverTracker:
         self.bookmark_times = {}
         self.bookmark_distances = {}
         self.time_interpolator = TimeInterpolator(self.data["word_boundaries"])
+        net_text_len = len(remove_bookmarks(self.data["input_text"]))
+        if "transcribed_text" in self.data:
+            transcribed_text_len = len(self.data["transcribed_text"].strip())
+        else:
+            transcribed_text_len = net_text_len
 
         self.input_text = self.data["input_text"]
         self.content = ""
@@ -75,7 +81,10 @@ class VoiceoverTracker:
                 self.content += p
 
         for mark, dist in self.bookmark_distances.items():
-            elapsed = self.time_interpolator.interpolate(dist)
+            # Normalize text offset
+            elapsed = self.time_interpolator.interpolate(
+                dist * transcribed_text_len / net_text_len
+            )
             self.bookmark_times[mark] = self.start_t + elapsed
 
     def get_remaining_duration(self, buff: int = 0) -> int:

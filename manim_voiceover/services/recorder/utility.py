@@ -109,7 +109,9 @@ class Recorder:
 
         print("Release the 'r' key to end recording")
         self.task = sched.scheduler(time.time, time.sleep)
-        self.event = self.task.enter(self.callback_delay, 1, self._record_task, ([path]))
+        self.event = self.task.enter(
+            self.callback_delay, 1, self._record_task, ([path])
+        )
         self.task.run()
 
         return

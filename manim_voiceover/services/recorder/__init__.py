@@ -7,6 +7,7 @@ from manim import logger
 try:
     import pyaudio
     from manim_voiceover.services.recorder.utility import Recorder
+
     # Workaround to get this included in the docs
     DEFAULT_FORMAT = pyaudio.paInt16
 except ImportError:
@@ -72,7 +73,8 @@ class RecorderService(SpeechService):
             cache_dir = self.cache_dir
 
         input_data = {
-            "input_text": text,
+            # Remove bookmarks so that we don't record a voiceover every time we change a bookmark
+            "input_text": remove_bookmarks(text),
             "config": {
                 "format": self.recorder.format,
                 "channels": self.recorder.channels,
