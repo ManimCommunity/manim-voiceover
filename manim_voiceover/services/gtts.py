@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+from pathlib import Path
 
 try:
     from gtts import gTTS, gTTSError
@@ -39,7 +40,7 @@ class GTTSService(SpeechService):
 
         tts = gTTS(text)
         try:
-            tts.save(audio_path)
+            tts.save(str(Path(cache_dir) / audio_path))
         except gTTSError:
             raise Exception(
                 "gTTS gave an error. You are either not connected to the internet, or there is a problem with the Google Translate API."

@@ -1,23 +1,55 @@
 from abc import ABC, abstractmethod
 import os
 import json
+import sys
+import pyaudio
 import hashlib
 import humanhash
 from pathlib import Path
+from manim import config
 from manim_voiceover.defaults import (
     DEFAULT_VOICEOVER_CACHE_DIR,
     DEFAULT_VOICEOVER_CACHE_JSON_FILENAME,
 )
 from manim_voiceover.helper import append_to_json_file
-
 from manim_voiceover.modify_audio import adjust_speed
-from manim import config
+from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
+
+
+def timestamps_to_word_boundaries(segments):
+    word_boundaries = []
+    current_text_offset = 0
+    for segment in segments:
+        for dict_ in segment["word_timestamps"]:
+            word = dict_["word"]
+            word_boundaries.append(
+                {
+                    "audio_offset": int(dict_["timestamp"] * AUDIO_OFFSET_RESOLUTION),
+                    # "duration_milliseconds": 0,
+                    "text_offset": current_text_offset,
+                    "word_length": len(dict_["word"]),
+                    "text": word,
+                    "boundary_type": "Word",
+                }
+            )
+            current_text_offset += len(dict_["word"])
+            # If word is not punctuation, add a space
+            if word not in [".", ",", "!", "?", ";", ":", "(", ")"]:
+                current_text_offset += 1
+
+    return word_boundaries
 
 
 class SpeechService(ABC):
     """Abstract base class for a speech service."""
 
-    def __init__(self, global_speed: float = 1.00, cache_dir: str = None, **kwargs):
+    def __init__(
+        self,
+        global_speed: float = 1.00,
+        cache_dir: str = None,
+        transcription_model: str = None,
+        **kwargs
+    ):
         """
         Args:
             global_speed (float, optional): The speed at which to play the audio. Defaults to 1.00.
@@ -33,13 +65,41 @@ class SpeechService(ABC):
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
 
+        self._whisper_model = None
+        self.transcription_model = transcription_model
+
+        if self.transcription_model is not None:
+            try:
+                import stable_whisper as whisper
+
+                self._whisper_model = whisper.load_model(self.transcription_model)
+            except ImportError:
+                print(
+                    "Missing packages. Run `pip install manim-voiceover[whisper]` for transcription."
+                )
+                sys.exit(1)
+
+    # def _init_whisper_model(self):
+    #     if self._whisper_model is None:
+    #         self._whisper_model = whisper.load_model("base")
+
     def _wrap_generate_from_text(self, text: str, path: str = None, **kwargs) -> dict:
         # Replace newlines with lines, reduce multiple consecutive spaces to single
         text = " ".join(text.split())
 
         dict_ = self.generate_from_text(text, cache_dir=None, path=path, **kwargs)
-
         original_audio = dict_["original_audio"]
+
+        # Check whether word boundaries exist and if not run stt
+        if "word_boundaries" not in dict_ and self._whisper_model is not None:
+            transcription_result = self._whisper_model.transcribe(
+                str(Path(self.cache_dir) / original_audio)
+            )
+            print("Transcription:", transcription_result["text"])
+            word_boundaries = timestamps_to_word_boundaries(
+                transcription_result["segments"]
+            )
+            dict_["word_boundaries"] = word_boundaries
 
         if self.global_speed != 1:
             split_path = os.path.splitext(original_audio)

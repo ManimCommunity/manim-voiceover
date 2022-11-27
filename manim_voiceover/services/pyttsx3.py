@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+from pathlib import Path
 
 from manim_voiceover.services.base import SpeechService
 
@@ -41,7 +42,7 @@ class PyTTSX3Service(SpeechService):
         else:
             audio_path = path
 
-        self.engine.save_to_file(text, audio_path)
+        self.engine.save_to_file(text, str(Path(cache_dir) / audio_path))
         self.engine.runAndWait()
         self.engine.stop()
 

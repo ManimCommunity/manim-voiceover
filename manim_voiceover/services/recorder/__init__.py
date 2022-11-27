@@ -1,44 +1,15 @@
-import os
-import json
+from pathlib import Path
 from manim_voiceover.helper import msg_box, remove_bookmarks
 
 from manim_voiceover.services.base import SpeechService
-from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
 
 try:
     import pyaudio
     from manim_voiceover.services.recorder.utility import Recorder
-
-    # import whisper
-    import stable_whisper as whisper
 except ImportError:
     print(
         'Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.'
     )
-
-
-def timestamps_to_word_boundaries(segments):
-    word_boundaries = []
-    current_text_offset = 0
-    for segment in segments:
-        for dict_ in segment["word_timestamps"]:
-            word = dict_["word"]
-            word_boundaries.append(
-                {
-                    "audio_offset": int(dict_["timestamp"] * AUDIO_OFFSET_RESOLUTION),
-                    # "duration_milliseconds": 0,
-                    "text_offset": current_text_offset,
-                    "word_length": len(dict_["word"]),
-                    "text": word,
-                    "boundary_type": "Word",
-                }
-            )
-            current_text_offset += len(dict_["word"])
-            # If word is not punctuation, add a space
-            if word not in [".", ",", "!", "?", ";", ":", "(", ")"]:
-                current_text_offset += 1
-
-    return word_boundaries
 
 
 class RecorderService(SpeechService):
@@ -52,6 +23,7 @@ class RecorderService(SpeechService):
         chunk: int = 512,
         trim_silence_threshold: float = -40.0,
         device_index: int = None,
+        transcription_model: str = "base",
         **kwargs,
     ):
 
@@ -64,10 +36,7 @@ class RecorderService(SpeechService):
             trim_silence_threshold=trim_silence_threshold,
         )
 
-        self.stt_model = whisper.load_model("base")
-        # result = model.transcribe("audio.mp3")
-
-        SpeechService.__init__(self, **kwargs)
+        SpeechService.__init__(self, transcription_model=transcription_model, **kwargs)
 
     def generate_from_text(
         self, text: str, cache_dir: str = None, path: str = None, **kwargs
@@ -101,28 +70,18 @@ class RecorderService(SpeechService):
 
         self.recorder._trigger_set_device()
         box = msg_box("Voiceover:\n\n" + input_text)
-        self.recorder.record(audio_path, box)
-
-        # Now, transcribe to get the word boundaries
-        transcription_result = self.stt_model.transcribe(audio_path)
-        print("Transcription:", transcription_result["text"])
-        word_boundaries = timestamps_to_word_boundaries(
-            transcription_result["segments"]
-        )
+        self.recorder.record(str(Path(cache_dir) / audio_path), box)
 
         json_dict = {
             "input_text": text,
             "input_data": input_data,
-            "word_boundaries": word_boundaries,
             "original_audio": audio_path,
         }
 
         return json_dict
 
+
 # TODO
-# Add STT to every recording that doesnt have word boundaries
-# Aggregate all jsons into one json voiceovers/cache.json
-# Change hashes to something more readable
 # Change bookmark interpolation domain to [0,1]
 # Add recorder to documentation
 # Test that word boundaries still work on azure

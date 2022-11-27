@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+from pathlib import Path
 
 from manim_voiceover.helper import remove_bookmarks
 from manim_voiceover.services.base import SpeechService
@@ -43,7 +44,9 @@ class CoquiService(SpeechService):
         if not kwargs:
             kwargs = self.init_kwargs
 
-        _, word_boundaries = synthesize_coqui(input_text, audio_path, **kwargs)
+        _, word_boundaries = synthesize_coqui(
+            input_text, str(Path(cache_dir) / audio_path), **kwargs
+        )
 
         json_dict = {
             "input_text": text,
