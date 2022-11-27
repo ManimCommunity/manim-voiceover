@@ -18,8 +18,6 @@ except ImportError:
         'Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.'
     )
 
-CALLBACK_DELAY = 0.05
-
 
 class MyListener(keyboard.Listener):
     def __init__(self):
@@ -54,6 +52,9 @@ class Recorder:
         chunk: int = 512,
         device_index: int = None,
         trim_silence_threshold: float = -40.0,
+        trim_buffer_start: int = 200,
+        trim_buffer_end: int = 200,
+        callback_delay: float = 0.05,
     ):
         self.format = format
         self.channels = channels
@@ -65,6 +66,9 @@ class Recorder:
         self.audio = None
         self.first_call = True
         self.trim_silence_threshold = trim_silence_threshold
+        self.trim_buffer_start = trim_buffer_start
+        self.trim_buffer_end = trim_buffer_end
+        self.callback_delay = callback_delay
 
     def _trigger_set_device(self):
         self._init_pyaudio()
@@ -105,7 +109,7 @@ class Recorder:
 
         print("Release the 'r' key to end recording")
         self.task = sched.scheduler(time.time, time.sleep)
-        self.event = self.task.enter(CALLBACK_DELAY, 1, self._record_task, ([path]))
+        self.event = self.task.enter(self.callback_delay, 1, self._record_task, ([path]))
         self.task.run()
 
         return
@@ -172,7 +176,7 @@ class Recorder:
             except:
                 raise
 
-            self.task.enter(CALLBACK_DELAY, 1, self._record_task, ([path]))
+            self.task.enter(self.callback_delay, 1, self._record_task, ([path]))
 
         elif not self.listener.key_pressed and self.started:
             self.stream.stop_stream()
@@ -201,6 +205,8 @@ class Recorder:
             trim_silence(
                 AudioSegment.from_wav(wav_path),
                 silence_threshold=self.trim_silence_threshold,
+                buffer_start=self.trim_buffer_start,
+                buffer_end=self.trim_buffer_end,
             ).export(wav_path, format="wav")
             wav2mp3(wav_path)
 
@@ -210,7 +216,7 @@ class Recorder:
             return
 
         # Reschedule the recorder function in 100 ms.
-        self.task.enter(CALLBACK_DELAY, 1, self._record_task, ([path]))
+        self.task.enter(self.callback_delay, 1, self._record_task, ([path]))
 
     def callback(self, in_data, frame_count, time_info, status):
         self.frames.append(in_data)

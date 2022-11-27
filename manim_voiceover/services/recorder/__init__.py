@@ -22,9 +22,12 @@ class RecorderService(SpeechService):
         channels: int = 1,
         rate: int = 44100,
         chunk: int = 512,
-        trim_silence_threshold: float = -40.0,
         device_index: int = None,
         transcription_model: str = "base",
+        trim_silence_threshold: float = -40.0,
+        trim_buffer_start: int = 200,
+        trim_buffer_end: int = 200,
+        callback_delay: float = 0.05,
         **kwargs,
     ):
         """Initialize the speech service.
@@ -34,9 +37,11 @@ class RecorderService(SpeechService):
             channels (int, optional): Number of channels. Defaults to 1.
             rate (int, optional): Sampling rate. Defaults to 44100.
             chunk (int, optional): Chunk size. Defaults to 512.
-            trim_silence_threshold (float, optional): Threshold for trimming silence in decibels. Defaults to -40.0 dB.
             device_index (int, optional): Device index, if you don't want to choose it every time you render. Defaults to None.
             transcription_model (str, optional): The `OpenAI Whisper model <https://github.com/openai/whisper#available-models-and-languages>`_ to use for transcription. Defaults to "base".
+            trim_silence_threshold (float, optional): Threshold for trimming silence in decibels. Defaults to -40.0 dB.
+            trim_buffer_start (int, optional): Buffer duration for trimming silence at the start. Defaults to 200 ms.
+            trim_buffer_end (int, optional): Buffer duration for trimming silence at the end. Defaults to 200 ms.
         """
         self.recorder = Recorder(
             format=format,
@@ -45,6 +50,9 @@ class RecorderService(SpeechService):
             chunk=chunk,
             device_index=device_index,
             trim_silence_threshold=trim_silence_threshold,
+            trim_buffer_start=trim_buffer_start,
+            trim_buffer_end=trim_buffer_end,
+            callback_delay=callback_delay,
         )
 
         SpeechService.__init__(self, transcription_model=transcription_model, **kwargs)
