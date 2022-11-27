@@ -5,7 +5,7 @@ from manim_voiceover.services.recorder import RecorderService
 
 class RecorderExample(VoiceoverScene):
     def construct(self):
-        self.set_speech_service(RecorderService())
+        self.set_speech_service(RecorderService(silence_threshold=-40.0))
 
         circle = Circle()
         square = Square().shift(2 * RIGHT)

@@ -1,15 +1,17 @@
 import os
-from pathlib import Path
 import time
 import wave
 import sys
 import sched
+from pathlib import Path
+from pydub import AudioSegment
 
-from manim_voiceover.helper import wav2mp3
+from manim_voiceover.helper import trim_silence, wav2mp3
 
 try:
     from pynput import keyboard
     import pyaudio
+    import playsound
 except ImportError:
     print(
         'Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.'
@@ -50,6 +52,7 @@ class Recorder:
         rate: int = 44100,
         chunk: int = 512,
         device_index: int = None,
+        trim_silence_threshold: float = -40.0,
     ):
         self.format = format
         self.channels = channels
@@ -59,9 +62,25 @@ class Recorder:
         self.listener = None
         self.started = None
         self.audio = None
+        self.first_call = True
+        self.trim_silence_threshold = trim_silence_threshold
 
-    def record(self, path):
-        self.audio = pyaudio.PyAudio()
+    def _trigger_set_device(self):
+        self._init_pyaudio()
+
+        if self.device_index is None:
+            self._set_device()
+
+        if self.channels is None:
+            self._set_channels_from_device_index(self.device_index)
+
+    def _init_pyaudio(self):
+        if self.audio is None:
+            self.audio = pyaudio.PyAudio()
+
+    def _record(self, path):
+        self._init_pyaudio()
+
         if self.device_index is None:
             self._set_device()
 
@@ -73,6 +92,14 @@ class Recorder:
         self.listener.start()
 
         print("Press and hold the 'r' key to begin recording")
+        if self.first_call:
+            print("Wait for 1 second, then start speaking.")
+            print("Wait for at least 1 second after you finish speaking.")
+            print("This is to eliminate any sounds that may come from your keyboard.")
+            print("The silence at the beginning and end will be trimmed automatically.")
+            print("The silence at the beginning and end will be trimmed automatically.")
+            print("These instructions are only shown once.")
+
         print("Release the 'r' key to end recording")
         self.task = sched.scheduler(time.time, time.sleep)
         self.event = self.task.enter(CALLBACK_DELAY, 1, self._record_task, ([path]))
@@ -147,8 +174,6 @@ class Recorder:
         elif not self.listener.key_pressed and self.started:
             self.stream.stop_stream()
             self.stream.close()
-            self.audio.terminate()
-            self.started = None
 
             print("Finished recording, saving to", path)
 
@@ -160,9 +185,20 @@ class Recorder:
             wf.setsampwidth(self.audio.get_sample_size(self.format))
             wf.setframerate(self.rate)
 
+            self.audio.terminate()
+            self.audio = None
+            self.started = None
+            self.first_call = False
+
+            # Remove 1 second from the end of frames
+            self.frames = self.frames[: -int(self.rate * 0.5 / self.chunk)]
+
             wf.writeframes(b"".join(self.frames))
             wf.close()
-
+            trim_silence(
+                AudioSegment.from_wav(wav_path),
+                silence_threshold=self.trim_silence_threshold,
+            ).export(wav_path, format="wav")
             wav2mp3(wav_path)
 
             for e in self.task._queue:
@@ -176,3 +212,33 @@ class Recorder:
     def callback(self, in_data, frame_count, time_info, status):
         self.frames.append(in_data)
         return (in_data, pyaudio.paContinue)
+
+    def record(self, path: str, message: str = None):
+        if message is not None:
+            print(message)
+        self._record(path)
+
+        while True:
+            print(
+                """Press...
+ l to [l]isten to the recording
+ r to [r]e-record
+ a to [a]ccept the recording
+"""
+            )
+            try:
+                key = input()[-1].lower()
+                if key == "l":
+                    playsound.playsound(path)
+                elif key == "r":
+                    if message is not None:
+                        print(message)
+
+                    self._record(path)
+                elif key == "a":
+                    break
+                else:
+                    print("Invalid input")
+            except KeyboardInterrupt:
+                print("KeyboardInterrupt")
+                exit()

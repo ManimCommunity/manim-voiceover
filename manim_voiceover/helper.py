@@ -30,7 +30,7 @@ def wav2mp3(wav_path, mp3_path=None, remove_wav=True, bitrate="312k"):
     return
 
 
-def print_msg_box(msg, indent=1, width=None, title=None):
+def msg_box(msg, indent=1, width=None, title=None):
     """Print message-box with optional title."""
     lines = msg.split("\n")
     space = " " * indent
@@ -42,4 +42,42 @@ def print_msg_box(msg, indent=1, width=None, title=None):
         box += f'║{space}{"-" * len(title):<{width}}{space}║\n'  # underscore
     box += "".join([f"║{space}{line:<{width}}{space}║\n" for line in lines])
     box += f'╚{"═" * (width + indent * 2)}╝'  # lower_border
-    print(box)
+    return box
+
+
+def detect_leading_silence(sound, silence_threshold=-20.0, chunk_size=10):
+    """
+    sound is a pydub.AudioSegment
+    silence_threshold in dB
+    chunk_size in ms
+
+    iterate over chunks until you find the first one with sound
+    """
+    trim_ms = 0  # ms
+
+    assert chunk_size > 0  # to avoid infinite loop
+    while sound[
+        trim_ms : trim_ms + chunk_size
+    ].dBFS < silence_threshold and trim_ms < len(sound):
+        trim_ms += chunk_size
+
+    return trim_ms
+
+
+def trim_silence(
+    sound: AudioSegment,
+    silence_threshold=-40.0,
+    chunk_size=5,
+    buffer_start=200,
+    buffer_end=200,
+) -> AudioSegment:
+    start_trim = detect_leading_silence(sound, silence_threshold, chunk_size)
+    end_trim = detect_leading_silence(sound.reverse(), silence_threshold, chunk_size)
+
+    # Remove buffer_len milliseconds from start_trim and end_trim
+    start_trim = max(0, start_trim - buffer_start)
+    end_trim = max(0, end_trim - buffer_end)
+
+    duration = len(sound)
+    trimmed_sound = sound[start_trim : duration - end_trim]
+    return trimmed_sound

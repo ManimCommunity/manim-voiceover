@@ -6,7 +6,7 @@ import wave
 import sched
 import sys
 from pynput import keyboard
-from manim_voiceover.helper import print_msg_box, remove_bookmarks
+from manim_voiceover.helper import msg_box, remove_bookmarks
 
 from manim_voiceover.services.base import SpeechService
 
@@ -40,6 +40,7 @@ class RecorderService(SpeechService):
         channels: int = 1,
         rate: int = 44100,
         chunk: int = 512,
+        trim_silence_threshold: float = -40.0,
         device_index: int = None,
         **kwargs,
     ):
@@ -54,6 +55,7 @@ class RecorderService(SpeechService):
             rate=rate,
             chunk=chunk,
             device_index=device_index,
+            trim_silence_threshold=trim_silence_threshold,
         )
 
         SpeechService.__init__(self, **kwargs)
@@ -90,10 +92,9 @@ class RecorderService(SpeechService):
             audio_path = path
             json_path = os.path.splitext(path)[0] + ".json"
 
-        # speech_synthesis_result = speech_service.speak_ssml_async(ssml).get()
-        print_msg_box(input_text)
-        self.recorder.record(audio_path)
-        # import ipdb; ipdb.set_trace()
+        self.recorder._trigger_set_device()
+        box = msg_box("Voiceover:\n\n" + input_text)
+        self.recorder.record(audio_path, box)
 
         json_dict = {
             "input_text": text,
