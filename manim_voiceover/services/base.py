@@ -33,8 +33,8 @@ def timestamps_to_word_boundaries(segments):
             )
             current_text_offset += len(dict_["word"])
             # If word is not punctuation, add a space
-            if word not in [".", ",", "!", "?", ";", ":", "(", ")"]:
-                current_text_offset += 1
+            # if word not in [".", ",", "!", "?", ";", ":", "(", ")"]:
+            # current_text_offset += 1
 
     return word_boundaries
 
