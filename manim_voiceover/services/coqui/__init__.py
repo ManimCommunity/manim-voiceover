@@ -22,29 +22,23 @@ class CoquiService(SpeechService):
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
-        self, text: str, output_dir: str = None, path: str = None, **kwargs
+        self, text: str, cache_dir: str = None, path: str = None, **kwargs
     ) -> dict:
         """"""
-        if output_dir is None:
-            output_dir = self.output_dir
+        if cache_dir is None:
+            cache_dir = self.cache_dir
 
         input_text = remove_bookmarks(text)
+        input_data = {"input_text": text, "service": "coqui"}
 
-        # data = {"text": text, "engine": self.engine.__dict__}
-        data = {"text": text, "engine": "coqui"}
-        dumped_data = json.dumps(data)
-        data_hash = hashlib.sha256(dumped_data.encode("utf-8")).hexdigest()
-        # file_extension = ".mp3"
+        cached_result = self.get_cached_result(input_data, cache_dir)
+        if cached_result is not None:
+            return cached_result
 
         if path is None:
-            audio_path = os.path.join(output_dir, data_hash + ".mp3")
-            json_path = os.path.join(output_dir, data_hash + ".json")
-
-            if os.path.exists(json_path):
-                return json.loads(open(json_path, "r").read())
+            audio_path = self.get_data_hash(input_data) + ".mp3"
         else:
             audio_path = path
-            json_path = os.path.splitext(path)[0] + ".json"
 
         if not kwargs:
             kwargs = self.init_kwargs
@@ -53,8 +47,8 @@ class CoquiService(SpeechService):
 
         json_dict = {
             "input_text": text,
+            "input_data": input_data,
             "original_audio": audio_path,
-            "json_path": json_path,
             "word_boundaries": word_boundaries,
         }
 

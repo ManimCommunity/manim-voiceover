@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import re
 import json
 from dotenv import load_dotenv, find_dotenv
@@ -53,14 +54,14 @@ class AzureService(SpeechService):
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
-        self, text: str, output_dir: str = None, path: str = None, **kwargs
+        self, text: str, cache_dir: str = None, path: str = None, **kwargs
     ) -> dict:
         """"""
         inner = text
         # Remove bookmarks
         inner = remove_bookmarks(inner)
-        if output_dir is None:
-            output_dir = self.output_dir
+        if cache_dir is None:
+            cache_dir = self.cache_dir
 
         # Apply prosody
         prosody = self.prosody
@@ -102,24 +103,26 @@ class AzureService(SpeechService):
             inner,
         )
 
-        data = {"input_text": text, "ssml": ssml, "config": self.__dict__}
-        data_hash = self.get_data_hash(data)
+        input_data = {
+            "input_text": text,
+            "ssml": ssml,
+            "service": "azure",
+            "config": {
+                "voice": self.voice,
+                "style": self.style,
+                "output_format": self.output_format,
+                "prosody": self.prosody,
+            },
+        }
 
-        # Get the file extension from output_format
-        if self.output_format[-3:] == "Mp3":
-            file_extension = ".mp3"
-        else:
-            raise Exception("Unrecognized output format")
+        cached_result = self.get_cached_result(input_data, cache_dir)
+        if cached_result is not None:
+            return cached_result
 
         if path is None:
-            audio_path = os.path.join(output_dir, data_hash + ".mp3")
-            json_path = os.path.join(output_dir, data_hash + ".json")
-
-            if os.path.exists(json_path):
-                return json.loads(open(json_path, "r").read())
+            audio_path = self.get_data_hash(input_data) + ".mp3"
         else:
             audio_path = path
-            json_path = os.path.splitext(path)[0] + ".json"
 
         try:
             azure_subscription_key = os.environ["AZURE_SUBSCRIPTION_KEY"]
@@ -136,7 +139,9 @@ class AzureService(SpeechService):
         speech_config.set_speech_synthesis_output_format(
             speechsdk.SpeechSynthesisOutputFormat[self.output_format]
         )
-        audio_config = speechsdk.audio.AudioOutputConfig(filename=audio_path)
+        audio_config = speechsdk.audio.AudioOutputConfig(
+            filename=str(Path(cache_dir) / audio_path)
+        )
 
         speech_service = speechsdk.SpeechSynthesizer(
             speech_config=speech_config, audio_config=audio_config
@@ -160,13 +165,12 @@ class AzureService(SpeechService):
 
         json_dict = {
             "input_text": text,
+            "input_data": input_data,
             "ssml": ssml,
             "word_boundaries": [serialize_word_boundary(wb) for wb in word_boundaries],
             "original_audio": audio_path,
-            "json_path": json_path,
         }
 
-        # open(json_path, "w").write(json.dumps(json_dict, indent=2))
         if (
             speech_synthesis_result.reason
             == speechsdk.ResultReason.SynthesizingAudioCompleted

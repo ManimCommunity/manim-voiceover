@@ -1,5 +1,6 @@
 from math import ceil
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Optional, Generator
 
 from manim import Scene, config
@@ -60,8 +61,8 @@ class VoiceoverScene(Scene):
             )
 
         dict_ = self.speech_service._wrap_generate_from_text(text, **kwargs)
-        tracker = VoiceoverTracker(self, dict_["json_path"])
-        self.add_sound(dict_["final_audio"])
+        tracker = VoiceoverTracker(self, dict_, self.speech_service.cache_dir)
+        self.add_sound(str(Path(self.speech_service.cache_dir) / dict_["final_audio"]))
         self.current_tracker = tracker
 
         # if self.create_script:

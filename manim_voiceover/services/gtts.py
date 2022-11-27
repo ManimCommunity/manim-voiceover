@@ -20,26 +20,22 @@ class GTTSService(SpeechService):
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
-        self, text: str, output_dir: str = None, path: str = None
+        self, text: str, cache_dir: str = None, path: str = None
     ) -> dict:
         """"""
-        if output_dir is None:
-            output_dir = self.output_dir
+        if cache_dir is None:
+            cache_dir = self.cache_dir
 
-        # data = {"text": text, "engine": self.engine.__dict__}
-        data = {"text": text, "engine": "gtts"}
-        dumped_data = json.dumps(data)
-        data_hash = hashlib.sha256(dumped_data.encode("utf-8")).hexdigest()
+        input_data = {"input_text": text, "service": "gtts"}
+
+        cached_result = self.get_cached_result(input_data, cache_dir)
+        if cached_result is not None:
+            return cached_result
 
         if path is None:
-            audio_path = os.path.join(output_dir, data_hash + ".mp3")
-            json_path = os.path.join(output_dir, data_hash + ".json")
-
-            if os.path.exists(json_path):
-                return json.loads(open(json_path, "r").read())
+            audio_path = self.get_data_hash(input_data) + ".mp3"
         else:
             audio_path = path
-            json_path = os.path.splitext(path)[0] + ".json"
 
         tts = gTTS(text)
         try:
@@ -50,9 +46,9 @@ class GTTSService(SpeechService):
             )
 
         json_dict = {
-            # "word_boundaries": word_boundaries,
+            "input_text": text,
+            "input_data": input_data,
             "original_audio": audio_path,
-            "json_path": json_path,
         }
 
         return json_dict

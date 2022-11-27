@@ -1,3 +1,4 @@
+import json
 import re
 import os
 import textwrap
@@ -92,3 +93,22 @@ def trim_silence(
     duration = len(sound)
     trimmed_sound = sound[start_trim : duration - end_trim]
     return trimmed_sound
+
+
+def append_to_json_file(json_file: str, data: dict):
+    """Append data to json file"""
+    if not os.path.exists(json_file):
+        with open(json_file, "w") as f:
+            json.dump([data], f, indent=2)
+        return
+
+    with open(json_file, "r") as f:
+        json_data = json.load(f)
+
+    if not isinstance(json_data, list):
+        raise ValueError("JSON file should be a list")
+
+    json_data.append(data)
+    with open(json_file, "w") as f:
+        json.dump(json_data, f, indent=2)
+    return

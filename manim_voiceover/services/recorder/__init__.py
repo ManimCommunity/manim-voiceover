@@ -70,17 +70,17 @@ class RecorderService(SpeechService):
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
-        self, text: str, output_dir: str = None, path: str = None, **kwargs
+        self, text: str, cache_dir: str = None, path: str = None, **kwargs
     ) -> dict:
         """"""
 
         # Remove bookmarks
         input_text = remove_bookmarks(text)
 
-        if output_dir is None:
-            output_dir = self.output_dir
+        if cache_dir is None:
+            cache_dir = self.cache_dir
 
-        data = {
+        input_data = {
             "input_text": text,
             "config": {
                 "format": self.recorder.format,
@@ -88,18 +88,16 @@ class RecorderService(SpeechService):
                 "rate": self.recorder.rate,
                 "chunk": self.recorder.chunk,
             },
+            "service": "recorder",
         }
-        data_hash = self.get_data_hash(data)
+        cached_result = self.get_cached_result(input_data, cache_dir)
+        if cached_result is not None:
+            return cached_result
 
         if path is None:
-            audio_path = os.path.join(output_dir, data_hash + ".mp3")
-            json_path = os.path.join(output_dir, data_hash + ".json")
-
-            if os.path.exists(json_path):
-                return json.loads(open(json_path, "r").read())
+            audio_path = self.get_data_hash(input_data) + ".mp3"
         else:
             audio_path = path
-            json_path = os.path.splitext(path)[0] + ".json"
 
         self.recorder._trigger_set_device()
         box = msg_box("Voiceover:\n\n" + input_text)
@@ -114,9 +112,19 @@ class RecorderService(SpeechService):
 
         json_dict = {
             "input_text": text,
+            "input_data": input_data,
             "word_boundaries": word_boundaries,
             "original_audio": audio_path,
-            "json_path": json_path,
         }
 
         return json_dict
+
+# TODO
+# Add STT to every recording that doesnt have word boundaries
+# Aggregate all jsons into one json voiceovers/cache.json
+# Change hashes to something more readable
+# Change bookmark interpolation domain to [0,1]
+# Add recorder to documentation
+# Test that word boundaries still work on azure
+# Release
+# Record a demo
