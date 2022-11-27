@@ -83,8 +83,10 @@ def split_on_silence_modified(
     ]
 
 
-class StitcherService(SpeechService):
+# Disable this for now
+class _StitcherService(SpeechService):
     """Speech service for stitching audio recordings back onto a Manim scene"""
+
     def __init__(
         self,
         source_path: str,
@@ -139,7 +141,7 @@ class StitcherService(SpeechService):
             data_hash = hashlib.sha256(audio_chunk.raw_data).hexdigest()
 
             # Export the audio chunk with new bitrate.
-            output_path = os.path.join(self.output_dir, data_hash + ".mp3")
+            output_path = os.path.join(self.cache_dir, data_hash + ".mp3")
             audio_chunk.export(
                 output_path,
                 bitrate="256k",
@@ -154,7 +156,9 @@ class StitcherService(SpeechService):
     def get_json_path(self) -> str:
         return os.path.splitext(self.params["source_path"])[0] + ".json"
 
-    def generate_from_text(self, text: str, output_dir: str = None, path: str = None) -> dict:
+    def generate_from_text(
+        self, text: str, cache_dir: str = None, path: str = None
+    ) -> dict:
         config = json.load(open(self.get_json_path(), "r"))
         audio_path = config["segments"][self.current_segment_index]["path"]
         json_path = os.path.splitext(audio_path)[0] + ".json"
@@ -163,6 +167,8 @@ class StitcherService(SpeechService):
 
         json_dict = {
             # "word_boundaries": word_boundaries,
+            "input_text": text,
+            # "input_data": input_data,
             "original_audio": audio_path,
             "json_path": json_path,
         }

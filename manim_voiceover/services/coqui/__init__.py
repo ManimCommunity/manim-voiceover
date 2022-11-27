@@ -1,14 +1,11 @@
 import os
 import json
-from dotenv import load_dotenv
 import hashlib
-import re
+from pathlib import Path
 
 from manim_voiceover.helper import remove_bookmarks
 from manim_voiceover.services.base import SpeechService
 from manim_voiceover.services.coqui.synthesize import synthesize_coqui, DEFAULT_MODEL
-
-load_dotenv()
 
 
 class CoquiService(SpeechService):
@@ -16,48 +13,45 @@ class CoquiService(SpeechService):
     Default model: ``tts_models/en/ljspeech/tacotron2-DDC``.
     See :func:`~manim_voiceover.services.coqui.synthesize.synthesize_coqui`
     for more initialization options, e.g. setting different models."""
+
     def __init__(
         self,
         **kwargs,
     ):
-        ""
+        """"""
         self.init_kwargs = kwargs
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
-        self, text: str, output_dir: str = None, path: str = None, **kwargs
+        self, text: str, cache_dir: str = None, path: str = None, **kwargs
     ) -> dict:
-        ""
-        if output_dir is None:
-            output_dir = self.output_dir
+        """"""
+        if cache_dir is None:
+            cache_dir = self.cache_dir
 
         input_text = remove_bookmarks(text)
+        input_data = {"input_text": text, "service": "coqui"}
 
-        # data = {"text": text, "engine": self.engine.__dict__}
-        data = {"text": text, "engine": "coqui"}
-        dumped_data = json.dumps(data)
-        data_hash = hashlib.sha256(dumped_data.encode("utf-8")).hexdigest()
-        # file_extension = ".mp3"
+        cached_result = self.get_cached_result(input_data, cache_dir)
+        if cached_result is not None:
+            return cached_result
 
         if path is None:
-            audio_path = os.path.join(output_dir, data_hash + ".mp3")
-            json_path = os.path.join(output_dir, data_hash + ".json")
-
-            if os.path.exists(json_path):
-                return json.loads(open(json_path, "r").read())
+            audio_path = self.get_data_hash(input_data) + ".mp3"
         else:
             audio_path = path
-            json_path = os.path.splitext(path)[0] + ".json"
 
         if not kwargs:
             kwargs = self.init_kwargs
 
-        _, word_boundaries = synthesize_coqui(input_text, audio_path, **kwargs)
+        _, word_boundaries = synthesize_coqui(
+            input_text, str(Path(cache_dir) / audio_path), **kwargs
+        )
 
         json_dict = {
             "input_text": text,
+            "input_data": input_data,
             "original_audio": audio_path,
-            "json_path": json_path,
             "word_boundaries": word_boundaries,
         }
 

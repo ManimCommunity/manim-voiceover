@@ -1,13 +1,13 @@
+from pathlib import Path
 import re
-import json
 import numpy as np
+from manim import logger
 
 from typing import Optional, List
 from scipy.interpolate import interp1d
 
 from manim import Scene
 from manim_voiceover.modify_audio import get_duration
-
 
 AUDIO_OFFSET_RESOLUTION = 10_000_000
 
@@ -26,14 +26,16 @@ class TimeInterpolator:
         try:
             return self.f(distance)
         except:
-            import ipdb; ipdb.set_trace()
+            logger.warning(
+                "TimeInterpolator received weird input, there may be something wrong with the word boundaries."
+            )
             return self.y[-1]
 
 
 class VoiceoverTracker:
     """Class to track the progress of a voiceover in a scene."""
 
-    def __init__(self, scene: Scene, path: str):
+    def __init__(self, scene: Scene, data: dict, cache_dir: str):
         """Initializes a VoiceoverTracker object.
 
         Args:
@@ -41,9 +43,9 @@ class VoiceoverTracker:
             path (str): The path to the JSON file containing the voiceover data.
         """
         self.scene = scene
-        self.path = path
-        self.data = json.loads(open(path, "r").read())
-        self.duration = get_duration(self.data["final_audio"])
+        self.data = data
+        self.cache_dir = cache_dir
+        self.duration = get_duration(Path(cache_dir) / self.data["final_audio"])
         # last_t = scene.last_t
         last_t = scene.renderer.time
         if last_t is None:

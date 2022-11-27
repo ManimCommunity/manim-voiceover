@@ -22,6 +22,11 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - Can run offline?
      - Paid / requires an account?
      - Notes
+   * - :py:class:`~recorder.RecorderService`
+     - N/A
+     - N/A
+     - N/A
+     - This is a utility class to record your own voiceovers with a microphone.
    * - :py:class:`~azure.AzureService`
      - Very good, human-like
      - No
@@ -44,6 +49,20 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - Requires `espeak <https://espeak.sourceforge.net/>`__. Does not work reliably on Mac.
 
 It is on our roadmap to provide a high quality TTS engine that runs locally for free. If you have any suggestions, please let us know in the `Discord server <https://manim.community/discord>`__.
+
+:py:class:`~recorder.RecorderService`
+*************************************
+
+This is not a speech synthesizer but a utility class to record your own voiceovers with a microphone. It provides a command line interface to record voiceovers during rendering.
+
+Install Manim Voiceover with the ``recorder`` extra in order to use :py:class:`~recorder.RecorderService`:
+
+.. code:: sh
+
+   pip install "manim-voiceover[recorder]"
+
+Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/recorder-example.py>`__ to get started.
+
 
 :py:class:`~azure.AzureService`
 *******************************

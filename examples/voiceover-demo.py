@@ -4,12 +4,6 @@ from manim_voiceover import VoiceoverScene
 
 from manim_voiceover.services.azure import AzureService
 
-# from manim_voiceover.interfaces.pyttsx3 import PyTTSX3Service
-# from manim_voiceover.interfaces.gtts import GTTSService
-from manim_voiceover.services.stitcher import StitcherService
-
-# import pyttsx3
-
 code_style = code_styles.get_style_by_name("one-dark")
 
 
@@ -22,14 +16,6 @@ class VoiceoverDemo(VoiceoverScene):
                 style="newscast-casual",  # global_speed=1.15
             )
         )
-        dirname = os.path.dirname(os.path.abspath(__file__))
-        # self.set_speech_service(
-        #     StitcherService(dirname + "/voiceover_demo_recording.mp3")
-        # )
-
-        # self.set_speech_service(PyTTSX3Service(pyttsx3.init(), global_speed=1.15))
-        # self.set_speech_service(GTTSService())
-
         banner = ManimBanner().scale(0.5)
 
         with self.voiceover(text="Hey Manim Community!"):
@@ -294,7 +280,9 @@ self.play(Write(demo_code), run_time=tracker.duration)''',
             text="Visit the GitHub repo to start using it in your project."
         ):
             self.play(
-                FadeIn(Tex(r"\texttt{https://github.com/ManimCommunity/manim-voiceover}"))
+                FadeIn(
+                    Tex(r"\texttt{https://github.com/ManimCommunity/manim-voiceover}")
+                )
             )
 
         self.wait(5)

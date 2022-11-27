@@ -1,5 +1,6 @@
 from math import ceil
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Optional, Generator
 
 from manim import Scene, config
@@ -12,8 +13,7 @@ from manim_voiceover.helper import chunks
 
 
 class VoiceoverScene(Scene):
-    """A scene class that can be used to add voiceover to a scene.
-    """
+    """A scene class that can be used to add voiceover to a scene."""
 
     speech_service: SpeechService
     current_tracker: Optional[VoiceoverTracker]
@@ -35,7 +35,6 @@ class VoiceoverScene(Scene):
         self.speech_service = speech_service
         self.current_tracker = None
         self.create_subcaption = create_subcaption
-
 
     def add_voiceover_text(
         self,
@@ -62,8 +61,8 @@ class VoiceoverScene(Scene):
             )
 
         dict_ = self.speech_service._wrap_generate_from_text(text, **kwargs)
-        tracker = VoiceoverTracker(self, dict_["json_path"])
-        self.add_sound(dict_["final_audio"])
+        tracker = VoiceoverTracker(self, dict_, self.speech_service.cache_dir)
+        self.add_sound(str(Path(self.speech_service.cache_dir) / dict_["final_audio"]))
         self.current_tracker = tracker
 
         # if self.create_script:
@@ -135,8 +134,7 @@ class VoiceoverScene(Scene):
     #         f.write("\n\n")
 
     def wait_for_voiceover(self) -> None:
-        """Waits for the voiceover to finish.
-        """
+        """Waits for the voiceover to finish."""
         if not hasattr(self, "current_tracker"):
             return
         if self.current_tracker is None:

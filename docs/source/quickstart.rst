@@ -99,4 +99,46 @@ Bookmarks allow you to trigger an animation at a specific word in the voiceover.
 
 With bookmarks, you can time your animations much more precisely. See the `bookmark example <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/bookmark-example.py>`__ and `Approximating Tau <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/approximating-tau.py>`__ for more examples.
 
+Record your own voiceover
+*************************
 
+Manim Voiceover can record your voiceover directly from the command line. We recommend the following workflow:
+
+1. Develop your animation with one of the text-to-speech engines, e.g. :py:class:`services.gtts.GTTSService`:
+
+.. code:: py
+
+   from manim_voiceover import VoiceoverScene
+   from manim_voiceover.services.gtts import GTTSService
+
+   class MyAwesomeScene(VoiceoverScene):
+       def construct(self):
+           self.set_speech_service(GTTSService())
+
+           with self.voiceover(text="This circle is drawn as I speak.") as tracker:
+               self.play(Create(circle))
+
+
+2. When you're happy with the animation, switch the service with :py:class:`services.recorder.RecorderService` to record your own voiceover:
+
+.. code:: py
+
+   from manim_voiceover import VoiceoverScene
+   # from manim_voiceover.services.gtts import GTTSService
+   from manim_voiceover.services.recorder import RecorderService
+
+   class MyAwesomeScene(VoiceoverScene):
+       def construct(self):
+           # self.set_speech_service(GTTSService())
+           self.set_speech_service(RecorderService())
+
+           with self.voiceover(text="This circle is drawn as I speak.") as tracker:
+               self.play(Create(circle))
+
+3. Render the scene the same way you would normally do:
+
+.. code:: sh
+
+   manim -pql my_awesome_scene.py --disable_caching
+
+This will instruct you in the terminal step by step what to do to record your voiceover.
