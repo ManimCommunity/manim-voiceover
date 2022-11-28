@@ -1197,6 +1197,14 @@ docs = ["furo", "olefile", "sphinx (>=2.4)", "sphinx-copybutton", "sphinx-issues
 tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout"]
 
 [[package]]
+name = "pip"
+version = "22.3.1"
+description = "The PyPA recommended tool for installing Python packages."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "platformdirs"
 version = "2.5.4"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
@@ -4331,21 +4339,14 @@ test = ["pytest (>=3.0.0)"]
 
 [[package]]
 name = "whisper"
-version = "1.0"
-description = ""
+version = "1.1.10"
+description = "Fixed size round-robin style database"
 category = "main"
 optional = true
-python-versions = ">=3.7"
-develop = false
+python-versions = "*"
 
-[package.extras]
-dev = ["pytest"]
-
-[package.source]
-type = "git"
-url = "https://github.com/openai/whisper.git"
-reference = "HEAD"
-resolved_reference = "eff383b27b783e280c089475852ba83f20f64998"
+[package.dependencies]
+six = "*"
 
 [[package]]
 name = "wrapt"
@@ -4368,18 +4369,18 @@ docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker
 testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
 [extras]
-all = ["azure-cognitiveservices-speech", "gTTS", "pyttsx3", "torch", "TTS", "PyAudio", "whisper", "stable-ts", "pynput", "playsound"]
+all = ["azure-cognitiveservices-speech", "gTTS", "pyttsx3", "torch", "TTS", "PyAudio", "stable-ts", "pynput", "playsound"]
 azure = ["azure-cognitiveservices-speech"]
 coqui = ["torch", "TTS"]
 gtts = ["gTTS"]
 pyttsx3 = ["pyttsx3"]
-recorder = ["PyAudio", "whisper", "pynput", "playsound", "stable-ts"]
-whisper = ["whisper", "stable-ts"]
+recorder = ["PyAudio", "pynput", "playsound", "stable-ts"]
+whisper = ["stable-ts"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "e630d842b5b17e17f221fecb2e80c70017852fd8a2e89ad55e60eed64620cf72"
+content-hash = "8a2dc3e6fa7da1d092a5e12a05e40351d454c4e072bc787b906a0af194b2ec9c"
 
 [metadata.files]
 alabaster = [
@@ -5532,6 +5533,10 @@ Pillow = [
     {file = "Pillow-9.3.0-pp38-pypy38_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:0b07fffc13f474264c336298d1b4ce01d9c5a011415b79d4ee5527bb69ae6f65"},
     {file = "Pillow-9.3.0-pp38-pypy38_pp73-win_amd64.whl", hash = "sha256:073adb2ae23431d3b9bcbcff3fe698b62ed47211d0716b067385538a1b0f28b8"},
     {file = "Pillow-9.3.0.tar.gz", hash = "sha256:c935a22a557a560108d780f9a0fc426dd7459940dc54faa49d83249c8d3e760f"},
+]
+pip = [
+    {file = "pip-22.3.1-py3-none-any.whl", hash = "sha256:908c78e6bc29b676ede1c4d57981d490cb892eb45cd8c214ab6298125119e077"},
+    {file = "pip-22.3.1.tar.gz", hash = "sha256:65fd48317359f3af8e593943e6ae1506b66325085ea64b706a998c6e83eeaf38"},
 ]
 platformdirs = [
     {file = "platformdirs-2.5.4-py3-none-any.whl", hash = "sha256:af0276409f9a02373d540bf8480021a048711d572745aef4b7842dad245eba10"},
@@ -7096,7 +7101,9 @@ wheel = [
     {file = "wheel-0.38.4-py3-none-any.whl", hash = "sha256:b60533f3f5d530e971d6737ca6d58681ee434818fab630c83a734bb10c083ce8"},
     {file = "wheel-0.38.4.tar.gz", hash = "sha256:965f5259b566725405b05e7cf774052044b1ed30119b5d586b2703aafe8719ac"},
 ]
-whisper = []
+whisper = [
+    {file = "whisper-1.1.10.tar.gz", hash = "sha256:435b4fb843c4c752719bdf0511a652d5be710e9bb35ad9ebe3b133268ee31c44"},
+]
 wrapt = [
     {file = "wrapt-1.14.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:1b376b3f4896e7930f1f772ac4b064ac12598d1c38d04907e696cc4d794b43d3"},
     {file = "wrapt-1.14.1-cp27-cp27m-manylinux1_i686.whl", hash = "sha256:903500616422a40a98a5a3c4ff4ed9d0066f3b4c951fa286018ecdf0750194ef"},

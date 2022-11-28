@@ -1,6 +1,8 @@
 import json
 import re
 import os
+import sys
+import pip
 import textwrap
 from pydub import AudioSegment
 from pathlib import Path
@@ -113,3 +115,70 @@ def append_to_json_file(json_file: str, data: dict):
     with open(json_file, "w") as f:
         json.dump(json_data, f, indent=2)
     return
+
+
+def get_whisper_model(model_name: str):
+    installed = False
+    while True:
+        try:
+            import whisper
+        except ImportError:
+            print("OpenAI Whisper is not installed. Shall I install it for you? [Y/n]")
+            print("Note: This will install the latest version of Whisper from GitHub.")
+            answer = input()
+            if answer.lower() == "n":
+                raise ImportError(
+                    "Whisper is not installed. Install it by running `pip install git+https://github.com/openai/whisper.git`"
+                )
+            else:
+                print("Installing Whisper...")
+                pip.main(["install", "git+https://github.com/openai/whisper.git"])
+                installed = True
+                continue
+
+        try:
+            import whisper as tmp
+
+            tmp.load_model
+        except AttributeError:
+            print(
+                "The installed whisper package appears to be the wrong one. "
+                "The PyPI package `whisper` is not the one from OpenAI. "
+                "Unfortunately, OpenAI did not publish their package to PyPI "
+                "and it needs to be installed from GitHub. "
+                "Shall I uninstall the wrong `whisper` for you? [Y/n]\n"
+                "Note: Run Manim again after uninstalling the wrong package to install the correct one."
+            )
+            answer = input()
+            if answer.lower() == "n":
+                print("Please uninstall the wrong whisper package manually.")
+                sys.exit(1)
+            else:
+                print("Uninstalling wrong whisper package...")
+                pip.main(["uninstall", "whisper", "-y"])
+                sys.exit(0)
+        try:
+            import stable_whisper as whisper
+        except ImportError:
+            print(
+                "The package stable-ts is not installed (Required for fixing timestamps returned by Whisper)."
+            )
+            print("Shall I install it for you? [Y/n]")
+            answer = input()
+            if answer.lower() == "n":
+                raise ImportError(
+                    "stable-ts is not installed. Install it by running `pip install stable-ts`"
+                )
+            else:
+                print("Installing stable-ts...")
+                pip.main(["install", "manim-voiceover[whisper]"])
+                installed = True
+                continue
+
+        break
+
+    if installed:
+        print("Installed missing packages. Please run Manim again.")
+        sys.exit(0)
+
+    return whisper.load_model(model_name)
