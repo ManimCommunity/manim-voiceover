@@ -10,7 +10,7 @@ from manim_voiceover.defaults import (
     DEFAULT_VOICEOVER_CACHE_DIR,
     DEFAULT_VOICEOVER_CACHE_JSON_FILENAME,
 )
-from manim_voiceover.helper import append_to_json_file
+from manim_voiceover.helper import append_to_json_file, get_whisper_model
 from manim_voiceover.modify_audio import adjust_speed
 from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
 
@@ -69,19 +69,7 @@ class SpeechService(ABC):
         self.transcription_model = transcription_model
 
         if self.transcription_model is not None:
-            try:
-                import stable_whisper as whisper
-
-                self._whisper_model = whisper.load_model(self.transcription_model)
-            except ImportError:
-                logger.error(
-                    "Missing packages. Run `pip install manim-voiceover[whisper]` for transcription."
-                )
-                sys.exit(1)
-
-    # def _init_whisper_model(self):
-    #     if self._whisper_model is None:
-    #         self._whisper_model = whisper.load_model("base")
+            self._whisper_model = get_whisper_model(self.transcription_model)
 
     def _wrap_generate_from_text(self, text: str, path: str = None, **kwargs) -> dict:
         # Replace newlines with lines, reduce multiple consecutive spaces to single
