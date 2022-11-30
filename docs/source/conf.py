@@ -47,6 +47,7 @@ extensions = [
     "sphinx.ext.inheritance_diagram",
     "sphinxcontrib.programoutput",
     "sphinxcontrib.video",
+    "sphinx_sitemap",
 ]
 
 # Automatically generate stub pages when using the .. autosummary directive
@@ -134,6 +135,9 @@ html_title = f"Manim Voiceover v{manim_voiceover.__version__}"
 # This specifies any additional css files that will override the theme's
 html_css_files = ["custom.css"]
 
+# For the sitemap
+html_baseurl = 'https://voiceover.manim.community/en/stable/'
+sitemap_url_scheme = "{link}"
 
 # external links
 extlinks = {

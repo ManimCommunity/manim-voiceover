@@ -102,7 +102,7 @@ Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/b
 :py:class:`~coqui.CoquiService`
 *******************************
 
-`Coqui TTS <https://tts.readthedocs.io/en/latest/>`__ is an open source neural text-to-speech engine.
+`Coqui TTS <https://tts.readthedocs.io/>`__ is an open source neural text-to-speech engine.
 It is a fork of Mozilla TTS, which is an implementation of Tacotron 2.
 It is a very good TTS engine that produces human-like speech.
 However, it requires `PyTorch <https://pytorch.org/>`__ to run, which may be difficult to set up on certain platforms.

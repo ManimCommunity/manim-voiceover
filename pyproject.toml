@@ -93,6 +93,7 @@ sphinxcontrib-programoutput = "^0.17"
 psutil-wheels = { version = "5.8.0", python = ">=3.10" }
 psutil = { version = "^5.8.0", python = "<3.10" }
 sphinxcontrib-video = "^0.0.1.dev3"
+sphinx-sitemap = "^2.2.1"
 
 
 [tool.poetry.plugins."manim.plugins"]
