@@ -74,7 +74,7 @@ class RecorderService(SpeechService):
 
         input_data = {
             # Remove bookmarks so that we don't record a voiceover every time we change a bookmark
-            "input_text": remove_bookmarks(text),
+            "input_text": input_text,
             "config": {
                 "format": self.recorder.format,
                 "channels": self.recorder.channels,

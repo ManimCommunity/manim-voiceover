@@ -13,6 +13,8 @@ Voiceover scene
    :show-inheritance:
    :imported-members:
 
+.. _api-speech-services:
+
 Speech services
 ~~~~~~~~~~~~~~~
 

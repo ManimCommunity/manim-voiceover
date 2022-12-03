@@ -101,6 +101,17 @@ class VoiceoverTracker:
         # print(result)
         return result
 
+    def _check_bookmarks(self):
+        if not hasattr(self, "bookmark_times"):
+            raise Exception(
+                "Word boundaries are required for timing with bookmarks. "
+                "Manim Voiceover currently supports auto-transcription using OpenAI Whisper, "
+                "but this is not enabled for each speech service by default. "
+                "You can enable it by setting transcription_model='base' in your speech service initialization. "
+                "If the performance of the base model is not satisfactory, you can use one of the larger models. "
+                "See https://github.com/openai/whisper for a list of all the available models."
+            )
+
     def time_until_bookmark(
         self, mark: str, buff: int = 0, limit: Optional[int] = None
     ) -> int:
@@ -114,6 +125,7 @@ class VoiceoverTracker:
         Returns:
             int:
         """
+        self._check_bookmarks()
         if not mark in self.bookmark_times:
             raise Exception("There is no <bookmark mark='%s' />" % mark)
         result = max(self.bookmark_times[mark] - self.scene.renderer.time + buff, 0)

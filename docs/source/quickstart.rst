@@ -142,3 +142,20 @@ Manim Voiceover can record your voiceover directly from the command line. We rec
    manim -pql my_awesome_scene.py --disable_caching
 
 This will instruct you in the terminal step by step what to do to record your voiceover.
+
+
+Generate voiceovers in a different language
+*******************************************
+
+Each speech service supports a different set of options, and some of them
+support multiple languages. You can learn about these options in the
+:ref:`api-speech-services` section in the API reference.
+
+For example, :py:class:`services.gtts.GTTSService`
+supports all the languages supported by Google Translate, which you
+can find `here <https://cloud.google.com/translate/docs/languages>`__.
+The `gTTS example <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/gtts-example.py>`__
+implements the same scene in English and Vietnamese as a demonstration.
+
+If you can't find a good text-to-speech engine for your language, you can directly
+record your own voiceover using :py:class:`services.recorder.RecorderService`.
