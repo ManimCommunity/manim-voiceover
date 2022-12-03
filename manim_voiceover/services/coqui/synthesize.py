@@ -11,7 +11,7 @@ try:
     from .utils_synthesizer import Synthesizer
 except ImportError:
     logger.error(
-        'Missing packages. Run `pip install "manim-voiceover[coqui]"` to use CoquiService.'
+        'Missing packages. Run `pip install TTS` to use CoquiService.'
     )
 
 DEFAULT_MODEL = "tts_models/en/ljspeech/tacotron2-DDC"
