@@ -59,6 +59,7 @@ azure = ["azure-cognitiveservices-speech"]
 gtts = ["gTTS"]
 pyttsx3 = ["pyttsx3"]
 # coqui = ["torch", "TTS"]
+coqui = [] # Removed TTS as deps for now
 recorder = ["PyAudio", "pynput", "playsound"]
 all = [
     "azure-cognitiveservices-speech",
