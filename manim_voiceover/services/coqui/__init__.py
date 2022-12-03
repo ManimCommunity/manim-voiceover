@@ -3,7 +3,7 @@ import json
 import hashlib
 from pathlib import Path
 
-from manim_voiceover.helper import remove_bookmarks
+from manim_voiceover.helper import prompt_ask_missing_package, remove_bookmarks
 from manim_voiceover.services.base import SpeechService
 from manim_voiceover.services.coqui.synthesize import synthesize_coqui, DEFAULT_MODEL
 
@@ -20,6 +20,7 @@ class CoquiService(SpeechService):
     ):
         """"""
         self.init_kwargs = kwargs
+        prompt_ask_missing_package("TTS", "TTS")
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(
