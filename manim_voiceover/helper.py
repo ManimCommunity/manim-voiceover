@@ -161,7 +161,7 @@ def get_whisper_model(model_name: str):
             import stable_whisper as whisper
         except ImportError:
             print(
-                "The package stable-ts is not installed (Required for fixing timestamps returned by Whisper)."
+                "\nThe package stable-ts is not installed (Required for fixing timestamps returned by Whisper)."
             )
             print("Shall I install it for you? [Y/n]")
             answer = input()

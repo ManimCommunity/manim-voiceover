@@ -136,7 +136,7 @@ html_title = f"Manim Voiceover v{manim_voiceover.__version__}"
 html_css_files = ["custom.css"]
 
 # For the sitemap
-html_baseurl = 'https://voiceover.manim.community/en/stable/'
+html_baseurl = "https://voiceover.manim.community/en/stable/"
 sitemap_url_scheme = "{link}"
 
 # external links
