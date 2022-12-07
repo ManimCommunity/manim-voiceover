@@ -1,7 +1,12 @@
 import os
 from pathlib import Path
+import sys
 from dotenv import load_dotenv, find_dotenv
-from manim_voiceover.helper import prompt_ask_missing_extras, remove_bookmarks
+from manim_voiceover.helper import (
+    create_dotenv_file,
+    prompt_ask_missing_extras,
+    remove_bookmarks,
+)
 from manim import logger
 
 try:
@@ -25,6 +30,18 @@ def serialize_word_boundary(wb):
         "text": wb["text"],
         "boundary_type": wb["boundary_type"],
     }
+
+
+def create_dotenv_azure():
+    logger.info(
+        "Check out https://voiceover.manim.community/en/stable/services.html#azureservice to learn how to create an account and get your subscription key."
+    )
+    if not create_dotenv_file(["AZURE_SUBSCRIPTION_KEY", "AZURE_SERVICE_REGION"]):
+        raise Exception(
+            "The environment variables AZURE_SUBSCRIPTION_KEY and AZURE_SERVICE_REGION are not set. Please set them or create a .env file with the variables."
+        )
+    logger.info("The .env file has been created. Please run Manim again.")
+    sys.exit()
 
 
 class AzureService(SpeechService):
@@ -130,9 +147,10 @@ class AzureService(SpeechService):
             azure_subscription_key = os.environ["AZURE_SUBSCRIPTION_KEY"]
             azure_service_region = os.environ["AZURE_SERVICE_REGION"]
         except KeyError:
-            raise Exception(
-                "Microsoft Azure's text-to-speech API needs account credentials to connect. You can create an account for free and (as of writing this) get a free quota of TTS minutes. Check out the documentation for instructions."
+            logger.error(
+                "Could not find the environment variables AZURE_SUBSCRIPTION_KEY and AZURE_SERVICE_REGION. Microsoft Azure's text-to-speech API needs account credentials to connect. You can create an account for free and (as of writing this) get a free quota of TTS minutes."
             )
+            create_dotenv_azure()
 
         speech_config = speechsdk.SpeechConfig(
             subscription=azure_subscription_key,
@@ -188,6 +206,16 @@ class AzureService(SpeechService):
                     logger.error(
                         "Error details: {}".format(cancellation_details.error_details)
                     )
+                    if "authentication" in cancellation_details.error_details.lower():
+                        logger.error(
+                            "The authentication credentials are invalid. Please check the environment variables AZURE_SUBSCRIPTION_KEY and AZURE_SERVICE_REGION."
+                        )
+                        logger.info(
+                            "Would you like to enter new values for the variables in the .env file? [Y/n]"
+                        )
+                        if input().lower() in ["y", "yes", ""]:
+                            create_dotenv_azure()
+
             raise Exception("Speech synthesis failed")
 
         return json_dict

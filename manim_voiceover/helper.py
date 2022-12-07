@@ -244,3 +244,24 @@ def prompt_ask_missing_extras(
         pip.main(["install", f"manim-voiceover[{extras}]"])
         logger.info("Installed missing extras. Please run Manim again.")
         sys.exit(0)
+
+
+def create_dotenv_file(required_variable_names: list, dotenv=".env"):
+    """Create a .env file with the required variables"""
+    if os.path.exists(dotenv):
+        logger.info(
+            f"File {dotenv} already exists. Would you like to overwrite it? [Y/n]"
+        )
+        answer = input()
+        if answer.lower() == "n":
+            logger.info("Skipping .env file creation...")
+            return False
+
+    logger.info("Creating .env file...")
+    with open(dotenv, "w") as f:
+        for var_name in required_variable_names:
+            logger.info(f"Enter value for {var_name}:")
+            value = input()
+            f.write(f"{var_name}={value}\n")
+
+    return True
