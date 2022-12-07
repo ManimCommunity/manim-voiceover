@@ -68,7 +68,6 @@ class AzureService(SpeechService):
             prosody = kwargs["prosody"]
 
         if prosody is not None:
-            prosody = kwargs["prosody"]
             if not isinstance(prosody, dict):
                 raise ValueError(
                     "The prosody argument must be a dict that contains at least one of the following keys: 'pitch', 'contour', 'range', 'rate', 'volume'."

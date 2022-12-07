@@ -6,7 +6,7 @@ try:
     from gtts import gTTS, gTTSError
 except ImportError:
     logger.error(
-        'Missing packages. Run `pip install "manim-voiceover[gtts]"` to use GoogleService.'
+        'Missing packages. Run `pip install "manim-voiceover[gtts]"` to use GTTSService.'
     )
 
 from manim_voiceover.services.base import SpeechService
