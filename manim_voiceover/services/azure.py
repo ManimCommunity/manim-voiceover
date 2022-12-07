@@ -84,9 +84,7 @@ class AzureService(SpeechService):
             cache_dir = self.cache_dir
 
         # Apply prosody
-        prosody = self.prosody
-        if "prosody" in kwargs:
-            prosody = kwargs["prosody"]
+        prosody = kwargs.get("prosody", self.prosody)
 
         if prosody is not None:
             if not isinstance(prosody, dict):
