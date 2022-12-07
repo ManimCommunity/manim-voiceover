@@ -9,14 +9,9 @@ from manim import logger
 
 from manim_voiceover.helper import trim_silence, wav2mp3
 
-try:
-    from pynput import keyboard
-    import pyaudio
-    import playsound
-except ImportError:
-    logger.error(
-        'Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.'
-    )
+from pynput import keyboard
+import pyaudio
+import playsound
 
 
 class MyListener(keyboard.Listener):

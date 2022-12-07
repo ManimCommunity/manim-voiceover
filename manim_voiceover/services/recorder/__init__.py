@@ -1,5 +1,5 @@
 from pathlib import Path
-from manim_voiceover.helper import msg_box, remove_bookmarks
+from manim_voiceover.helper import msg_box, prompt_ask_missing_extras, remove_bookmarks
 
 from manim_voiceover.services.base import SpeechService
 from manim import logger
@@ -47,6 +47,10 @@ class RecorderService(SpeechService):
             trim_buffer_start (int, optional): Buffer duration for trimming silence at the start. Defaults to 200 ms.
             trim_buffer_end (int, optional): Buffer duration for trimming silence at the end. Defaults to 200 ms.
         """
+        prompt_ask_missing_extras(
+            ["pyaudio", "pynput", "playsound"], "recorder", "RecorderService"
+        )
+
         self.recorder = Recorder(
             format=format,
             channels=channels,
