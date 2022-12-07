@@ -1,6 +1,6 @@
 from pathlib import Path
 from manim import logger
-from manim_voiceover.helper import remove_bookmarks
+from manim_voiceover.helper import prompt_ask_missing_extras, remove_bookmarks
 
 try:
     from gtts import gTTS, gTTSError
@@ -26,6 +26,7 @@ class GTTSService(SpeechService):
                 for all the available options. Defaults to "en".
             tld (str, optional): Top level domain of the Google Translate URL. Defaults to "com".
         """
+        prompt_ask_missing_extras("gtts", "gtts", "GTTSService")
         SpeechService.__init__(self, **kwargs)
         self.lang = lang
         self.tld = tld

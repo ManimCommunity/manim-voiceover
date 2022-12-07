@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv, find_dotenv
-from manim_voiceover.helper import remove_bookmarks
+from manim_voiceover.helper import prompt_ask_missing_extras, remove_bookmarks
 from manim import logger
 
 try:
@@ -46,6 +46,10 @@ class AzureService(SpeechService):
             output_format (str, optional): The output format to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/rest-text-to-speech?tabs=streaming#audio-outputs>`__ for all the available options. Defaults to ``Audio48Khz192KBitRateMonoMp3``.
             prosody (dict, optional): Global prosody settings to use. See the `API page <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup#adjust-prosody>`__ for all the available options. Defaults to None.
         """
+        prompt_ask_missing_extras(
+            "azure.cognitiveservices.speech", "azure", "AzureService"
+        )
+
         self.voice = voice
         self.style = style
         self.output_format = output_format

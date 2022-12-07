@@ -1,11 +1,12 @@
 from pathlib import Path
 from manim import logger
+from manim_voiceover.helper import prompt_ask_missing_extras
 
 try:
     from pyttsx3 import Engine
 except ImportError:
     logger.error(
-        'Missing packages. Run `pip install "manim-voiceover[pyttsx3]"` to use Pyttsx3Service.'
+        'Missing packages. Run `pip install "manim-voiceover[pyttsx3]"` to use PyTTSX3Service.'
     )
 
 from manim_voiceover.services.base import SpeechService
@@ -16,6 +17,8 @@ class PyTTSX3Service(SpeechService):
 
     def __init__(self, engine=None, **kwargs):
         """"""
+        prompt_ask_missing_extras("pyttsx3", "pyttsx3", "PyTTSX3Service")
+
         if engine is None:
             engine = Engine()
 

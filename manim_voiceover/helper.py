@@ -3,6 +3,7 @@ import json
 import re
 import os
 import sys
+from typing import Union
 import pip
 import textwrap
 from pydub import AudioSegment
@@ -208,4 +209,38 @@ def prompt_ask_missing_package(target_module: str, package_name: str):
         logger.info(f"Installing {package_name}...")
         pip.main(["install", package_name])
         logger.info("Installed missing packages. Please run Manim again.")
+        sys.exit(0)
+
+
+def prompt_ask_missing_extras(
+    target_module: Union[str, list],
+    extras: str,
+    dependent_item: str,
+):
+    if isinstance(target_module, str):
+        target_modules = []
+    elif isinstance(target_module, list):
+        target_modules = target_module
+    else:
+        raise TypeError("target_module must be a string or a list of strings")
+
+    try:
+        for target_module in target_modules:
+            importlib.import_module(target_module)
+        return
+    except ImportError:
+        pass
+    logger.info(
+        f"The extra packages required by {dependent_item} are not installed. "
+        f"Shall I install them for you? [Y/n]"
+    )
+    answer = input()
+    if answer.lower() == "n":
+        raise ImportError(
+            f'{extras} extras are not installed. Install them by running `pip install "manim-voiceover[{extras}]"`'
+        )
+    else:
+        logger.info(f"Installing {extras}...")
+        pip.main(["install", f"manim-voiceover[{extras}]"])
+        logger.info("Installed missing extras. Please run Manim again.")
         sys.exit(0)
