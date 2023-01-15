@@ -75,3 +75,22 @@ Install SoX (and a necessary mp3 handler) on Debian based distros:
 
 Or install `from
 source <https://sourceforge.net/projects/sox/files/sox/>`__.
+
+Installing gettext
+~~~~~~~~~~~~~~~~~~
+
+Manim Voiceover uses `gettext <https://www.gnu.org/software/gettext/>`__ to
+store and fetch translations of voiceover text. If you plan to translate
+your videos automatically, you need to install gettext.
+
+On Debian based distros:
+
+.. code:: sh
+
+   sudo apt install gettext
+
+On macOS, you can install it using `Homebrew <https://brew.sh/>`__:
+
+.. code:: sh
+
+   brew install gettext
