@@ -1,14 +1,16 @@
 import argparse
+from collections import OrderedDict
 import os
 import sys
-import deep_translator
+from deep_translator import DeeplTranslator
 from pathlib import Path
 import gettext
+import dotenv
 
 from manim_voiceover.defaults import DEEPL_AVAILABLE_TARGET_LANG
 
-# Get the current working directory as Path
 
+# Get the current working directory as Path
 CWD = Path.cwd()
 
 
@@ -94,19 +96,28 @@ def init_language(target_lang, domain, localedir):
     return po_path
 
 
-def translate_po_file(po_path, target_lang):
+def translate_po_file(po_path, source_lang, target_lang, api_key=None):
     "Translates a .po file using DeepL. Note: This overwrites the .po file."
+
+    assert api_key is not None, "Please provide a DeepL API key."
+
     with open(po_path, "r") as f:
         content = f.read()
 
+    split = content.split("msgid")
     # Get all strings to translate
-    strings = content.split("msgid")[1:]
+    strings = split[1:]
 
+    skipped = {}
+    to_translate = OrderedDict()
+    msgid = OrderedDict()
     # Iterate over all strings
-    for string in strings:
+    for idx, string in enumerate(strings):
+
+        msgid[idx] = string.split("msgstr")[0]
 
         # Get the string to translate
-        string_to_translate = string.split("msgstr")[0].strip()
+        string_to_translate = msgid[idx].strip()
 
         # If there are lines that are comments, remove them
         tokens = [
@@ -118,26 +129,55 @@ def translate_po_file(po_path, target_lang):
         string_to_translate = "".join(tokens)
 
         if string_to_translate == "":
+            skipped[idx] = string
             continue
 
         # Unescape whitespace
         string_to_translate = string_to_translate.replace("\\t", "\t")
         string_to_translate = string_to_translate.replace("\\n", "\n")
 
+        # Join the lines
+        string_to_translate = " ".join(string_to_translate.split("\n"))
 
-        import ipdb
+        to_translate[idx] = string_to_translate
 
-        ipdb.set_trace()
+    translate_text = "<msg>".join(to_translate.values())
 
-        # # Translate the string
-        # translated_string = deep_translator.DeepL(
-        #     source="en", target=target_lang
-        # ).translate(string_to_translate)
+    translated = DeeplTranslator(
+        api_key=api_key, source=source_lang, target=target_lang, use_free_api=True
+    ).translate(translate_text)
 
-        # # Replace the string in the content
+    translated = translated.split("<msg>")
+
+    translated_dict = OrderedDict()
+
+    for idx, translation in enumerate(translated):
+        translated_dict[list(to_translate.keys())[idx]] = translation
+
+    for idx, string in enumerate(skipped):
+        translated_dict[idx] = skipped[idx]
+
+    new_content = split[0]
+    for idx in sorted(translated_dict.keys()):
+        new_content += (
+            "msgid" + msgid[idx] + 'msgstr "' + translated_dict[idx] + '"\n\n'
+        )
+
+    with open(po_path, "w") as f:
+        f.write(new_content)
 
 
 def main():
+
+    # dotenv.load_dotenv(".env")
+    DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
+
+    if DEEPL_API_KEY is None:
+        print(
+            "Please set the DEEPL_API_KEY environment variable to your DeepL API Key. (Available under https://www.deepl.com/account/summary)"
+        )
+        sys.exit(1)
+
     args = parser.parse_args()
 
     # Initialize gettext
@@ -153,7 +193,7 @@ def main():
     po_path = init_language(args.target, args.domain, args.localedir)
 
     # Translate po file
-    translate_po_file(po_path, args.target)
+    translate_po_file(po_path, args.source, args.target, api_key=DEEPL_API_KEY)
 
 
 if __name__ == "__main__":
