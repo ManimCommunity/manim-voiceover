@@ -88,8 +88,53 @@ def init_language(target_lang, domain, localedir):
     else:
         # If it does not, create it
         os.system(
-            f"msginit -i {localedir / f'{domain}.pot'} -o {po_path} -l {target_lang}"
+            f"msginit --no-translator -i {localedir / f'{domain}.pot'} -o {po_path} -l {target_lang}"
         )
+
+    return po_path
+
+
+def translate_po_file(po_path, target_lang):
+    "Translates a .po file using DeepL. Note: This overwrites the .po file."
+    with open(po_path, "r") as f:
+        content = f.read()
+
+    # Get all strings to translate
+    strings = content.split("msgid")[1:]
+
+    # Iterate over all strings
+    for string in strings:
+
+        # Get the string to translate
+        string_to_translate = string.split("msgstr")[0].strip()
+
+        # If there are lines that are comments, remove them
+        tokens = [
+            i.strip()[1:-1]
+            for i in string_to_translate.split("\n")
+            if i.strip().startswith('"') and i.strip().endswith('"')
+        ]
+
+        string_to_translate = "".join(tokens)
+
+        if string_to_translate == "":
+            continue
+
+        # Unescape whitespace
+        string_to_translate = string_to_translate.replace("\\t", "\t")
+        string_to_translate = string_to_translate.replace("\\n", "\n")
+
+
+        import ipdb
+
+        ipdb.set_trace()
+
+        # # Translate the string
+        # translated_string = deep_translator.DeepL(
+        #     source="en", target=target_lang
+        # ).translate(string_to_translate)
+
+        # # Replace the string in the content
 
 
 def main():
@@ -98,14 +143,17 @@ def main():
     # Initialize gettext
     init_gettext(args.files, args.domain, args.localedir)
 
-    if args.target_lang not in DEEPL_AVAILABLE_TARGET_LANG:
-        print(f"Target language {args.target_lang} is not available for DeepL.")
+    if args.target not in DEEPL_AVAILABLE_TARGET_LANG:
+        print(f"Target language {args.target} is not available for DeepL.")
         print("Available languages are:")
         print(DEEPL_AVAILABLE_TARGET_LANG)
         sys.exit(1)
 
     # Initialize language directory
-    init_language(args.target_lang, args.domain, args.localedir)
+    po_path = init_language(args.target, args.domain, args.localedir)
+
+    # Translate po file
+    translate_po_file(po_path, args.target)
 
 
 if __name__ == "__main__":
