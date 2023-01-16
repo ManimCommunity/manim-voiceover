@@ -28,7 +28,7 @@ parser.add_argument(
 )
 # CWD / locale is the default value, string is converted to Path
 parser.add_argument(
-    "-l",
+    "-f",
     "--localedir",
     type=Path,
     default=CWD / "locale",
@@ -41,6 +41,14 @@ parser.add_argument(
     type=str,
     default="l",
     help="Quality of translation  [l|m|h|p|k]",
+)
+# Add locale
+parser.add_argument(
+    "-l",
+    "--locale",
+    type=str,
+    default=None,
+    help="Locale for translation. Enter a comma separated list of locales. If not specified, all locales will be translated.",
 )
 
 # Argument for scene
@@ -79,15 +87,30 @@ def main():
     if scene not in open(file).read():
         raise ValueError(f"Scene {scene} is not in file {file}")
 
+
+    locales = []
+
+    if args.locale is None:
+        # Iterate all locale directories
+        for locale in os.listdir(localedir):
+            # Check if the .po file exists
+            po_path = localedir / locale / "LC_MESSAGES" / f"{domain}.po"
+            if not os.path.exists(po_path):
+                print(f"Skipping {locale} because {domain}.po does not exist")
+                continue
+            locales.append(locale)
+    else:
+        locales = args.locale.split(",")
+
     # Iterate all locale directories
-    for locale in os.listdir(localedir):
+    for locale in locales:
         # Check if the .po file exists
         po_path = localedir / locale / "LC_MESSAGES" / f"{domain}.po"
         mo_path = localedir / locale / "LC_MESSAGES" / f"{domain}.mo"
 
-        if not os.path.exists(po_path):
-            print(f"Skipping {locale} because {domain}.po does not exist")
-            continue
+        # if not os.path.exists(po_path):
+        #     print(f"Skipping {locale} because {domain}.po does not exist")
+        #     continue
 
         # If the .mo file does not exist, create it
         if not os.path.exists(mo_path):
