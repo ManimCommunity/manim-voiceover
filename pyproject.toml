@@ -38,6 +38,7 @@ classifiers = [
 
 [tool.poetry.scripts]
 manim_translate = 'manim_voiceover.translate:main'
+manim_render_translations = 'manim_voiceover.render_translations:main'
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4"
@@ -54,7 +55,8 @@ pyttsx3 = { version = "^2.90", optional = true }
 # TTS = { version = "*", optional = true }
 pynput = { version = "^1.7.6", optional = true }
 playsound = { version = "^1.3.0", optional = true }
-deep-translator = { version = "^1.9.2", optional = true }
+# deep-translator = { version = "^1.9.2", optional = true }
+deepl = { version = "^1.12.0", optional = true }
 humanhash3 = "^0.0.6"
 pip = ">=21.0.1"
 
@@ -65,7 +67,7 @@ pyttsx3 = ["pyttsx3"]
 # coqui = ["torch", "TTS"]
 coqui = [] # Removed TTS as deps for now
 recorder = ["PyAudio", "pynput", "playsound"]
-translate = ["deep-translator"]
+translate = ["deepl"]
 all = [
     "azure-cognitiveservices-speech",
     "gTTS",
@@ -75,7 +77,7 @@ all = [
     "PyAudio",
     "pynput",
     "playsound",
-    "deep-translator",
+    "deepl",
 ]
 
 [tool.poetry.group.dev.dependencies]
