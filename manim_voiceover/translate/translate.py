@@ -94,7 +94,7 @@ def main():
             # Translate po file
             wait = po_file.translate(lang, api_key=DEEPL_API_KEY)
             if wait:
-                sleep(5)
+                sleep(2)
 
 
 if __name__ == "__main__":
