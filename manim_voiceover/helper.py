@@ -119,77 +119,6 @@ def append_to_json_file(json_file: str, data: dict):
     return
 
 
-def get_whisper_model(model_name: str):
-    installed = False
-    while True:
-        try:
-            import whisper
-        except ImportError:
-            logger.info(
-                "OpenAI Whisper is not installed. Shall I install it for you? [Y/n]"
-            )
-            logger.info(
-                "Note: This will install the latest version of Whisper from GitHub."
-            )
-            answer = input()
-            if answer.lower() == "n":
-                raise ImportError(
-                    "Whisper is not installed. Install it by running `pip install git+https://github.com/openai/whisper.git`"
-                )
-            else:
-                logger.info("Installing Whisper...")
-                pip.main(["install", "git+https://github.com/openai/whisper.git"])
-                installed = True
-                continue
-
-        try:
-            import whisper as tmp
-
-            tmp.load_model
-        except AttributeError:
-            logger.info(
-                "The installed whisper package appears to be the wrong one. "
-                "The PyPI package `whisper` is not the one from OpenAI. "
-                "Unfortunately, OpenAI did not publish their package to PyPI "
-                "and it needs to be installed from GitHub. "
-                "Shall I uninstall the wrong `whisper` for you? [Y/n]\n"
-                "Note: Run Manim again after uninstalling the wrong package to install the correct one."
-            )
-            answer = input()
-            if answer.lower() == "n":
-                logger.info("Please uninstall the wrong whisper package manually.")
-                sys.exit(1)
-            else:
-                logger.info("Uninstalling wrong whisper package...")
-                pip.main(["uninstall", "whisper", "-y"])
-                sys.exit(0)
-        try:
-            import stable_whisper as whisper
-        except ImportError:
-            logger.info(
-                "\nThe package stable-ts is not installed (Required for fixing timestamps returned by Whisper)."
-            )
-            logger.info("Shall I install it for you? [Y/n]")
-            answer = input()
-            if answer.lower() == "n":
-                raise ImportError(
-                    "stable-ts is not installed. Install it by running `pip install stable-ts`"
-                )
-            else:
-                logger.info("Installing stable-ts...")
-                pip.main(["install", "manim-voiceover[whisper]"])
-                installed = True
-                continue
-
-        break
-
-    if installed:
-        logger.info("Installed missing packages. Please run Manim again.")
-        sys.exit(0)
-
-    return whisper.load_model(model_name)
-
-
 def prompt_ask_missing_package(target_module: str, package_name: str):
     try:
         importlib.import_module(target_module)
@@ -218,7 +147,7 @@ def prompt_ask_missing_extras(
     dependent_item: str,
 ):
     if isinstance(target_module, str):
-        target_modules = []
+        target_modules = [target_module]
     elif isinstance(target_module, list):
         target_modules = target_module
     else:
@@ -227,9 +156,12 @@ def prompt_ask_missing_extras(
     try:
         for target_module in target_modules:
             importlib.import_module(target_module)
+        # Successfully imported all modules, we can return
         return
-    except ImportError:
+    except (ImportError, ModuleNotFoundError) as e:
         pass
+
+    # If we reach here, it means that at least one of the modules is not installed
     logger.info(
         f"The extra packages required by {dependent_item} are not installed. "
         f"Shall I install them for you? [Y/n]"

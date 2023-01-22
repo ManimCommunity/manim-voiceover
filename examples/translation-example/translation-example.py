@@ -12,6 +12,7 @@ DOMAIN = os.getenv("DOMAIN")
 # returns a gettext function that is used to insert translations.
 _ = get_gettext()
 
+
 class TranslationExample(VoiceoverScene):
     def construct(self):
         # We use the free TTS service from Google Translate

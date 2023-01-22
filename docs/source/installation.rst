@@ -5,7 +5,7 @@ Install Manim Voiceover from PyPI with the extras ``azure`` and ``gtts``:
 
 .. code:: sh
 
-   pip install "manim-voiceover[azure,gtts]"
+   pip install --upgrade "manim-voiceover[azure,gtts]"
 
 Check whether your installation works correctly:
 
@@ -23,6 +23,17 @@ Check whether your installation works correctly:
 Translate API and therefore needs an internet connection to work. If it
 throws an error, there might be a problem with your internet connection
 or the Google Translate API.
+
+Extras
+~~~~~~
+
+Manim Voiceover does not install all dependencies by default. To install all of them, use the ``all`` extra:
+
+.. code:: sh
+
+   pip install --upgrade "manim-voiceover[all]"
+
+You can see all available extras in the `pyproject.toml <https://github.com/ManimCommunity/manim-voiceover/blob/main/pyproject.toml>`__ file.
 
 Installing PortAudio
 ~~~~~~~~~~~~~~~~~~~~

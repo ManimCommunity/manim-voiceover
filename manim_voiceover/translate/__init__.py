@@ -1,6 +1,7 @@
 import os
 import gettext
 
+
 def get_gettext(locale=None, domain=None):
     ret = gettext.gettext
 

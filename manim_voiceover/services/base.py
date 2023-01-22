@@ -10,7 +10,7 @@ from manim_voiceover.defaults import (
     DEFAULT_VOICEOVER_CACHE_DIR,
     DEFAULT_VOICEOVER_CACHE_JSON_FILENAME,
 )
-from manim_voiceover.helper import append_to_json_file, get_whisper_model
+from manim_voiceover.helper import append_to_json_file, prompt_ask_missing_extras
 from manim_voiceover.modify_audio import adjust_speed
 from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
 
@@ -133,7 +133,20 @@ class SpeechService(ABC):
         """
         if model != self.transcription_model:
             if model is not None:
-                self._whisper_model = get_whisper_model(model)
+                try:
+                    import whisper as __tmp
+                    import stable_whisper as whisper
+                except ImportError:
+                    logger.error(
+                        'Missing packages. Run `pip install "manim-voiceover[transcribe]"` to be able to transcribe voiceovers.'
+                    )
+
+                prompt_ask_missing_extras(
+                    ["whisper", "stable_whisper"],
+                    "transcribe",
+                    "SpeechService.set_transcription()",
+                )
+                self._whisper_model = whisper.load_model(model)
             else:
                 self._whisper_model = None
 

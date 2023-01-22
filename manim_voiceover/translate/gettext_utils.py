@@ -1,7 +1,17 @@
 import re
-import deepl
 import os
 import typing as t
+
+from manim import logger
+
+from manim_voiceover.helper import prompt_ask_missing_extras
+
+try:
+    import deepl
+except ImportError:
+    logger.error(
+        'Missing packages. Run `pip install "manim-voiceover[translate]"` to be able to translate voiceovers.'
+    )
 
 
 def init_gettext(files, domain, localedir):
@@ -132,6 +142,8 @@ class POFile:
         "Translates a .po file using DeepL. Note: This overwrites the .po file."
 
         assert api_key is not None, "Please provide a DeepL API key."
+
+        prompt_ask_missing_extras("deepl", "translate", "POFile")
 
         if target_lang == "en":
             target_lang = "en-US"
