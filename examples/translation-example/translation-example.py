@@ -8,9 +8,8 @@ from manim_voiceover.translate import get_gettext
 LOCALE = os.getenv("LOCALE")
 DOMAIN = os.getenv("DOMAIN")
 
-# The following function uses the LOCALE and DOMAIN environment variables
-# to set the language, and returns a gettext function that can be used to
-# translate strings.
+# The following function uses LOCALE and DOMAIN to set the language, and
+# returns a gettext function that is used to insert translations.
 _ = get_gettext()
 
 class TranslationExample(VoiceoverScene):

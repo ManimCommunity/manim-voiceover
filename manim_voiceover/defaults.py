@@ -3,6 +3,7 @@ from pathlib import Path
 DEFAULT_VOICEOVER_CACHE_DIR = "voiceovers"
 DEFAULT_VOICEOVER_CACHE_JSON_FILENAME = "cache.json"
 
+#: Available source languages for DeepL
 DEEPL_SOURCE_LANG = {
     "bg": "Bulgarian",
     "cs": "Czech",
@@ -33,6 +34,7 @@ DEEPL_SOURCE_LANG = {
     "zh": "Chinese",
 }
 
+#: Available target languages for DeepL
 DEEPL_TARGET_LANG = {
     "bg": "Bulgarian",
     "cs": "Czech",
