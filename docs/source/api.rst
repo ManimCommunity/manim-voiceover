@@ -41,3 +41,11 @@ Speech services
 .. automodule:: manim_voiceover.services.pyttsx3
    :members:
    :show-inheritance:
+
+
+Defaults
+~~~~~~~~
+
+.. automodule:: manim_voiceover.defaults
+   :members:
+   :show-inheritance:

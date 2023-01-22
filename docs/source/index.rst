@@ -25,4 +25,5 @@ A demo:
    quickstart
    services
    examples
+   translate
    api
