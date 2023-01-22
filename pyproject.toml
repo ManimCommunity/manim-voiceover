@@ -37,8 +37,8 @@ classifiers = [
 ]
 
 [tool.poetry.scripts]
-manim_translate = 'manim_voiceover.translate:main'
-manim_render_translations = 'manim_voiceover.translate.render:main'
+manim_translate = 'manim_voiceover.translate.translate:main'
+manim_render_translation = 'manim_voiceover.translate.render:main'
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4"

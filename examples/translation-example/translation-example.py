@@ -1,31 +1,30 @@
-import locale
+import os
 from manim import *
 from manim_voiceover import VoiceoverScene
 from manim_voiceover.services.gtts import GTTSService
-import gettext
+from manim_voiceover.translate import get_gettext
 
-_ = gettext.gettext
+# It is good practice to get the LOCALE and DOMAIN from environment variables
+LOCALE = os.getenv("LOCALE")
+DOMAIN = os.getenv("DOMAIN")
 
-# Set gettext language
-trans = gettext.translation(
-    "translation-example",
-    localedir="locale",
-    # languages=["de"],
-    languages=["vi"],
-)
-trans.install()
-_ = trans.gettext
+# The following function uses the LOCALE and DOMAIN environment variables
+# to set the language, and returns a gettext function that can be used to
+# translate strings.
+_ = get_gettext()
 
-
-class GTTSExample(VoiceoverScene):
+class TranslationExample(VoiceoverScene):
     def construct(self):
-        # self.set_speech_service(GTTSService(lang="en", tld="com"))
-        # self.set_speech_service(GTTSService(lang="de"))
-        self.set_speech_service(GTTSService(lang="vi"))
+        # We use the free TTS service from Google Translate
+        # The TTS language is set via the LOCALE environment variable
+        self.set_speech_service(GTTSService(lang=LOCALE))
 
         circle = Circle()
         square = Square().shift(2 * RIGHT)
 
+        # The voiceover strings are wrapped in _()
+        # This means that their translations will be looked up in the .po files
+        # and used to replace the original strings
         with self.voiceover(text=_("This circle is drawn as I speak.")) as tracker:
             self.play(Create(circle), run_time=tracker.duration)
 

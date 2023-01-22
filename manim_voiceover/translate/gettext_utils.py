@@ -1,11 +1,7 @@
 import re
 import deepl
 import os
-import gettext
-from collections import OrderedDict
 import typing as t
-
-from manim_voiceover.defaults import DEEPL_AVAILABLE_TARGET_LANG
 
 
 def init_gettext(files, domain, localedir):
@@ -70,7 +66,7 @@ class POEntry:
     def __init__(self, msgid_part, msgstr_part, header=None):
         self.msgid_repr = msgid_part
         self.msgstr_repr = msgstr_part
-        self.header = header # Headers are important, keep them
+        self.header = header  # Headers are important, keep them
 
     def __repr__(self):
         return self.to_string()
@@ -86,7 +82,14 @@ class POEntry:
     # Set the msgstr
     @msgstr.setter
     def msgstr(self, value):
-        self.msgstr_repr = " " + repr(value)
+        # Escape double quotes
+        value = value.replace('"', '\\"')
+        # Escample whitespace
+        value = value.replace("\t", "\\t")
+        value = value.replace("\r", "\\r")
+        value = value.replace("\n", "\\n")
+
+        self.msgstr_repr = " " + '"' + value + '"'
 
     def to_string(self):
         header = ""
@@ -152,6 +155,7 @@ class POFile:
             # Unescape whitespace
             string_to_translate = string_to_translate.replace("\\t", "\t")
             string_to_translate = string_to_translate.replace("\\n", "\n")
+            string_to_translate = string_to_translate.replace("\\r", "\r")
 
             # Join the lines
             string_to_translate = " ".join(string_to_translate.split("\n"))

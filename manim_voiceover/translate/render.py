@@ -1,12 +1,8 @@
 import argparse
-from collections import OrderedDict
 import os
 import sys
-from time import sleep
 from pathlib import Path
-import deepl
 
-from manim_voiceover.defaults import DEEPL_AVAILABLE_TARGET_LANG
 
 # Get the current working directory as Path
 CWD = Path.cwd()
@@ -28,7 +24,6 @@ parser.add_argument(
 )
 # CWD / locale is the default value, string is converted to Path
 parser.add_argument(
-    "-f",
     "--localedir",
     type=Path,
     default=CWD / "locale",
@@ -48,7 +43,7 @@ parser.add_argument(
     "--locale",
     type=str,
     default=None,
-    help="Locale for translation. Enter a comma separated list of locales. If not specified, all locales will be translated.",
+    help="Locale for translation. Enter a comma separated list of locales. If not specified, all locales will be rendered.",
 )
 
 # Argument for scene
@@ -86,7 +81,6 @@ def main():
     # If scene is not in file, raise error
     if scene not in open(file).read():
         raise ValueError(f"Scene {scene} is not in file {file}")
-
 
     locales = []
 
