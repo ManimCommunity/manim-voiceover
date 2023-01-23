@@ -41,4 +41,6 @@ Currently supported TTS services (aside from the CLI that allows you to records 
 
 [Check out the example gallery to get inspired.](https://voiceover.manim.community/en/latest/examples.html)
 
+## Translate
 
+Manim Voiceover can use machine translation services like [DeepL](https://www.deepl.com/) to translate voiceovers into other languages. [Check out the docs for more details.](https://voiceover.manim.community/en/latest/translate.html)

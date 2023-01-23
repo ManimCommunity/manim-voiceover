@@ -27,13 +27,16 @@ or the Google Translate API.
 Extras
 ~~~~~~
 
-Manim Voiceover does not install all dependencies by default. To install all of them, use the ``all`` extra:
+Manim Voiceover does not install all dependencies by default. It will detect on the fly which packages are missing and will ask for your permission to install them, so you don't have to worry about installing them manually.
+
+If you want to install all of the dependencies, use the ``all`` extra:
 
 .. code:: sh
 
    pip install --upgrade "manim-voiceover[all]"
 
-You can see all available extras in the `pyproject.toml <https://github.com/ManimCommunity/manim-voiceover/blob/main/pyproject.toml>`__ file.
+
+You can see other extras in the `pyproject.toml <https://github.com/ManimCommunity/manim-voiceover/blob/main/pyproject.toml>`__ file.
 
 Installing PortAudio
 ~~~~~~~~~~~~~~~~~~~~
