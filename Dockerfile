@@ -8,4 +8,5 @@ USER ${NB_USER}
 
 WORKDIR /src/manim_voiceover
 COPY . ./
-RUN pip install .[gtts]
+RUN pip install .[gtts,gradio]
+WORKDIR /manim

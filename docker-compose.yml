@@ -8,8 +8,10 @@ services:
     volumes:
       - ./out-data:/manim/out-data
       - ./notebooks/:/manim/notebooks
-      - .:/manim/manim_voiceover
+      - .:/manim/manim-voiceover
     ports:
-      - 10123:10123
+      - 10123:10123 # jupyter
+      - 10124:10124 # gradio
+    working_dir: /manim/manim-voiceover/
     user: root
     command: jupyter lab --allow-root --ip=0.0.0.0 --port 10123 ;
