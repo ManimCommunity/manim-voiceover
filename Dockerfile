@@ -7,6 +7,7 @@ FROM system-dependencies
 USER ${NB_USER}
 
 WORKDIR /src/manim_voiceover
+RUN pip install --no-cache-dir gtts>=2.2.4 gradio>=3.23.0
 COPY . ./
 RUN pip install .[gtts,gradio]
 WORKDIR /manim
