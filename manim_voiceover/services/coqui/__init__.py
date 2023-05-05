@@ -12,7 +12,7 @@ class CoquiService(SpeechService):
     """Speech service for Coqui TTS.
     Default model: ``tts_models/en/ljspeech/tacotron2-DDC``.
     See :func:`~manim_voiceover.services.coqui.synthesize.synthesize_coqui`
-    for more initialization options, e.g. setting different models."""
+    for more initialization options, e.g. Pass arguments defined in the synthesize_coqui func as keyword arguments for setting different models."""
 
     def __init__(
         self,
