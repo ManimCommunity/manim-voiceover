@@ -2,7 +2,7 @@ try:
     from pynput import keyboard
     class RKeyListener(keyboard.Listener):
         def __init__(self, verbose=False):
-            super(MyListener, self).__init__(self.on_press, self.on_release)
+            super(RKeyListener, self).__init__(self.on_press, self.on_release)
             self.key_pressed = None
             self.verbose = verbose
         def on_press(self, key):
