@@ -2,13 +2,12 @@ from manim import *
 from manim_voiceover import VoiceoverScene
 
 # from manim_voiceover.services.coqui import CoquiService
-
 from manim_voiceover.services.azure import AzureService
 
 
 class BookmarkExample(VoiceoverScene):
     def construct(self):
-        # self.set_speech_service(CoquiService())
+        # self.set_speech_service(CoquiService(transcription_model='base'))
         self.set_speech_service(
             AzureService(
                 voice="en-US-AriaNeural",
