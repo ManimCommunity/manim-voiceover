@@ -16,7 +16,7 @@ Manim Voiceover
 A demo:
 
 .. video:: https://user-images.githubusercontent.com/2453968/198145393-6a1bd709-4441-4821-8541-45d5f5e25be7.mp4
-   :width: 100%%
+   :width: 100%
 
 .. toctree::
    :maxdepth: 2
