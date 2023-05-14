@@ -6,26 +6,6 @@ from manim_voiceover.services.coqui import CoquiService
 class CoquiExample(VoiceoverScene):
     def construct(self):
         self.set_speech_service(CoquiService())
-        """To set a different model you can pass the following keyword arguments(given with their default values) to CoquiService().
-        model_name=DEFAULT_MODEL,
-        vocoder_name=None,
-        model_path=None,
-        config_path=None,
-        vocoder_path=None,
-        vocoder_config_path=None,
-        encoder_path=None,
-        encoder_config_path=None,
-        speakers_file_path=None,
-        language_ids_file_path=None,
-        speaker_idx=None,
-        language_idx=None,
-        speaker_wav=None,
-        capacitron_style_wav=None,
-        capacitron_style_text=None,
-        reference_wav=None,
-        reference_speaker_idx=None,
-        use_cuda=False
-        """
 
         circle = Circle()
         square = Square().shift(2 * RIGHT)
