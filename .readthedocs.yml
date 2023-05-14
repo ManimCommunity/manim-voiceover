@@ -1,13 +1,14 @@
 version: 2
 build:
+  os: ubuntu-22.04
   image: latest
   apt_packages:
     - libpango1.0-dev
     - ffmpeg
 python:
-   version: 3.8
-   install:
-      - requirements: docs/rtd-requirements.txt
-      - requirements: docs/requirements.txt
-      - method: pip
-        path: .
+  version: 3.8
+  install:
+    - requirements: docs/rtd-requirements.txt
+    - requirements: docs/requirements.txt
+    - method: pip
+      path: .
