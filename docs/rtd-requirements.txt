@@ -1,3 +1,4 @@
 jupyterlab
 sphinxcontrib-programoutput
 sphinx-sitemap
+sphinxcontrib-video
