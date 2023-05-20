@@ -2,6 +2,7 @@ from math import ceil
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Optional, Generator
+import re
 
 from manim import Scene, config
 from manim_voiceover.services.base import SpeechService
@@ -70,7 +71,8 @@ class VoiceoverScene(Scene):
 
         if self.create_subcaption:
             if subcaption is None:
-                subcaption = text
+                # Remove placeholders
+                subcaption = re.sub(r"<[^<>]+/>", "", text)
 
             self.add_wrapped_subcaption(
                 subcaption,
