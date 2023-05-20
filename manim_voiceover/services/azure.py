@@ -109,16 +109,18 @@ class AzureService(SpeechService):
                 inner,
             )
 
-        ssml = r"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
+        ssml_beginning = r"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
     xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="en-US">
     <voice name="%s">
-        %s
+        """ % (
+            self.voice
+        )
+        ssml_end = r"""
     </voice>
 </speak>
-        """ % (
-            self.voice,
-            inner,
-        )
+        """
+        ssml = ssml_beginning + inner + ssml_end
+        initial_offset = len(ssml_beginning)
 
         input_data = {
             "input_text": text,
@@ -172,13 +174,12 @@ class AzureService(SpeechService):
             # print(f'{type(evt)=}')
             result = {label[1:]: val for label, val in evt.__dict__.items()}
             result["boundary_type"] = result["boundary_type"].name
-            result["text_offset"] = result["text_offset"] - 222  # TODO: make more clear
+            result["text_offset"] = result["text_offset"] - initial_offset
             return result
 
         speech_service.synthesis_word_boundary.connect(
             lambda evt: word_boundaries.append(process_event(evt))
         )
-
         speech_synthesis_result = speech_service.speak_ssml_async(ssml).get()
 
         json_dict = {
