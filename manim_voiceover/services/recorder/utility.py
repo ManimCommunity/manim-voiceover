@@ -9,34 +9,12 @@ from manim import logger
 
 from manim_voiceover.helper import trim_silence, wav2mp3
 
-from pynput import keyboard
 import pyaudio
-import playsound
-
-
-class MyListener(keyboard.Listener):
-    def __init__(self):
-        super(MyListener, self).__init__(self.on_press, self.on_release)
-        self.key_pressed = None
-
-    def on_press(self, key):
-        if not hasattr(key, "char"):
-            return True
-
-        if key.char == "r":
-            self.key_pressed = True
-
-        return True
-
-    def on_release(self, key):
-        if not hasattr(key, "char"):
-            return True
-
-        if key.char == "r":
-            self.key_pressed = False
-
-        return True
-
+try:
+    import playsound
+except:
+    playsound = None
+from .rkey_listener import RKeyListener
 
 class Recorder:
     def __init__(
@@ -88,7 +66,7 @@ class Recorder:
             self._set_channels_from_device_index(self.device_index)
 
         self.frames = []
-        self.listener = MyListener()
+        self.listener = RKeyListener()()
         self.listener.start()
 
         print("Press and hold the 'r' key to begin recording")
@@ -235,7 +213,11 @@ class Recorder:
             try:
                 key = input()[-1].lower()
                 if key == "l":
-                    playsound.playsound(path)
+                    if playsound is None:
+                        print('Playsound not available')
+                    else:
+                        playsound.playsound(path)
+
                 elif key == "r":
                     if message is not None:
                         print(message)

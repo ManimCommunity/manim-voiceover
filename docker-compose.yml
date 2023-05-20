@@ -1,0 +1,16 @@
+# docker run -it --name my-manim-container -v "/full/path/to/your/directory:/manim" manimcommunity/manim /bin/bash
+version: "3.3"
+services:
+  manim-server:
+    image: manim-voiceover
+    build:
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./out-data:/manim/out-data
+      - ./notebooks/:/manim/notebooks
+      - .:/manim/manim-voiceover
+    ports:
+      - 10123:10123 # jupyter
+      - 10124:10124 # gradio
+    working_dir: /manim/manim-voiceover/
+    command: jupyter lab --allow-root --ip=0.0.0.0 --port 10123 ;
