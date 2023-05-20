@@ -71,7 +71,7 @@ pyttsx3 = ["pyttsx3"]
 # coqui = ["torch", "TTS"]
 coqui = [] # Removed TTS as deps for now
 recorder = ["PyAudio", "readchar", "pynput", "playsound"]
-gradio = ["gradio"] 
+gradio = ["gradio"]
 translate = ["deepl"]
 transcribe = ["openai-whisper", "stable-ts"]
 all = [
@@ -86,6 +86,7 @@ all = [
     "deepl",
     "openai-whisper",
     "stable-ts",
+    "gradio",
 ]
 
 [tool.poetry.group.dev.dependencies]
