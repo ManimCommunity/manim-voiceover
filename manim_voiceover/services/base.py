@@ -4,9 +4,9 @@ import os
 import json
 import sys
 import hashlib
-import humanhash
 from pathlib import Path
 from manim import config, logger
+from slugify import slugify
 from manim_voiceover.defaults import (
     DEFAULT_VOICEOVER_CACHE_DIR,
     DEFAULT_VOICEOVER_CACHE_JSON_FILENAME,
@@ -49,7 +49,7 @@ class SpeechService(ABC):
         cache_dir: t.Optional[str] = None,
         transcription_model: t.Optional[str] = None,
         transcription_kwargs: dict = {},
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -153,10 +153,14 @@ class SpeechService(ABC):
 
         self.transcription_kwargs = kwargs
 
-    def get_data_hash(self, data: dict) -> str:
+    def get_audio_basename(self, data: dict) -> str:
         dumped_data = json.dumps(data)
         data_hash = hashlib.sha256(dumped_data.encode("utf-8")).hexdigest()
-        return humanhash.humanize(data_hash)
+        suffix = data_hash[:8]
+        input_string = data["input_text"]
+        slug = slugify(input_string)
+        ret = f"{slug}-{suffix}"
+        return ret
 
     @abstractmethod
     def generate_from_text(
