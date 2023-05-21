@@ -58,7 +58,6 @@ parser.add_argument(
 
 
 def main():
-
     args = parser.parse_args()
     file = args.file
     domain = args.domain

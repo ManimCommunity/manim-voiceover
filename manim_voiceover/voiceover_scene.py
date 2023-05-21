@@ -8,7 +8,7 @@ import typing as t
 from manim import Scene, config
 from manim_voiceover.services.base import SpeechService
 from manim_voiceover.tracker import VoiceoverTracker
-from manim_voiceover.helper import chunks
+from manim_voiceover.helper import chunks, remove_bookmarks
 
 
 # SCRIPT_FILE_PATH = "media/script.txt"
@@ -72,8 +72,7 @@ class VoiceoverScene(Scene):
 
         if self.create_subcaption:
             if subcaption is None:
-                # Remove placeholders
-                subcaption = re.sub(r"<[^<>]+/>", "", text)
+                subcaption = remove_bookmarks(text)
 
             self.add_wrapped_subcaption(
                 subcaption,

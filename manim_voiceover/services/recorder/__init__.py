@@ -47,9 +47,7 @@ class RecorderService(SpeechService):
             trim_buffer_start (int, optional): Buffer duration for trimming silence at the start. Defaults to 200 ms.
             trim_buffer_end (int, optional): Buffer duration for trimming silence at the end. Defaults to 200 ms.
         """
-        prompt_ask_missing_extras(
-            ["pyaudio", "pynput"], "recorder", "RecorderService"
-        )
+        prompt_ask_missing_extras(["pyaudio", "pynput"], "recorder", "RecorderService")
 
         self.recorder = Recorder(
             format=format,

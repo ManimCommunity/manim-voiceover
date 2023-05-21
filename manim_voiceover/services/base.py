@@ -11,7 +11,11 @@ from manim_voiceover.defaults import (
     DEFAULT_VOICEOVER_CACHE_DIR,
     DEFAULT_VOICEOVER_CACHE_JSON_FILENAME,
 )
-from manim_voiceover.helper import append_to_json_file, prompt_ask_missing_extras
+from manim_voiceover.helper import (
+    append_to_json_file,
+    prompt_ask_missing_extras,
+    remove_bookmarks,
+)
 from manim_voiceover.modify_audio import adjust_speed
 from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
 
@@ -157,8 +161,9 @@ class SpeechService(ABC):
         dumped_data = json.dumps(data)
         data_hash = hashlib.sha256(dumped_data.encode("utf-8")).hexdigest()
         suffix = data_hash[:8]
-        input_string = data["input_text"]
-        slug = slugify(input_string)
+        input_text = data["input_text"]
+        input_text = remove_bookmarks(input_text)
+        slug = slugify(input_text, max_length=50, word_boundary=True, save_order=True)
         ret = f"{slug}-{suffix}"
         return ret
 
