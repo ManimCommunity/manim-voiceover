@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import typing as t
 import os
 import json
 import sys
@@ -19,19 +20,19 @@ def timestamps_to_word_boundaries(segments):
     word_boundaries = []
     current_text_offset = 0
     for segment in segments:
-        for dict_ in segment["word_timestamps"]:
+        for dict_ in segment["words"]:
             word = dict_["word"]
             word_boundaries.append(
                 {
-                    "audio_offset": int(dict_["timestamp"] * AUDIO_OFFSET_RESOLUTION),
+                    "audio_offset": int(dict_["start"] * AUDIO_OFFSET_RESOLUTION),
                     # "duration_milliseconds": 0,
                     "text_offset": current_text_offset,
-                    "word_length": len(dict_["word"]),
+                    "word_length": len(word),
                     "text": word,
                     "boundary_type": "Word",
                 }
             )
-            current_text_offset += len(dict_["word"])
+            current_text_offset += len(word)
             # If word is not punctuation, add a space
             # if word not in [".", ",", "!", "?", ";", ":", "(", ")"]:
             # current_text_offset += 1
@@ -45,8 +46,8 @@ class SpeechService(ABC):
     def __init__(
         self,
         global_speed: float = 1.00,
-        cache_dir: str = None,
-        transcription_model: str = None,
+        cache_dir: t.Optional[str] = None,
+        transcription_model: t.Optional[str] = None,
         transcription_kwargs: dict = {},
         **kwargs
     ):
@@ -90,12 +91,12 @@ class SpeechService(ABC):
             transcription_result = self._whisper_model.transcribe(
                 str(Path(self.cache_dir) / original_audio), **self.transcription_kwargs
             )
-            logger.info("Transcription: " + transcription_result["text"])
+            logger.info("Transcription: " + transcription_result.text)
             word_boundaries = timestamps_to_word_boundaries(
-                transcription_result["segments"]
+                transcription_result.segments_to_dicts()
             )
             dict_["word_boundaries"] = word_boundaries
-            dict_["transcribed_text"] = transcription_result["text"]
+            dict_["transcribed_text"] = transcription_result.text
 
         # Audio callback
         self.audio_callback(original_audio, dict_, **kwargs)

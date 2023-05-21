@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Optional, Generator
 import re
+import typing as t
 
 from manim import Scene, config
 from manim_voiceover.services.base import SpeechService
@@ -163,7 +164,7 @@ class VoiceoverScene(Scene):
 
     @contextmanager
     def voiceover(
-        self, text: str = None, ssml: str = None, **kwargs
+        self, text: t.Optional[str] = None, ssml: t.Optional[str] = None, **kwargs
     ) -> Generator[VoiceoverTracker, None, None]:
         """The main function to be used for adding voiceover to a scene.
 
