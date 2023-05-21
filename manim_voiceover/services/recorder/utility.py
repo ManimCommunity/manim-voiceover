@@ -11,7 +11,8 @@ from manim_voiceover.helper import trim_silence, wav2mp3
 
 from pynput import keyboard
 import pyaudio
-import playsound
+from pydub import AudioSegment
+from pydub.playback import play
 
 
 class MyListener(keyboard.Listener):
@@ -235,7 +236,8 @@ class Recorder:
             try:
                 key = input()[-1].lower()
                 if key == "l":
-                    playsound.playsound(path)
+                    audio = AudioSegment.from_file(path)
+                    play(audio)
                 elif key == "r":
                     if message is not None:
                         print(message)

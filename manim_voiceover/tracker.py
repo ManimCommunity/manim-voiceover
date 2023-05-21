@@ -87,11 +87,11 @@ class VoiceoverTracker:
             )
             self.bookmark_times[mark] = self.start_t + elapsed
 
-    def get_remaining_duration(self, buff: int = 0) -> int:
+    def get_remaining_duration(self, buff: float = 0.) -> float:
         """Returns the remaining duration of the voiceover.
 
         Args:
-            buff (int, optional): A buffer to add to the remaining duration. Defaults to 0.
+            buff (float, optional): A buffer to add to the remaining duration. Defaults to 0.
 
         Returns:
             int: The remaining duration of the voiceover in seconds.

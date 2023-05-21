@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
+import typing as t
 import os
 import json
 import sys
 import hashlib
-import humanhash
 from pathlib import Path
 from manim import config, logger
+from slugify import slugify
 from manim_voiceover.defaults import (
     DEFAULT_VOICEOVER_CACHE_DIR,
     DEFAULT_VOICEOVER_CACHE_JSON_FILENAME,
@@ -19,19 +20,19 @@ def timestamps_to_word_boundaries(segments):
     word_boundaries = []
     current_text_offset = 0
     for segment in segments:
-        for dict_ in segment["word_timestamps"]:
+        for dict_ in segment["words"]:
             word = dict_["word"]
             word_boundaries.append(
                 {
-                    "audio_offset": int(dict_["timestamp"] * AUDIO_OFFSET_RESOLUTION),
+                    "audio_offset": int(dict_["start"] * AUDIO_OFFSET_RESOLUTION),
                     # "duration_milliseconds": 0,
                     "text_offset": current_text_offset,
-                    "word_length": len(dict_["word"]),
+                    "word_length": len(word),
                     "text": word,
                     "boundary_type": "Word",
                 }
             )
-            current_text_offset += len(dict_["word"])
+            current_text_offset += len(word)
             # If word is not punctuation, add a space
             # if word not in [".", ",", "!", "?", ";", ":", "(", ")"]:
             # current_text_offset += 1
@@ -45,10 +46,10 @@ class SpeechService(ABC):
     def __init__(
         self,
         global_speed: float = 1.00,
-        cache_dir: str = None,
-        transcription_model: str = None,
+        cache_dir: t.Optional[str] = None,
+        transcription_model: t.Optional[str] = None,
         transcription_kwargs: dict = {},
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -90,12 +91,12 @@ class SpeechService(ABC):
             transcription_result = self._whisper_model.transcribe(
                 str(Path(self.cache_dir) / original_audio), **self.transcription_kwargs
             )
-            logger.info("Transcription: " + transcription_result["text"])
+            logger.info("Transcription: " + transcription_result.text)
             word_boundaries = timestamps_to_word_boundaries(
-                transcription_result["segments"]
+                transcription_result.segments_to_dicts()
             )
             dict_["word_boundaries"] = word_boundaries
-            dict_["transcribed_text"] = transcription_result["text"]
+            dict_["transcribed_text"] = transcription_result.text
 
         # Audio callback
         self.audio_callback(original_audio, dict_, **kwargs)
@@ -152,10 +153,14 @@ class SpeechService(ABC):
 
         self.transcription_kwargs = kwargs
 
-    def get_data_hash(self, data: dict) -> str:
+    def get_audio_basename(self, data: dict) -> str:
         dumped_data = json.dumps(data)
         data_hash = hashlib.sha256(dumped_data.encode("utf-8")).hexdigest()
-        return humanhash.humanize(data_hash)
+        suffix = data_hash[:8]
+        input_string = data["input_text"]
+        slug = slugify(input_string)
+        ret = f"{slug}-{suffix}"
+        return ret
 
     @abstractmethod
     def generate_from_text(

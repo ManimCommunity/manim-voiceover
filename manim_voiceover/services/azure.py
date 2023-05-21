@@ -86,29 +86,6 @@ class AzureService(SpeechService):
         # Apply prosody
         prosody = kwargs.get("prosody", self.prosody)
 
-        if prosody is not None:
-            if not isinstance(prosody, dict):
-                raise ValueError(
-                    "The prosody argument must be a dict that contains at least one of the following keys: 'pitch', 'contour', 'range', 'rate', 'volume'."
-                )
-
-            opening_tag = (
-                "<prosody "
-                + " ".join(
-                    ['%s="%s"' % (key, str(val)) for key, val in prosody.items()]
-                )
-                + ">"
-            )
-            inner = opening_tag + inner + "</prosody>"
-
-        if self.style is not None:
-            inner = r"""<mstts:express-as style="%s">
-    %s
-</mstts:express-as>""" % (
-                self.style,
-                inner,
-            )
-
         ssml_beginning = r"""<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"
     xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="en-US">
     <voice name="%s">
@@ -119,6 +96,30 @@ class AzureService(SpeechService):
     </voice>
 </speak>
         """
+
+        if prosody is not None:
+            if not isinstance(prosody, dict):
+                raise ValueError(
+                    "The prosody argument must be a dict that contains at least one of the following keys: 'pitch', 'contour', 'range', 'rate', 'volume'."
+                )
+
+            prosody_opening_tag = (
+                "<prosody "
+                + " ".join(
+                    ['%s="%s"' % (key, str(val)) for key, val in prosody.items()]
+                )
+                + ">"
+            )
+            prosody_closing_tag = "</prosody>"
+            ssml_beginning = ssml_beginning + prosody_opening_tag
+            ssml_end = prosody_closing_tag + ssml_end
+
+        if self.style is not None:
+            style_opening_tag = '<mstts:express-as style="%s">' % self.style
+            style_closing_tag = "</mstts:express-as>"
+            ssml_beginning = ssml_beginning + style_opening_tag
+            ssml_end = style_closing_tag + ssml_end
+
         ssml = ssml_beginning + inner + ssml_end
         initial_offset = len(ssml_beginning)
 
@@ -139,7 +140,7 @@ class AzureService(SpeechService):
             return cached_result
 
         if path is None:
-            audio_path = self.get_data_hash(input_data) + ".mp3"
+            audio_path = self.get_audio_basename(input_data) + ".mp3"
         else:
             audio_path = path
 

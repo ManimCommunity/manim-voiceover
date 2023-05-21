@@ -48,7 +48,7 @@ class RecorderService(SpeechService):
             trim_buffer_end (int, optional): Buffer duration for trimming silence at the end. Defaults to 200 ms.
         """
         prompt_ask_missing_extras(
-            ["pyaudio", "pynput", "playsound"], "recorder", "RecorderService"
+            ["pyaudio", "pynput"], "recorder", "RecorderService"
         )
 
         self.recorder = Recorder(
@@ -92,7 +92,7 @@ class RecorderService(SpeechService):
             return cached_result
 
         if path is None:
-            audio_path = self.get_data_hash(input_data) + ".mp3"
+            audio_path = self.get_audio_basename(input_data) + ".mp3"
         else:
             audio_path = path
 
