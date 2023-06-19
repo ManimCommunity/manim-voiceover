@@ -8,13 +8,13 @@ from pydub import AudioSegment
 from manim import logger
 
 from manim_voiceover.helper import trim_silence, wav2mp3
+from readchar import readchar
 
 import pyaudio
 try:
     import playsound
 except:
     playsound = None
-from .rkey_listener import RKeyListener
 
 class Recorder:
     def __init__(
@@ -56,7 +56,7 @@ class Recorder:
         if self.audio is None:
             self.audio = pyaudio.PyAudio()
 
-    def _record(self, path):
+    def _init_recording(self):
         self._init_pyaudio()
 
         if self.device_index is None:
@@ -66,40 +66,21 @@ class Recorder:
             self._set_channels_from_device_index(self.device_index)
 
         self.frames = []
-        self.listener = RKeyListener()()
-        self.listener.start()
 
-        print("Press and hold the 'r' key to begin recording")
-        if self.first_call:
-            print("Wait for 1 second, then start speaking.")
-            print("Wait for at least 1 second after you finish speaking.")
-            print("This is to eliminate any sounds that may come from your keyboard.")
-            print("The silence at the beginning and end will be trimmed automatically.")
-            print(
-                "You can adjust this setting using the `trim_silence_threshold` argument."
-            )
-            print("These instructions are only shown once.")
-
-        print("Release the 'r' key to end recording")
-        self.task = sched.scheduler(time.time, time.sleep)
-        self.event = self.task.enter(
-            self.callback_delay, 1, self._record_task, ([path])
-        )
-        self.task.run()
-
-        return
-
+        
     def _set_device(self):
         "Get the device index from the user."
         print("-------------------------device list-------------------------")
         info = self.audio.get_host_api_info_by_index(0)
         n_devices = info.get("deviceCount")
+        valid_devices = []
         for i in range(0, n_devices):
             if (
                 self.audio.get_device_info_by_host_api_device_index(0, i).get(
                     "maxInputChannels"
                 )
             ) > 0:
+                valid_devices.append(i)
                 print(
                     "Input Device id ",
                     i,
@@ -108,12 +89,18 @@ class Recorder:
                         "name"
                     ),
                 )
-
         print("-------------------------------------------------------------")
+
+        if len(valid_devices) == 1:
+            # Skip the device selection as there is only one option
+            self.device_index = valid_devices[0]
+            return
+        
         print("Please select an input device id to record from:")
 
         try:
             self.device_index = int(input())
+            assert self.device_index in valid_devices
             device_name = self.audio.get_device_info_by_host_api_device_index(
                 0, self.device_index
             ).get("name")
@@ -133,9 +120,7 @@ class Recorder:
             0, device_index
         ).get("maxInputChannels")
 
-    def _record_task(self, path):
-        if self.listener.key_pressed and not self.started:
-            # Start the recording
+    def _start_recording_stream(self):
             try:
                 self.stream = self.audio.open(
                     format=self.format,
@@ -151,9 +136,7 @@ class Recorder:
             except:
                 raise
 
-            self.task.enter(self.callback_delay, 1, self._record_task, ([path]))
-
-        elif not self.listener.key_pressed and self.started:
+    def _stop_recording_stream(self, path):
             self.stream.stop_stream()
             self.stream.close()
 
@@ -172,8 +155,9 @@ class Recorder:
             self.started = None
             self.first_call = False
 
-            # Remove 1 second from the end of frames
-            self.frames = self.frames[: -int(self.rate * 0.5 / self.chunk)]
+            # Remove 0.25 second from the end of the recording
+            half_second = max(1, int((self.rate / 4) / self.chunk))
+            self.frames = self.frames[half_second:-half_second]
 
             wf.writeframes(b"".join(self.frames))
             wf.close()
@@ -185,48 +169,50 @@ class Recorder:
             ).export(wav_path, format="wav")
             wav2mp3(wav_path)
 
-            for e in self.task._queue:
-                self.task.cancel(e)
-
-            return
-
-        # Reschedule the recorder function in 100 ms.
-        self.task.enter(self.callback_delay, 1, self._record_task, ([path]))
 
     def callback(self, in_data, frame_count, time_info, status):
         self.frames.append(in_data)
         return (in_data, pyaudio.paContinue)
 
     def record(self, path: str, message: str = None):
-        if message is not None:
-            print(message)
-        self._record(path)
-
-        while True:
+        if self.first_call:
+            print('### Instructions ###')
+            print("Press and hold the 'r' key to begin recording")
+            print("Wait for 1 second, then start speaking.")
+            print("Wait for at least 1 second after you finish speaking.")
+            print("This is to eliminate any sounds that may come from your keyboard.")
+            print("The silence at the beginning and end will be trimmed automatically.")
             print(
-                """Press...
- l to [l]isten to the recording
- r to [r]e-record
- a to [a]ccept the recording
-"""
+                "You can adjust this setting using the `trim_silence_threshold` argument."
             )
-            try:
-                key = input()[-1].lower()
-                if key == "l":
+            print("Press the 's' key to end recording")
+        else:
+            print('Press...')
+            print("  r to [r]ecord")
+            print("  s to [s]top recording")
+        print(message)            
+        try:
+            key = 'r'
+            while key != 'a':
+                key = readchar().lower()
+                if key == 'r':
+                    self._init_recording()
+                    self._start_recording_stream()
+                    if readchar().lower() != 's':
+                        print('Press S to stop recording')
+                        while readchar().lower() != 's':
+                            pass
+                    self._stop_recording_stream(path)
+                    
+                    if playsound is not None:
+                        print('  l to [l]isten to the recording')
+                    print("  r to [r]ecord again")
+                    print("  a to [a]ccept the recording")
+                elif key == 'l':
                     if playsound is None:
                         print('Playsound not available')
                     else:
                         playsound.playsound(path)
-
-                elif key == "r":
-                    if message is not None:
-                        print(message)
-
-                    self._record(path)
-                elif key == "a":
-                    break
-                else:
-                    print("Invalid input")
-            except KeyboardInterrupt:
-                print("KeyboardInterrupt")
-                exit()
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt")
+            exit()
