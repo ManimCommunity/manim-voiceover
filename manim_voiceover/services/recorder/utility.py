@@ -165,6 +165,7 @@ class Recorder:
                     channels=self.channels,
                     rate=self.rate,
                     input=True,
+                    input_device_index=self.device_index,
                     frames_per_buffer=self.chunk,
                     stream_callback=self.callback,
                 )
