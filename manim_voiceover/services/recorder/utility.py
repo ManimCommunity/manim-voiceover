@@ -141,6 +141,7 @@ class Recorder:
                 0, self.device_index
             ).get("name")
             self._set_channels_from_device_index(self.device_index)
+            self._set_rate_from_device_index(self.device_index)
             print("Selected device:", device_name)
         except KeyboardInterrupt:
             print("KeyboardInterrupt")
@@ -152,9 +153,22 @@ class Recorder:
         return
 
     def _set_channels_from_device_index(self, device_index):
-        self.channels = self.audio.get_device_info_by_host_api_device_index(
+        channels_from_device = self.audio.get_device_info_by_host_api_device_index(
             0, device_index
         ).get("maxInputChannels")
+        if self.channels is None:
+            self.channels = channels_from_device
+        else:
+            self.channels = min(self.channels, channels_from_device)
+
+    def _set_rate_from_device_index(self, device_index):
+        rate_from_device = self.audio.get_device_info_by_host_api_device_index(
+            0, device_index
+        ).get("defaultSampleRate")
+        if self.rate is None:
+            self.rate = int(rate_from_device)
+        else:
+            self.rate = int(min(self.rate, rate_from_device))
 
     def _record_task(self, path):
         if self.listener.key_pressed and not self.started:
@@ -165,6 +179,7 @@ class Recorder:
                     channels=self.channels,
                     rate=self.rate,
                     input=True,
+                    input_device_index=self.device_index,
                     frames_per_buffer=self.chunk,
                     stream_callback=self.callback,
                 )
