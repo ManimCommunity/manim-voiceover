@@ -39,12 +39,13 @@ class ElevenLabsService(SpeechService):
     def __init__(self,model='eleven_monolingual_v1',voice='Daniel',**kwargs):
         SpeechService.__init__(self, **kwargs)
         self.model = model
+        v = voices()
 
-        if voice in voices:
+        if voice in v:
             self.voice = voice
         else:
-            f"Missing Voice : {voice} not found in Elevenlabs voices , defaulting to {voices()[0]}"
-            self.voice = voices()[0]
+            f"Missing Voice : {voice} not found in Elevenlabs voices , defaulting to {v[0]}"
+            self.voice = v[0]
         
 
     def generate_from_text(self, text: str, cache_dir: str = None, path: str = None, **kwargs) -> dict:
@@ -56,6 +57,7 @@ class ElevenLabsService(SpeechService):
         input_data = {"input_text": input_text, "service": "elevenlabs"}
 
         cached_result = self.get_cached_result(input_data, cache_dir)
+        
         if cached_result is not None:
             return cached_result
 
@@ -63,15 +65,15 @@ class ElevenLabsService(SpeechService):
             audio_path = self.get_audio_basename(input_data) + ".mp3"
         else:
             audio_path = path
+        try:
+            audio = generate(text=text,voice=self.voice,model=self.model)
+            save(audio,str(Path(cache_dir) / audio_path))
+        except Exception as e:
+            logger.error(e)
+            raise Exception(
+                "Failed to initialize ElevenLabs."
+            )
 
-        if "lang" not in kwargs:
-            kwargs["lang"] = self.lang
-        if "tld" not in kwargs:
-            kwargs["tld"] = self.tld
-
-        audio = generate(text=text,voice=self.voice,model=self.model)
-        
-        save(audio,audio_path)
 
         json_dict = {
             "input_text": text,
