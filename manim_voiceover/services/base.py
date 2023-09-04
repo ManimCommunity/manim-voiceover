@@ -5,12 +5,12 @@ import json
 import sys
 import hashlib
 from pathlib import Path
-from manim_voiceover import __manimtype__
+from manim_voiceover.helper import __manimtype__
 
 if __manimtype__ == "manimce":
     from manim import config, logger
 else:
-    from manim import config, logger
+    from manimlib import config, logger
 
 from slugify import slugify
 from manim_voiceover.defaults import (

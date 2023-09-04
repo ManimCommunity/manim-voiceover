@@ -1,4 +1,4 @@
-from manim_voiceover import __manimtype__
+from manim_voiceover.helper  import __manimtype__
 from manim_voiceover.services.base import SpeechService
 import edge_tts
 
