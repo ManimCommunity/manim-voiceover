@@ -32,11 +32,15 @@ class VoiceoverScene(Scene):
 
         Args:
             speech_service (SpeechService): The speech service to be used.
-            create_subcaption (bool, optional): Whether to create subcaptions for the scene. Defaults to True.
+            create_subcaption (bool, optional): Whether to create subcaptions for the scene. Defaults to True. If `config.save_last_frame` is True, the argument is
+            ignored and no subcaptions will be created.
         """
         self.speech_service = speech_service
         self.current_tracker = None
-        self.create_subcaption = create_subcaption
+        if config.save_last_frame:
+            self.create_subcaption = False
+        else:
+            self.create_subcaption = create_subcaption
 
     def add_voiceover_text(
         self,
