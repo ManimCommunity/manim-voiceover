@@ -1,5 +1,5 @@
 from pathlib import Path
-from manim_voiceover import __manimtype__
+from manim_voiceover.helper import __manimtype__
 from manim_voiceover.helper import msg_box, prompt_ask_missing_extras, remove_bookmarks
 
 from manim_voiceover.services.base import SpeechService

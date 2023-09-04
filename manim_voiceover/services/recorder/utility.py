@@ -5,7 +5,7 @@ import sys
 import sched
 from pathlib import Path
 from pydub import AudioSegment
-from manim_voiceover import __manimtype__
+from manim_voiceover.helper import __manimtype__
 if __manimtype__ == "manimce":
     from manim import logger
 else:
