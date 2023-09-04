@@ -5,7 +5,13 @@ import json
 import sys
 import hashlib
 from pathlib import Path
-from manim import config, logger
+from manim_voiceover import __manimtype__
+
+if __manimtype__ == "manimce":
+    from manim import config, logger
+else:
+    from manim import config, logger
+
 from slugify import slugify
 from manim_voiceover.defaults import (
     DEFAULT_VOICEOVER_CACHE_DIR,
@@ -72,7 +78,10 @@ class SpeechService(ABC):
         if cache_dir is not None:
             self.cache_dir = cache_dir
         else:
-            self.cache_dir = Path(config.media_dir) / DEFAULT_VOICEOVER_CACHE_DIR
+            if __manimtype__ == "manimce":
+                self.cache_dir = Path(config.media_dir) / DEFAULT_VOICEOVER_CACHE_DIR
+            else:
+                self.cache_dir = Path(config.get_custom_config()["directories"]["output"]) / DEFAULT_VOICEOVER_CACHE_DIR
 
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)

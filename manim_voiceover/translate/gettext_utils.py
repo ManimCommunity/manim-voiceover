@@ -2,7 +2,12 @@ import re
 import os
 import typing as t
 
-from manim import logger
+from manim_voiceover import __manimtype__
+
+if __manimtype__ == "manimce":
+    from manim import logger
+else:
+    from manimlib import logger
 
 from manim_voiceover.helper import prompt_ask_missing_extras
 

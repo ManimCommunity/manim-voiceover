@@ -5,7 +5,14 @@ from typing import Optional, Generator
 import re
 import typing as t
 
-from manim import Scene, config
+
+from manim_voiceover import __manimtype__
+
+if __manimtype__ == "manimce":
+    from manim import Scene, config
+else:
+    from manimlib import Scene
+
 from manim_voiceover.services.base import SpeechService
 from manim_voiceover.tracker import VoiceoverTracker
 from manim_voiceover.helper import chunks, remove_bookmarks
@@ -150,7 +157,13 @@ class VoiceoverScene(Scene):
         Args:
             duration (float): The duration to wait for in seconds.
         """
-        if duration > 1 / config["frame_rate"]:
+        
+        if __manimtype__ == "manimce":
+            frame_rate = config["frame_rate"]
+        else:
+            frame_rate = self.camera_config["frame_rate"]
+        
+        if duration > 1 / frame_rate:
             self.wait(duration)
 
     def wait_until_bookmark(self, mark: str) -> None:

@@ -1,12 +1,18 @@
 from pathlib import Path
 import re
 import numpy as np
-from manim import logger
+from manim_voiceover import __manimtype__
+
+if __manimtype__ == "manimce":
+    from manim import logger
+    from manim import Scene
+else:
+    from manimlib import logger
+    from manimlib import Scene
 
 from typing import Optional, List
 from scipy.interpolate import interp1d
 
-from manim import Scene
 from manim_voiceover.modify_audio import get_duration
 from manim_voiceover.helper import remove_bookmarks
 

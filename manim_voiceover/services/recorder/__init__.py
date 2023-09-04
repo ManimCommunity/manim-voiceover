@@ -1,9 +1,13 @@
 from pathlib import Path
+from manim_voiceover import __manimtype__
 from manim_voiceover.helper import msg_box, prompt_ask_missing_extras, remove_bookmarks
 
 from manim_voiceover.services.base import SpeechService
-from manim import logger
 
+if __manimtype__ == "manimce":
+    from manim import logger
+else:
+    from manimlib import logger
 try:
     import pyaudio
     from manim_voiceover.services.recorder.utility import Recorder
