@@ -77,7 +77,7 @@ class EdgeService(SpeechService):
             return cached_result
 
         if path is None:
-            audio_path = self.get_data_hash(input_data) + ".mp3"
+            audio_path = self.get_audio_basename(input_data) + ".mp3"
         else:
             audio_path = path
         word_boundaries = []
