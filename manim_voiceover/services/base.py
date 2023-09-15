@@ -110,8 +110,8 @@ class SpeechService(ABC):
             adjusted_path = split_path[0] + "_adjusted" + split_path[1]
 
             adjust_speed(
-                Path(self.cache_dir) / dict_["original_audio"],
-                Path(self.cache_dir) / adjusted_path,
+                str(Path(self.cache_dir) / dict_["original_audio"]),
+                str(Path(self.cache_dir) / adjusted_path),
                 self.global_speed,
             )
             dict_["final_audio"] = adjusted_path
