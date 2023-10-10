@@ -106,7 +106,7 @@ class VoiceoverScene(Scene):
             subcaption_file.write_text(srt.compose(self.subcaptions), encoding="utf-8")
             log.info(f"Subcaption file has been written as {subcaption_file}")
     
-    def add_subcaption(
+    def add_subcaption_compatible(
         self, content: str, duration: float = 1, offset: float = 0
     ) -> None:
         r"""Adds an entry in the corresponding subcaption file
@@ -136,8 +136,8 @@ class VoiceoverScene(Scene):
                     square = Square()
                     circle = Circle()
 
-                    # first option: via the add_subcaption method
-                    self.add_subcaption("Hello square!", duration=1)
+                    # first option: via the add_subcaption_compatible method
+                    self.add_subcaption_compatible("Hello square!", duration=1)
                     self.play(Create(square))
 
                     # second option: within the call to Scene.play
@@ -197,7 +197,7 @@ class VoiceoverScene(Scene):
         current_offset = 0
         for idx, subcaption in enumerate(subcaptions):
             chunk_duration = duration * subcaption_weights[idx]
-            self.add_subcaption(
+            self.add_subcaption_compatible(
                 subcaption,
                 duration=max(chunk_duration - subcaption_buff, 0),
                 offset=current_offset,
