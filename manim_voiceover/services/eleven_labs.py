@@ -1,0 +1,140 @@
+import os
+import sys
+from pathlib import Path
+from typing import Optional, Union
+
+from dotenv import find_dotenv, load_dotenv
+from manim import logger
+
+from manim_voiceover.helper import create_dotenv_file
+
+try:
+    from elevenlabs import Voice, VoiceSettings, generate, save, voices
+except ImportError:
+    logger.error(
+        'Missing packages. Run `pip install "manim-voiceover[elevenlabs]"` to use Elevenlabs API.'
+    )
+
+from manim_voiceover.helper import create_dotenv_file, remove_bookmarks
+from manim_voiceover.services.base import SpeechService
+
+load_dotenv(find_dotenv(usecwd=True))
+
+
+def create_dotenv_elevenlabs():
+    logger.info(
+        "Check out https://voiceover.manim.community/en/stable/services.html#elevenlabs to learn how to create an account and get your subscription key."
+    )
+    try:
+        os.environ["ELEVEN_API_KEY"]
+    except KeyError:
+        if not create_dotenv_file(["ELEVEN_API_KEY"]):
+            raise Exception(
+                "The environment variables ELEVEN_API_KEY are not set. Please set them or create a .env file with the variables."
+            )
+        logger.info("The .env file has been created. Please run Manim again.")
+    sys.exit()
+
+
+create_dotenv_elevenlabs()
+
+
+class ElevenlabsService(SpeechService):
+    """Speech service for Elevenlabs API."""
+
+    def __init__(
+        self,
+        voice_name: Optional[str] = None,
+        voice_id: Optional[str] = None,
+        model: str = "eleven_monolingual_v1",
+        voice_settings: Optional[Union[VoiceSettings, dict]] = None,  # type: ignore
+        **kwargs,
+    ):
+        """
+        Args:
+            voice_name (str, optional): The name of the voice to use. See the `API page <https://elevenlabs.io/docs/api-reference/text-to-speech>` for reference. Defaults to `None`. Either `voice_name` or `voice_id` must be provided.
+            voice_id (str, Optional): The id of the voice to use. See the `API page <https://elevenlabs.io/docs/api-reference/text-to-speech>` for reference. Defaults to `None`. Either `voice_name` or `voice_id` must be provided.
+            model (str, optional): The name of the model to use. See the `API page: <https://elevenlabs.io/docs/api-reference/text-to-speech>` for reference. Defaults to `eleven_monolingual_v1`
+            voice_settings (Union[VoiceSettings, dict], optional): The voice settings to use. See the `Docs: <https://elevenlabs.io/docs/speech-synthesis/voice-settings>` for reference. It is a dictionary, with keys: `stability` (Required, number), `similarity_boost` (Required, number), `style` (Optional, number, default 0), `use_speaker_boost` (Optional, boolean, True).
+        """
+        if not voice_name and not voice_id:
+            raise ValueError("Either voice_name or voice_id must be provided")
+        available_voices = voices()
+        if voice_name:
+            selected_voice = [v for v in available_voices if v.name == voice_name]
+        elif voice_id:
+            selected_voice = [v for v in available_voices if v.voice_id == voice_id]
+        else:
+            selected_voice = None
+
+        if selected_voice:
+            self.voice = selected_voice[0]
+        else:
+            logger.warn(
+                f"Given `voice_name` or `voice_id` not found. Defaulting to {available_voices[0].name}"
+            )
+            self.voice = available_voices[0]
+        self.model = model
+        if voice_settings:  # type: ignore
+            if isinstance(voice_settings, dict):
+                if not voice_settings.get("stability") or not voice_settings.get(
+                    "similarity_boost"
+                ):
+                    raise KeyError(
+                        "Missing required keys: 'stability' and 'similarity_boost'. Required for setting voice setting"
+                    )
+                self.voice_settings = VoiceSettings(
+                    stability=voice_settings["stability"],
+                    similarity_boost=voice_settings["similarity_boost"],
+                    style=voice_settings.get("style", 0),
+                    use_speaker_boost=voice_settings.get("use_speaker_boost", True),
+                )
+            elif isinstance(voice_settings, VoiceSettings):
+                self.voice_settings = voice_settings
+            else:
+                raise TypeError(
+                    "voice_settings must be a VoiceSettings object or a dictionary"
+                )
+
+            # apply voice settings to voice
+            self.voice = Voice(
+                voice_id=self.voice.voice_id, settings=self.voice_settings
+            )
+        SpeechService.__init__(self, **kwargs)
+
+    def generate_from_text(
+        self,
+        text: str,
+        cache_dir: Optional[str] = None,
+        path: Optional[str] = None,
+        **kwargs,
+    ) -> dict:
+        if cache_dir is None:
+            cache_dir = self.cache_dir  # type: ignore
+
+        input_text = remove_bookmarks(text)
+        input_data = {"input_text": input_text, "service": "elevenlabs"}
+
+        cached_result = self.get_cached_result(input_data, cache_dir)
+
+        if cached_result is not None:
+            return cached_result
+
+        if path is None:
+            audio_path = self.get_audio_basename(input_data) + ".mp3"
+        else:
+            audio_path = path
+        try:
+            audio = generate(text=text, voice=self.voice, model=self.model)
+            save(audio, str(Path(cache_dir) / audio_path))  # type: ignore
+        except Exception as e:
+            logger.error(e)
+            raise Exception("Failed to initialize ElevenLabs.")
+
+        json_dict = {
+            "input_text": text,
+            "input_data": input_data,
+            "original_audio": audio_path,
+        }
+
+        return json_dict
