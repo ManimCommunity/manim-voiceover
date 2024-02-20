@@ -9,21 +9,21 @@ class ElevenlabsExample(VoiceoverScene):
         # set speech service using defaults, without voice_name or voice_id
         # if none of voice_name or voice_id is passed, it defaults to the
         # first voice in the list returned by `voices()`
-        self.set_speech_service(ElevenlabsService())
+        # self.set_speech_service(ElevenlabsService())
 
         # set speech service using voice_name
         # self.set_speech_service(ElevenlabsService(voice_name="Adam"))
 
         # set speech service using voice_id
-        # self.set_speech_service(ElevenlabsService(voice_id="pNInz6obpgDQGcFmaJgB"))
+        # self.set_speech_service(ElevenlabsService(voice_id="29vD33N1CtxCmqQRPOHJ"))
 
         # customise voice by passing voice_settings
-        # self.set_speech_service(
-        #     ElevenlabsService(
-        #         voice_name="Adam",
-        #         voice_settings={"stability": 0.5, "similarity_boost": 1.5},
-        #     )
-        # )
+        self.set_speech_service(
+            ElevenlabsService(
+                voice_name="Adam",
+                voice_settings={"stability": 0.001, "similarity_boost": 0.25},
+            )
+        )
         circle = Circle()
         square = Square().shift(2 * RIGHT)
 
