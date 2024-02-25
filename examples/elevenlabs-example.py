@@ -4,7 +4,7 @@ from manim_voiceover import VoiceoverScene
 from manim_voiceover.services.elevenlabs import ElevenLabsService
 
 
-class ElevenlabsExample(VoiceoverScene):
+class ElevenLabsExample(VoiceoverScene):
     def construct(self):
         # Set speech service using defaults, without voice_name or voice_id
         # If none of voice_name or voice_id is passed, it defaults to the

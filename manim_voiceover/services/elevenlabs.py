@@ -1,7 +1,7 @@
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from dotenv import find_dotenv, load_dotenv
 from manim import config, logger
@@ -85,7 +85,9 @@ class ElevenLabsService(SpeechService):
             logger.warn(
                 "None of `voice_name` or `voice_id` provided. Will be using default voice."
             )
-        available_voices = voices()
+
+        available_voices: List[Voice] = voices()
+
         if voice_name:
             selected_voice = [v for v in available_voices if v.name == voice_name]
         elif voice_id:
@@ -101,7 +103,9 @@ class ElevenLabsService(SpeechService):
                 Defaulting to {available_voices[0].name}"
             )
             self.voice = available_voices[0]
+
         self.model = model
+
         if voice_settings:
             if isinstance(voice_settings, dict):
                 if not voice_settings.get("stability") or not voice_settings.get(
@@ -141,13 +145,19 @@ class ElevenLabsService(SpeechService):
             cache_dir = self.cache_dir  # type: ignore
 
         input_text = remove_bookmarks(text)
-        input_data = {"input_text": input_text, "service": "elevenlabs"}
+        input_data = {
+            "input_text": input_text,
+            "service": "elevenlabs",
+            "voice_id": self.voice.voice_id,
+            "model": self.model,
+            "voice_settings": self.voice.settings.model_dump(exclude_none=True),
+        }
 
-        if not config.disable_caching:
-            cached_result = self.get_cached_result(input_data, cache_dir)
+        # if not config.disable_caching:
+        cached_result = self.get_cached_result(input_data, cache_dir)
 
-            if cached_result is not None:
-                return cached_result
+        if cached_result is not None:
+            return cached_result
 
         if path is None:
             audio_path = self.get_audio_basename(input_data) + ".mp3"
