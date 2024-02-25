@@ -146,7 +146,7 @@ Install Manim Voiceover with the ``pyttsx3`` extra in order to use :py:class:`~p
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/pyttsx3-example.py>`__ to get started.
 
 
-:py:class:`~eleven_labs.ElevenlabsService`
+:py:class:`~elevenlabs.ElevenlabsService`
 ******************************************
 
 You can also use the `Eleven Labs TTS <https://www.elevenlabs.io/>`__ TTS service, for realistic voices. To use this you will need to create an account at `Eleven Labs <https://elevenlabs.io/>`__.
@@ -154,7 +154,7 @@ You can also use the `Eleven Labs TTS <https://www.elevenlabs.io/>`__ TTS servic
 .. tip::
     Elevenlabs currently offers free TTS of 10,000 characters/month and upto 3 custom voices.
 
-Install Manim Voiceover with the ``elevenlabs`` extra in order to use :py:class:`~eleven_labs.ElevenlabsService`:
+Install Manim Voiceover with the ``elevenlabs`` extra in order to use :py:class:`~elevenlabs.ElevenlabsService`:
 
 .. code:: sh
 
