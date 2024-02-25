@@ -10,15 +10,15 @@ class ElevenLabsExample(VoiceoverScene):
         # If none of voice_name or voice_id is passed, it defaults to the
         # first voice in the list returned by `voices()`
         #
-        # self.set_speech_service(ElevenlabsService())
+        # self.set_speech_service(ElevenLabsService())
         #
         # Set speech service using voice_name
         #
-        # self.set_speech_service(ElevenlabsService(voice_name="Adam"))
+        # self.set_speech_service(ElevenLabsService(voice_name="Adam"))
         #
         # Set speech service using voice_id
         #
-        # self.set_speech_service(ElevenlabsService(voice_id="29vD33N1CtxCmqQRPOHJ"))
+        # self.set_speech_service(ElevenLabsService(voice_id="29vD33N1CtxCmqQRPOHJ"))
 
         # customise voice by passing voice_settings
         self.set_speech_service(

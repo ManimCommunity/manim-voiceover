@@ -13,7 +13,7 @@ try:
 except ImportError:
     logger.error(
         'Missing packages. Run `pip install "manim-voiceover[elevenlabs]"` '
-        "to use Elevenlabs API."
+        "to use ElevenLabs API."
     )
 
 from elevenlabs import Voice, VoiceSettings, generate, save, voices
@@ -45,7 +45,7 @@ create_dotenv_elevenlabs()
 
 
 class ElevenLabsService(SpeechService):
-    """Speech service for Elevenlabs API."""
+    """Speech service for ElevenLabs API."""
 
     def __init__(
         self,
@@ -84,7 +84,8 @@ class ElevenLabsService(SpeechService):
         """
         if not voice_name and not voice_id:
             logger.warn(
-                "None of `voice_name` or `voice_id` provided. Will be using default voice."
+                "None of `voice_name` or `voice_id` provided. "
+                "Will be using default voice."
             )
 
         available_voices: List[Voice] = voices()
@@ -100,8 +101,8 @@ class ElevenLabsService(SpeechService):
             self.voice = selected_voice[0]
         else:
             logger.warn(
-                f"Given `voice_name` or `voice_id` not found (or not provided). \
-                Defaulting to {available_voices[0].name}"
+                "Given `voice_name` or `voice_id` not found (or not provided). "
+                f"Defaulting to {available_voices[0].name}"
             )
             self.voice = available_voices[0]
 
