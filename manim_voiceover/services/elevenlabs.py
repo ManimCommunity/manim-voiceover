@@ -12,7 +12,8 @@ try:
     import elevenlabs
 except ImportError:
     logger.error(
-        'Missing packages. Run `pip install "manim-voiceover[elevenlabs]"` to use Elevenlabs API.'
+        'Missing packages. Run `pip install "manim-voiceover[elevenlabs]"` '
+        "to use Elevenlabs API."
     )
 
 from elevenlabs import Voice, VoiceSettings, generate, save, voices
@@ -25,14 +26,16 @@ load_dotenv(find_dotenv(usecwd=True))
 
 def create_dotenv_elevenlabs():
     logger.info(
-        "Check out https://voiceover.manim.community/en/stable/services.html#elevenlabs to learn how to create an account and get your subscription key."
+        "Check out https://voiceover.manim.community/en/stable/services.html#elevenlabs"
+        " to learn how to create an account and get your subscription key."
     )
     try:
         os.environ["ELEVEN_API_KEY"]
     except KeyError:
         if not create_dotenv_file(["ELEVEN_API_KEY"]):
             raise Exception(
-                "The environment variables ELEVEN_API_KEY are not set. Please set them or create a .env file with the variables."
+                "The environment variables ELEVEN_API_KEY are not set. "
+                "Please set them or create a .env file with the variables."
             )
         logger.info("The .env file has been created. Please run Manim again.")
         sys.exit()
@@ -41,7 +44,7 @@ def create_dotenv_elevenlabs():
 create_dotenv_elevenlabs()
 
 
-class ElevenlabsService(SpeechService):
+class ElevenLabsService(SpeechService):
     """Speech service for Elevenlabs API."""
 
     def __init__(
@@ -54,10 +57,29 @@ class ElevenlabsService(SpeechService):
     ):
         """
         Args:
-            voice_name (str, optional): The name of the voice to use. See the `API page <https://elevenlabs.io/docs/api-reference/text-to-speech>` for reference. Defaults to `None`. If none of `voice_name` or `voice_id` is be provided, it uses default available voice.
-            voice_id (str, Optional): The id of the voice to use. See the `API page <https://elevenlabs.io/docs/api-reference/text-to-speech>` for reference. Defaults to `None`. If none of `voice_name` or `voice_id` must be provided, it uses default available voice.
-            model (str, optional): The name of the model to use. See the `API page: <https://elevenlabs.io/docs/api-reference/text-to-speech>` for reference. Defaults to `eleven_monolingual_v1`
-            voice_settings (Union[VoiceSettings, dict], optional): The voice settings to use. See the `Docs: <https://elevenlabs.io/docs/speech-synthesis/voice-settings>` for reference. It is a dictionary, with keys: `stability` (Required, number), `similarity_boost` (Required, number), `style` (Optional, number, default 0), `use_speaker_boost` (Optional, boolean, True).
+            voice_name (str, optional): The name of the voice to use.
+                See the
+                `API page <https://elevenlabs.io/docs/api-reference/text-to-speech>`
+                for reference. Defaults to `None`.
+                If none of `voice_name` or `voice_id` is be provided,
+                it uses default available voice.
+            voice_id (str, Optional): The id of the voice to use.
+                See the
+                `API page <https://elevenlabs.io/docs/api-reference/text-to-speech>`
+                for reference. Defaults to `None`. If none of `voice_name`
+                or `voice_id` must be provided, it uses default available voice.
+            model (str, optional): The name of the model to use. See the `API
+                page: <https://elevenlabs.io/docs/api-reference/text-to-speech>`
+                for reference. Defaults to `eleven_monolingual_v1`
+            voice_settings (Union[VoiceSettings, dict], optional): The voice
+                settings to use.
+                See the
+                `Docs: <https://elevenlabs.io/docs/speech-synthesis/voice-settings>`
+                for reference.
+                It is a dictionary, with keys: `stability` (Required, number),
+                `similarity_boost` (Required, number),
+                `style` (Optional, number, default 0), `use_speaker_boost`
+                (Optional, boolean, True).
         """
         if not voice_name and not voice_id:
             logger.warn(
@@ -86,7 +108,8 @@ class ElevenlabsService(SpeechService):
                     "similarity_boost"
                 ):
                     raise KeyError(
-                        "Missing required keys: 'stability' and 'similarity_boost'. Required for setting voice setting"
+                        "Missing required keys: 'stability' and 'similarity_boost'. "
+                        "Required for setting voice setting"
                     )
                 self.voice_settings = VoiceSettings(
                     stability=voice_settings["stability"],
