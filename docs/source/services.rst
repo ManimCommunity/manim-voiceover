@@ -36,7 +36,7 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - Very good, human-like
      - No
      - Yes
-     - `ElevenLabs <elevenlabs.io>`__ develops very advanced voice generative AI models. It has a range of realistic and emotive voices, and also allows you to clone your own voice by uploading a few minutes of your speech.
+     - Requires ElevenLabs account. Click `here <https://elevenlabs.io/sign-up>`__ to sign up.
    * - :py:class:`~coqui.CoquiService`
      - Good, human-like
      - Yes
@@ -47,6 +47,11 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - No
      - No
      - It's a free API subsidized by Google, so there is a likelihood it may stop working in the future.
+   * - :py:class:`~openai.OpenAIService`
+     - Very good, human-like
+     - No
+     - Yes
+     - Requires OpenAI developer account. See `platform <https://platform.openai.com/signup>`__ to sign up, and the `pricing page <https://openai.com/pricing#:~:text=%24-,0.030,-/%201K%20characters>`__ for more details.
    * - :py:class:`~pyttsx3.PyTTSX3Service`
      - Bad
      - Yes
@@ -136,6 +141,32 @@ Install Manim Voiceover with the ``gtts`` extra in order to use :py:class:`~gtts
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/gtts-example.py>`__ to get started.
 
+:py:class:`~openai.OpenAIService`
+*************************************
+`OpenAI <https://platform.openai.com/docs/api-reference/audio/createSpeech/>`__ provides a text-to-speech service. It is through an API, so it requires an internet connection to work. It also requires an API key to use. Register for one `here <https://platform.openai.com/>`__.
+
+Install Manim Voiceover with the ``openai`` extra in order to use :py:class:`~openai.OpenAIService`:
+
+.. code:: sh
+
+   pip install "manim-voiceover[openai]"
+
+Then, you need to find out your api key:
+
+- Sign in to `OpenAI platform <https://platform.openai.com/>`__ and click into Api Keys from the left panel.
+- Click create a new secret key and copy it.
+
+Create a file called ``.env`` that contains your authentication
+information in the same directory where you call Manim.
+
+.. code:: sh
+
+   OPENAI_API_KEY="..." # insert the secret key here. It should start with "sk-"
+
+Check out `OpenAI docs <https://platform.openai.com/docs/guides/text-to-speech/>`__ for more details.
+
+Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/openai-example.py>`__ to get started.
+
 :py:class:`~pyttsx3.PyTTSX3Service`
 ***********************************
 
@@ -154,7 +185,7 @@ Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/b
 :py:class:`~elevenlabs.ElevenLabsService`
 ******************************************
 
-`ElevenLabs <https://www.elevenlabs.io/>`__ offers one of the most natural sounding speech service APIs. To use it, you will need to create an account at `Eleven Labs <https://elevenlabs.io/sign-up>`__.
+`ElevenLabs <https://www.elevenlabs.io/>`__ offers one of the most natural sounding speech service APIs. It has a range of realistic and emotive voices, and also allows you to clone your own voice by uploading a few minutes of your speech. To use it, you will need to create an account at `Eleven Labs <https://elevenlabs.io/sign-up>`__.
 
 .. tip::
     ElevenLabs currently offers free TTS of 10,000 characters/month and up to 3 custom voices.

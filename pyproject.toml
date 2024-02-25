@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "manim-voiceover"
-version = "0.3.5"
+version = "0.3.6"
 description = "Manim plugin for all things voiceover"
 authors = ["The Manim Community Developers <contact@manim.community>"]
 license = "MIT"
@@ -51,6 +51,7 @@ azure-cognitiveservices-speech = { version = "^1.24.0", optional = true }
 PyAudio = { version = "^0.2.12", optional = true }
 gTTS = { version = "^2.2.4", optional = true }
 pyttsx3 = { version = "^2.90", optional = true }
+openai = { version = "^1.6.1", optional = true }
 # torch = { version = "*", optional = true }
 # TTS = { version = "*", optional = true }
 pynput = { version = "^1.7.6", optional = true }
@@ -65,6 +66,7 @@ elevenlabs = {version = "^0.2.27", optional = true}
 [tool.poetry.extras]
 azure = ["azure-cognitiveservices-speech"]
 gtts = ["gTTS"]
+openai = ["openai"]
 pyttsx3 = ["pyttsx3"]
 # coqui = ["torch", "TTS"]
 coqui = [] # Removed TTS as deps for now
@@ -80,6 +82,7 @@ all = [
     "TTS",
     "PyAudio",
     "pynput",
+    "openai",
     "deepl",
     "openai-whisper",
     "stable-ts",
