@@ -46,6 +46,10 @@ Speech services
    :members:
    :show-inheritance:
 
+.. automodule:: manim_voiceover.services.elevenlabs
+   :members:
+   :show-inheritance:
+
 
 Defaults
 ~~~~~~~~
