@@ -150,8 +150,10 @@ class ElevenLabsService(SpeechService):
         input_data = {
             "input_text": input_text,
             "service": "elevenlabs",
-            "model": self.model,
-            "voice": self.voice.model_dump(exclude_none=True),
+            "config": {
+                "model": self.model,
+                "voice": self.voice.model_dump(exclude_none=True),
+            },
         }
 
         # if not config.disable_caching:
@@ -164,8 +166,9 @@ class ElevenLabsService(SpeechService):
             audio_path = self.get_audio_basename(input_data) + ".mp3"
         else:
             audio_path = path
+
         try:
-            audio = generate(text=text, voice=self.voice, model=self.model)
+            audio = generate(text=input_text, voice=self.voice, model=self.model)
             save(audio, str(Path(cache_dir) / audio_path))  # type: ignore
         except Exception as e:
             logger.error(e)

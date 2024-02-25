@@ -38,6 +38,10 @@ Speech services
    :members:
    :show-inheritance:
 
+.. automodule:: manim_voiceover.services.openai
+   :members:
+   :show-inheritance:
+
 .. automodule:: manim_voiceover.services.pyttsx3
    :members:
    :show-inheritance:

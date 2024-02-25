@@ -57,10 +57,43 @@ class VoiceoverTracker:
         if "word_boundaries" in self.data:
             self._process_bookmarks()
 
+    def _get_fallback_word_boundaries(self):
+        """
+        Returns dummy word boundaries assuming a linear mapping between
+        text and audio. Used when word boundaries are not available.
+        """
+        input_text = remove_bookmarks(self.data["input_text"])
+        return [
+            {
+                "audio_offset": 0,
+                "text_offset": 0,
+                "word_length": len(input_text),
+                "text": self.data["input_text"],
+                "boundary_type": "Word",
+            },
+            {
+                "audio_offset": self.duration * AUDIO_OFFSET_RESOLUTION,
+                "text_offset": len(input_text),
+                "word_length": 1,
+                "text": ".",
+                "boundary_type": "Word",
+            },
+        ]
+
     def _process_bookmarks(self) -> None:
         self.bookmark_times = {}
         self.bookmark_distances = {}
-        self.time_interpolator = TimeInterpolator(self.data["word_boundaries"])
+
+        word_boundaries = self.data["word_boundaries"]
+        if not word_boundaries or len(word_boundaries) < 2:
+            logger.warning(
+                f"Word boundaries for voiceover {self.data['input_text']} are not "
+                "available or are insufficient. Using fallback word boundaries."
+            )
+            word_boundaries = self._get_fallback_word_boundaries()
+
+        self.time_interpolator = TimeInterpolator(word_boundaries)
+
         net_text_len = len(remove_bookmarks(self.data["input_text"]))
         if "transcribed_text" in self.data:
             transcribed_text_len = len(self.data["transcribed_text"].strip())
