@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 from dotenv import find_dotenv, load_dotenv
-from manim import config, logger
+from manim import logger
 
 from manim_voiceover.helper import create_dotenv_file
 
@@ -151,7 +151,7 @@ class ElevenLabsService(SpeechService):
             "service": "elevenlabs",
             "voice_id": self.voice.voice_id,
             "model": self.model,
-            "voice_settings": self.voice.settings.model_dump(exclude_none=True),
+            "voice_settings": self.voice.model_dump(exclude_none=True),
         }
 
         # if not config.disable_caching:
