@@ -384,9 +384,7 @@ class QuadraticFormulaArabic(VoiceoverScene):
             self.play(FadeIn(equation, shift=DOWN))
         self.wait(0.2)
 
-        with self.voiceover(
-            text="بِحَيْثُ a b c أَعْدَادٌ حَقِيقِيَّةٌ، وَ a  غَيْر مُنْعَدِمٍ."
-        ) as tracker:
+        with self.voiceover(text="بِحَيْثُ a b c أَعْدَادٌ حَقِيقِيَّةٌ، وَ a  غَيْر مُنْعَدِمٍ.") as tracker:
             self.play(ReplacementTransform(equation[0].copy(), text))
 
         self.wait()
@@ -399,9 +397,7 @@ class QuadraticFormulaArabic(VoiceoverScene):
         with self.voiceover(text="نَقُومُ بِمُضَاعَفَةِ b، ") as tracker:
             self.play(TransformMatchingShapes(eq1, eq2, path_arc=PI / 3))
 
-        with self.voiceover(
-            text=" وَنَقْسِمُهُ عَلَى 2، كَيْ نُحَافِظَ عَلَى الْمُعَادَلَةِ."
-        ) as tracker:
+        with self.voiceover(text=" وَنَقْسِمُهُ عَلَى 2، كَيْ نُحَافِظَ عَلَى الْمُعَادَلَةِ.") as tracker:
             self.play(TransformMatchingShapes(eq2, eq3, path_arc=PI / 3))
         self.wait()
 
@@ -436,9 +432,7 @@ class QuadraticFormulaArabic(VoiceoverScene):
                 TransformMatchingShapes(eq5[2:], eq6[4]),
             )
 
-        with self.voiceover(
-            text="وَ الآنَ، تَعْمِيلُ الْمُتَطَابِقَةِ الْهَامَّةُ"
-        ) as tracker:
+        with self.voiceover(text="وَ الآنَ، تَعْمِيلُ الْمُتَطَابِقَةِ الْهَامَّةُ") as tracker:
             self.play(Indicate(eq6[0:2], color=RED))
         self.wait(2)
 
@@ -479,18 +473,14 @@ class QuadraticFormulaArabic(VoiceoverScene):
             self.play(ind_eq92)
 
         self.wait(0.3)
-        with self.voiceover(
-            text="نَضَعُ دِلْتَا يُسَاوِي الْبَسْطْ، b مُرَبَّعْ نَاقِصْ 4 a c."
-        ) as tracker:
+        with self.voiceover(text="نَضَعُ دِلْتَا يُسَاوِي الْبَسْطْ، b مُرَبَّعْ نَاقِصْ 4 a c.") as tracker:
             self.play(
                 TransformFromCopy(delta, onpose[1][2:8]),
                 Write(VGroup(onpose[0], onpose[1][0:2], onpose[8:])),
                 lag_ratio=0.5,
             )
         self.wait(0.3)
-        with self.voiceover(
-            text="دِلْتَا يُسَمَّى: مُمَيِّزُ الْمُعَادَلَةِ E"
-        ) as tracker:
+        with self.voiceover(text="دِلْتَا يُسَمَّى: مُمَيِّزُ الْمُعَادَلَةِ E") as tracker:
             self.wait(tracker.duration)
         # TODO You have to color the solutions set and formulas for cases
 

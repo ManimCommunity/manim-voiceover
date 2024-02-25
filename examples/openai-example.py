@@ -24,7 +24,9 @@ class OpenAIExample(VoiceoverScene):
         with self.voiceover(text="Now, let's transform it into a square.") as tracker:
             self.play(Transform(circle, square), run_time=tracker.duration)
 
-        with self.voiceover(text="Thank you for watching.", speed=0.75): # You can also change the audio speed by specifying the speed argument.
+        with self.voiceover(
+            text="Thank you for watching.", speed=0.75
+        ):  # You can also change the audio speed by specifying the speed argument.
             self.play(Uncreate(circle))
 
         self.wait()

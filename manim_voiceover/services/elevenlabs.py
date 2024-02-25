@@ -9,14 +9,13 @@ from manim import logger
 from manim_voiceover.helper import create_dotenv_file
 
 try:
-    import elevenlabs
+    from elevenlabs import Voice, VoiceSettings, generate, save, voices
 except ImportError:
     logger.error(
         'Missing packages. Run `pip install "manim-voiceover[elevenlabs]"` '
         "to use ElevenLabs API."
     )
 
-from elevenlabs import Voice, VoiceSettings, generate, save, voices
 
 from manim_voiceover.helper import create_dotenv_file, remove_bookmarks
 from manim_voiceover.services.base import SpeechService

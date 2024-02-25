@@ -54,11 +54,11 @@ class OpenAIService(SpeechService):
         """
         Args:
             voice (str, optional): The voice to use. See the
-            `API page <https://platform.openai.com/docs/api-reference/audio/createSpeech>`__
-            for all the available options. Defaults to ``"alloy"``.
+                `API page <https://platform.openai.com/docs/api-reference/audio/createSpeech>`__
+                for all the available options. Defaults to ``"alloy"``.
             model (str, optional): The TTS model to use.
-            See the `API page <https://platform.openai.com/docs/api-reference/audio/createSpeech>`__
-            for all the available options. Defaults to ``"tts-1-hd"``.
+                See the `API page <https://platform.openai.com/docs/api-reference/audio/createSpeech>`__
+                for all the available options. Defaults to ``"tts-1-hd"``.
         """
         prompt_ask_missing_extras("openai", "openai", "OpenAIService")
         self.voice = voice
