@@ -32,6 +32,11 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - No
      - Yes
      - Azure gives 500min/month free TTS quota. However, registration still needs a credit or debit card. See `Azure free account FAQ <https://azure.microsoft.com/en-us/free/free-account-faq/>`__ for more details.
+   * - :py:class:`~elevenlabs.ElevenLabsService`
+     - Very good, human-like
+     - No
+     - Yes
+     - `ElevenLabs <elevenlabs.io>`__ develops very advanced voice generative AI models. It has a range of realistic and emotive voices, and also allows you to clone your own voice by uploading a few minutes of your speech.
    * - :py:class:`~coqui.CoquiService`
      - Good, human-like
      - Yes
@@ -144,3 +149,36 @@ Install Manim Voiceover with the ``pyttsx3`` extra in order to use :py:class:`~p
    pip install "manim-voiceover[pyttsx3]"
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/pyttsx3-example.py>`__ to get started.
+
+
+:py:class:`~elevenlabs.ElevenLabsService`
+******************************************
+
+`ElevenLabs <https://www.elevenlabs.io/>`__ offers one of the most natural sounding speech service APIs. To use it, you will need to create an account at `Eleven Labs <https://elevenlabs.io/sign-up>`__.
+
+.. tip::
+    ElevenLabs currently offers free TTS of 10,000 characters/month and up to 3 custom voices.
+
+Install Manim Voiceover with the ``elevenlabs`` extra in order to use :py:class:`~elevenlabs.ElevenLabsService`:
+
+.. code:: sh
+
+   pip install "manim-voiceover[elevenlabs]"
+
+Then, you need to find out your API key.
+
+- Sign in to `ElevenLabs portal <https://www.elevenlabs.io/>`__ and go to your profile to obtain the key
+- Set the environment variable ``ELEVEN_API_KEY`` to your key
+
+Create a file called ``.env`` that contains your authentication
+information in the same directory where you call Manim.
+
+.. code:: sh
+
+   ELEVEN_API_KEY="..." # insert Key 1 here
+
+Check out `ElevenLabs
+docs <https://elevenlabs.io/docs/api-reference/python-text-to-speech-guide#getting-started>`__
+for more details.
+
+Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/elevenlabs-example.py>`__ to get started.
