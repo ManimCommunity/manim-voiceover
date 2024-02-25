@@ -144,3 +144,36 @@ Install Manim Voiceover with the ``pyttsx3`` extra in order to use :py:class:`~p
    pip install "manim-voiceover[pyttsx3]"
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/pyttsx3-example.py>`__ to get started.
+
+
+:py:class:`~eleven_labs.ElevenlabsService`
+******************************************
+
+You can also use the `Eleven Labs TTS <https://www.elevenlabs.io/>`__ TTS service, for realistic voices. To use this you will need to create an account at `Eleven Labs <https://elevenlabs.io/>`__.
+
+.. tip::
+    Elevenlabs currently offers free TTS of 10,000 characters/month and upto 3 custom voices.
+
+Install Manim Voiceover with the ``elevenlabs`` extra in order to use :py:class:`~eleven_labs.ElevenlabsService`:
+
+.. code:: sh
+
+   pip install "manim-voiceover[elevenlabs]"
+
+Then, you need to find out your API key. 
+
+- Sign in to `Elevenlabs portal <https://www.elevenlabs.io/>`__ and go to your profile to obtain the key
+- Set the environment variable ``ELEVEN_API_KEY`` to your key
+
+Create a file called ``.env`` that contains your authentication
+information in the same directory where you call Manim.
+
+.. code:: sh
+
+   ELEVEN_API_KEY="..." # insert Key 1 here
+
+Check out `Elevenlabs
+docs <https://elevenlabs.io/docs/api-reference/python-text-to-speech-guide#getting-started>`__
+for more details.
+
+Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/elevenlabs-example.py>`__ to get started.
