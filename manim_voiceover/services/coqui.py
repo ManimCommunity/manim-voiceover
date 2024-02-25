@@ -1,6 +1,12 @@
 from pathlib import Path
 
-from manim import logger
+from manim_voiceover.helper  import __manimtype__
+
+if __manimtype__ == "manimce":
+    from manim import logger
+else:
+    from manimlib import logger
+
 from manim_voiceover.helper import prompt_ask_missing_package, remove_bookmarks, wav2mp3
 from manim_voiceover.services.base import SpeechService
 

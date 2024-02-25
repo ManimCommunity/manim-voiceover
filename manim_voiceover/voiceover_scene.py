@@ -5,7 +5,14 @@ from typing import Optional, Generator
 import re
 import typing as t
 
-from manim import Scene, config
+
+from manim_voiceover.helper  import __manimtype__
+
+if __manimtype__ == "manimce":
+    from manim import Scene, config
+else:
+    from manimlib import Scene
+
 from manim_voiceover.services.base import SpeechService
 from manim_voiceover.tracker import VoiceoverTracker
 from manim_voiceover.helper import chunks, remove_bookmarks
@@ -86,6 +93,78 @@ class VoiceoverScene(Scene):
             )
 
         return tracker
+    
+    def write_subcaption_file(self):
+        """Writes the subcaption file."""
+        if __manimtype__ == "manimce":
+            self.write_subcaption_file()
+        else:
+            from manimlib import log
+            import srt
+            scene_name = self.file_writer.file_name or self.file_writer.get_default_scene_name()
+            if self.file_writer.output_directory == "":
+                output_file =  "./videos/"+scene_name
+            else:
+                output_file =  self.file_writer.output_directory+"/videos/"+scene_name
+            subcaption_file = Path(output_file).with_suffix(".srt")
+            subcaption_file.write_text(srt.compose(self.subcaptions), encoding="utf-8")
+            log.info(f"Subcaption file has been written as {subcaption_file}")
+    
+    def add_subcaption_compatible(
+        self, content: str, duration: float = 1, offset: float = 0
+    ) -> None:
+        r"""Adds an entry in the corresponding subcaption file
+        at the current time stamp.
+
+        The current time stamp is obtained from ``Scene.renderer.time``.
+
+        Parameters
+        ----------
+
+        content
+            The subcaption content.
+        duration
+            The duration (in seconds) for which the subcaption is shown.
+        offset
+            This offset (in seconds) is added to the starting time stamp
+            of the subcaption.
+
+        Examples
+        --------
+
+        This example illustrates both possibilities for adding
+        subcaptions to Manimations::
+
+            class SubcaptionExample(Scene):
+                def construct(self):
+                    square = Square()
+                    circle = Circle()
+
+                    # first option: via the add_subcaption_compatible method
+                    self.add_subcaption_compatible("Hello square!", duration=1)
+                    self.play(Create(square))
+
+                    # second option: within the call to Scene.play
+                    self.play(
+                        Transform(square, circle),
+                        subcaption="The square transforms."
+                    )
+
+        """
+        if __manimtype__ == "manimce":
+            self.add_subcaption(content, duration, offset)
+        else:
+            import srt
+            import datetime
+            
+            subtitle = srt.Subtitle(
+                index=len(self.subcaptions),
+                content=content,
+                start=datetime.timedelta(seconds=self.time + offset),
+                end=datetime.timedelta(seconds=self.time + offset + duration),
+            )
+            self.subcaptions.append(subtitle)
+            self.write_subcaption_file()
 
     def add_wrapped_subcaption(
         self,
@@ -122,7 +201,7 @@ class VoiceoverScene(Scene):
         current_offset = 0
         for idx, subcaption in enumerate(subcaptions):
             chunk_duration = duration * subcaption_weights[idx]
-            self.add_subcaption(
+            self.add_subcaption_compatible(
                 subcaption,
                 duration=max(chunk_duration - subcaption_buff, 0),
                 offset=current_offset,
@@ -154,7 +233,13 @@ class VoiceoverScene(Scene):
         Args:
             duration (float): The duration to wait for in seconds.
         """
-        if duration > 1 / config["frame_rate"]:
+        
+        if __manimtype__ == "manimce":
+            frame_rate = config["frame_rate"]
+        else:
+            frame_rate = self.camera.fps
+        
+        if duration > 1 / frame_rate:
             self.wait(duration)
 
     def wait_until_bookmark(self, mark: str) -> None:

@@ -8,7 +8,21 @@ import pip
 import textwrap
 from pydub import AudioSegment
 from pathlib import Path
-from manim import logger
+
+import pkg_resources
+
+__manimtype__: str = "manimce"
+
+try:
+    pkg_resources.get_distribution("manim")
+    __manimtype__ = "manimce"
+except:
+    __manimtype__ = "manimgl"
+
+if __manimtype__ == "manimce":
+    from manim import logger
+else:
+    from manimlib import logger
 
 
 def chunks(lst: list, n: int):
