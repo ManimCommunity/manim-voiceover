@@ -36,7 +36,7 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - Very good, human-like
      - No
      - Yes
-     - `ElevenLabs <elevenlabs.io>`__ develops very advanced voice generative AI models. It has a range of realistic and emotive voices, and also allows you to clone your own voice by uploading a few minutes of your speech.
+     - Requires ElevenLabs account. Click `here <https://elevenlabs.io/sign-up>`__ to sign up.
    * - :py:class:`~coqui.CoquiService`
      - Good, human-like
      - Yes
@@ -143,8 +143,7 @@ Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/b
 
 :py:class:`~openai.OpenAIService`
 *************************************
-`OpenAI <https://platform.openai.com/docs/api-reference/audio/createSpeech/>`__ provides a text-to-speech service.
-Since it is an api request, it requires an internet connection to work. It requires an API key to use. Register for one `here <https://platform.openai.com/>`__.
+`OpenAI <https://platform.openai.com/docs/api-reference/audio/createSpeech/>`__ provides a text-to-speech service. It is through an API, so it requires an internet connection to work. It also requires an API key to use. Register for one `here <https://platform.openai.com/>`__.
 
 Install Manim Voiceover with the ``openai`` extra in order to use :py:class:`~openai.OpenAIService`:
 
@@ -186,7 +185,7 @@ Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/b
 :py:class:`~elevenlabs.ElevenLabsService`
 ******************************************
 
-`ElevenLabs <https://www.elevenlabs.io/>`__ offers one of the most natural sounding speech service APIs. To use it, you will need to create an account at `Eleven Labs <https://elevenlabs.io/sign-up>`__.
+`ElevenLabs <https://www.elevenlabs.io/>`__ offers one of the most natural sounding speech service APIs. It has a range of realistic and emotive voices, and also allows you to clone your own voice by uploading a few minutes of your speech. To use it, you will need to create an account at `Eleven Labs <https://elevenlabs.io/sign-up>`__.
 
 .. tip::
     ElevenLabs currently offers free TTS of 10,000 characters/month and up to 3 custom voices.
