@@ -53,6 +53,7 @@ class ElevenLabsService(SpeechService):
         voice_id: Optional[str] = None,
         model: str = "eleven_monolingual_v1",
         voice_settings: Optional[Union[VoiceSettings, dict]] = None,
+        transcription_model: str = "base",
         **kwargs,
     ):
         """
@@ -132,7 +133,7 @@ class ElevenLabsService(SpeechService):
             self.voice = Voice(
                 voice_id=self.voice.voice_id, settings=self.voice_settings
             )
-        SpeechService.__init__(self, **kwargs)
+        SpeechService.__init__(self, transcription_model=transcription_model, **kwargs)
 
     def generate_from_text(
         self,
