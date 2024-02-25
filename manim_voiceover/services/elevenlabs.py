@@ -6,7 +6,8 @@ from typing import List, Optional, Union
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
 
-from manim_voiceover.helper import create_dotenv_file
+from manim_voiceover.helper import create_dotenv_file, remove_bookmarks
+from manim_voiceover.services.base import SpeechService
 
 try:
     from elevenlabs import Voice, VoiceSettings, generate, save, voices
@@ -16,9 +17,6 @@ except ImportError:
         "to use ElevenLabs API."
     )
 
-
-from manim_voiceover.helper import create_dotenv_file, remove_bookmarks
-from manim_voiceover.services.base import SpeechService
 
 load_dotenv(find_dotenv(usecwd=True))
 
@@ -51,7 +49,7 @@ class ElevenLabsService(SpeechService):
         voice_name: Optional[str] = None,
         voice_id: Optional[str] = None,
         model: str = "eleven_monolingual_v1",
-        voice_settings: Optional[Union[VoiceSettings, dict]] = None,
+        voice_settings: Optional[Union["VoiceSettings", dict]] = None,
         transcription_model: str = "base",
         **kwargs,
     ):

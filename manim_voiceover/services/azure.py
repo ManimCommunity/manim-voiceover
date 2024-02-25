@@ -1,13 +1,16 @@
 import os
-from pathlib import Path
 import sys
-from dotenv import load_dotenv, find_dotenv
+from pathlib import Path
+
+from dotenv import find_dotenv, load_dotenv
+from manim import logger
+
 from manim_voiceover.helper import (
     create_dotenv_file,
     prompt_ask_missing_extras,
     remove_bookmarks,
 )
-from manim import logger
+from manim_voiceover.services.base import SpeechService
 
 try:
     import azure.cognitiveservices.speech as speechsdk
@@ -16,7 +19,6 @@ except ImportError:
         'Missing packages. Run `pip install "manim-voiceover[azure]"` to use AzureService.'
     )
 
-from manim_voiceover.services.base import SpeechService
 
 load_dotenv(find_dotenv(usecwd=True))
 

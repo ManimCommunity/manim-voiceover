@@ -1,14 +1,16 @@
 import os
 import sys
 from pathlib import Path
+
+from dotenv import find_dotenv, load_dotenv
 from manim import logger
-from dotenv import load_dotenv, find_dotenv
 
 from manim_voiceover.helper import (
     create_dotenv_file,
     prompt_ask_missing_extras,
     remove_bookmarks,
 )
+from manim_voiceover.services.base import SpeechService
 
 try:
     import openai
@@ -18,7 +20,6 @@ except ImportError:
         'Run `pip install "manim-voiceover[openai]"` to use OpenAIService.'
     )
 
-from manim_voiceover.services.base import SpeechService
 
 load_dotenv(find_dotenv(usecwd=True))
 
