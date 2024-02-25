@@ -150,9 +150,8 @@ class ElevenLabsService(SpeechService):
         input_data = {
             "input_text": input_text,
             "service": "elevenlabs",
-            "voice_id": self.voice.voice_id,
             "model": self.model,
-            "voice_settings": self.voice.model_dump(exclude_none=True),
+            "voice": self.voice.model_dump(exclude_none=True),
         }
 
         # if not config.disable_caching:
