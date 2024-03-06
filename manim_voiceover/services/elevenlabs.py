@@ -10,7 +10,7 @@ from manim_voiceover.helper import create_dotenv_file, remove_bookmarks
 from manim_voiceover.services.base import SpeechService
 
 try:
-    from elevenlabs import Voice, VoiceSettings, generate, save, voices
+    from elevenlabs import OutputFormat, Voice, VoiceSettings, generate, save, voices
 except ImportError:
     logger.error(
         'Missing packages. Run `pip install "manim-voiceover[elevenlabs]"` '
@@ -50,6 +50,7 @@ class ElevenLabsService(SpeechService):
         voice_id: Optional[str] = None,
         model: str = "eleven_monolingual_v1",
         voice_settings: Optional[Union["VoiceSettings", dict]] = None,
+        output_format: "OutputFormat" = "mp3_44100_128",
         transcription_model: str = "base",
         **kwargs,
     ):
@@ -78,6 +79,11 @@ class ElevenLabsService(SpeechService):
                 `similarity_boost` (Required, number),
                 `style` (Optional, number, default 0), `use_speaker_boost`
                 (Optional, boolean, True).
+            output_format (Union[OutputFormat, str], optional): The voice output
+                format to use. Options are available depending on the Elevenlabs
+                subscription. See the `API page:
+                <https://elevenlabs.io/docs/api-reference/text-to-speech>`
+                for reference. Defaults to `mp3_44100_128`.
         """
         if not voice_name and not voice_id:
             logger.warn(
@@ -131,6 +137,9 @@ class ElevenLabsService(SpeechService):
             self.voice = Voice(
                 voice_id=self.voice.voice_id, settings=self.voice_settings
             )
+
+        self.output_format = output_format
+
         SpeechService.__init__(self, transcription_model=transcription_model, **kwargs)
 
     def generate_from_text(
@@ -165,7 +174,7 @@ class ElevenLabsService(SpeechService):
             audio_path = path
 
         try:
-            audio = generate(text=input_text, voice=self.voice, model=self.model)
+            audio = generate(text=input_text, voice=self.voice, model=self.model, output_format=self.output_format)
             save(audio, str(Path(cache_dir) / audio_path))  # type: ignore
         except Exception as e:
             logger.error(e)
