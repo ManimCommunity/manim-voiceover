@@ -174,7 +174,12 @@ class ElevenLabsService(SpeechService):
             audio_path = path
 
         try:
-            audio = generate(text=input_text, voice=self.voice, model=self.model, output_format=self.output_format)
+            audio = generate(
+                text=input_text,
+                voice=self.voice,
+                model=self.model,
+                output_format=self.output_format,
+            )
             save(audio, str(Path(cache_dir) / audio_path))  # type: ignore
         except Exception as e:
             logger.error(e)
