@@ -2,6 +2,8 @@ import re
 import os
 import typing as t
 
+import subprocess
+
 from manim import logger
 
 from manim_voiceover.helper import prompt_ask_missing_extras
@@ -27,10 +29,10 @@ def init_gettext(files, domain, localedir):
         # Check if pot_path exists
         if os.path.exists(pot_path):
             # If it does, update it
-            os.system(f"xgettext -j -o {pot_path} {file}")
+            subprocess.run(["xgettext", "-j", "-o", pot_path, file])
         else:
             # If it does not, create it
-            os.system(f"xgettext -o {pot_path} {file}")
+            subprocess.run(["xgettext", "-o", pot_path, file])
 
 
 def init_language(target_lang, domain, localedir):
@@ -52,9 +54,7 @@ def init_language(target_lang, domain, localedir):
         pass
     else:
         # If it does not, create it
-        os.system(
-            f"msginit --no-translator -i {localedir / f'{domain}.pot'} -o {po_path} -l {target_lang}"
-        )
+        subprocess.run(["msginit", "--no-translator", "-i", localedir / f"{domain}.pot", "-o", po_path, "-l", target_lang])
 
     return po_path
 
