@@ -115,7 +115,7 @@ def append_to_json_file(json_file: str, data: dict):
 
     json_data.append(data)
     with open(json_file, "w") as f:
-        json.dump(json_data, f, indent=2)
+        json.dump(json_data, f, indent=2, ensure_ascii=False)
     return
 
 
