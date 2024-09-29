@@ -3,6 +3,8 @@ import os
 import sys
 from pathlib import Path
 
+import subprocess
+
 
 # Get the current working directory as Path
 CWD = Path.cwd()
@@ -108,15 +110,13 @@ def main():
         # If the .mo file does not exist, create it
         if not os.path.exists(mo_path):
             print(f"Creating {domain}.mo for {locale}")
-            os.system(f"msgfmt {po_path} -o {mo_path}")
+            subprocess.run(["msgfmt", po_path, "-o", mo_path])
 
         print(f"Rendering {scene} in {locale}...")
         # Set LOCALE environment variable to locale
         os.environ["LOCALE"] = locale
         ofile = scene + "_" + locale + ".mp4"
         cmd = [
-            f"LOCALE={locale}",
-            f"DOMAIN={domain}",
             "manim",
             f"-q{quality}",
             file,
@@ -128,7 +128,7 @@ def main():
 
         # Run manim with the command
         try:
-            result = os.system(" ".join(cmd))
+            result = subprocess.run(cmd, env={"LOCALE": locale, "DOMAIN": domain}).returncode
         except KeyboardInterrupt:
             print("KeyboardInterrupt")
             sys.exit(0)
