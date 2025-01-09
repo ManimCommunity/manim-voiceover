@@ -18,29 +18,23 @@ from manim_voiceover.helper import (
 )
 from manim_voiceover.modify_audio import adjust_speed
 from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
-
+from openai import OpenAI
 
 def timestamps_to_word_boundaries(segments):
     word_boundaries = []
     current_text_offset = 0
     for segment in segments:
-        for dict_ in segment["words"]:
-            word = dict_["word"]
+        for word in segment["words"]:
             word_boundaries.append(
                 {
-                    "audio_offset": int(dict_["start"] * AUDIO_OFFSET_RESOLUTION),
-                    # "duration_milliseconds": 0,
+                    "audio_offset": int(word["start"] * AUDIO_OFFSET_RESOLUTION),
                     "text_offset": current_text_offset,
-                    "word_length": len(word),
-                    "text": word,
+                    "word_length": len(word["word"]),
+                    "text": word["word"],
                     "boundary_type": "Word",
                 }
             )
-            current_text_offset += len(word)
-            # If word is not punctuation, add a space
-            # if word not in [".", ",", "!", "?", ";", ":", "(", ")"]:
-            # current_text_offset += 1
-
+            current_text_offset += len(word["word"])
     return word_boundaries
 
 
@@ -51,7 +45,7 @@ class SpeechService(ABC):
         self,
         global_speed: float = 1.00,
         cache_dir: t.Optional[str] = None,
-        transcription_model: t.Optional[str] = None,
+        transcription_model: t.Optional[str] = 'whisper-1',
         transcription_kwargs: dict = {},
         **kwargs,
     ):
@@ -90,15 +84,22 @@ class SpeechService(ABC):
         dict_ = self.generate_from_text(text, cache_dir=None, path=path, **kwargs)
         original_audio = dict_["original_audio"]
 
-        # Check whether word boundaries exist and if not run stt
-        if "word_boundaries" not in dict_ and self._whisper_model is not None:
-            transcription_result = self._whisper_model.transcribe(
-                str(Path(self.cache_dir) / original_audio), **self.transcription_kwargs
-            )
-            logger.info("Transcription: " + transcription_result.text)
-            word_boundaries = timestamps_to_word_boundaries(
-                transcription_result.segments_to_dicts()
-            )
+        
+        if "word_boundaries" not in dict_ and self.openai_client is not None:
+            with open(str(Path(self.cache_dir) / original_audio), "rb") as audio_file:
+                transcription_result = self.openai_client.audio.transcriptions.create(
+                    file=audio_file,
+                    model=self.transcription_model,
+                    response_format="verbose_json",
+                    timestamp_granularities=["word"],
+                    **self.transcription_kwargs
+                )
+            
+            print(f"Transcription: {transcription_result.text}")
+            logger.info(f"Transcription: {transcription_result.text}")
+            
+            segments = [{"words": transcription_result.words}]
+            word_boundaries = timestamps_to_word_boundaries(segments)
             dict_["word_boundaries"] = word_boundaries
             dict_["transcribed_text"] = transcription_result.text
 
@@ -128,34 +129,25 @@ class SpeechService(ABC):
         )
         return dict_
 
+    
     def set_transcription(self, model: str = None, kwargs: dict = {}):
         """Set the transcription model and keyword arguments to be passed
         to the transcribe() function.
 
         Args:
-            model (str, optional): The Whisper model to use for transcription. Defaults to None.
+            model (str, optional): The OpenAI Whisper model to use for transcription. Defaults to None.
             kwargs (dict, optional): Keyword arguments to pass to the transcribe() function. Defaults to {}.
         """
         if model != self.transcription_model:
             if model is not None:
-                try:
-                    import whisper as __tmp
-                    import stable_whisper as whisper
-                except ImportError:
-                    logger.error(
-                        'Missing packages. Run `pip install "manim-voiceover[transcribe]"` to be able to transcribe voiceovers.'
-                    )
-
-                prompt_ask_missing_extras(
-                    ["whisper", "stable_whisper"],
-                    "transcribe",
-                    "SpeechService.set_transcription()",
-                )
-                self._whisper_model = whisper.load_model(model)
+                self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+                self.transcription_model = "whisper-1"
             else:
-                self._whisper_model = None
+                self.openai_client = None
+                self.transcription_model = None
 
-        self.transcription_kwargs = kwargs
+
+            self.transcription_kwargs = kwargs
 
     def get_audio_basename(self, data: dict) -> str:
         dumped_data = json.dumps(data)
