@@ -6,9 +6,16 @@ from manim_voiceover.services.koko import KokoroService
 class KokoExample(VoiceoverScene):
     def construct(self):
         self.set_speech_service(
-            KokoroService(voice="af_bella", speed=1.0, remove_silence=True, minimum_silence=0.05
-            )
-        )
+            KokoroService(
+                voice='af_bella', # af, af_sky, am_adam, bf_emma, af_bella, af_sarah, bm_lewis, af_nicole
+                api_url='http://127.0.0.1:7860',
+                model='kokoro-v0_19.pth',
+                speed=1,
+                trim=0,
+                pad_between_segments=0,
+                remove_silence=False,
+                minimum_silence=0.05
+            ))
 
         circle = Circle()
         square = Square().shift(2 * RIGHT)
