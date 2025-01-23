@@ -26,7 +26,7 @@ Currently supported TTS services (aside from the CLI that allows you to records 
 - [Coqui TTS](https://github.com/coqui-ai/TTS/)
 - [gTTS](https://github.com/pndurette/gTTS/)
 - [pyttsx3](https://github.com/nateshmbhat/pyttsx3)
-- [kokoro-82M](https://github.com/xposed73/Kokoro-82M-WebUI)
+- [kokoro-82M](https://github.com/xposed73/Kokoro-82M-WebUI) (New/Free) 
 
 [Check out the documentation for more details.](https://voiceover.manim.community/)
 
