@@ -21,20 +21,20 @@ class MyListener(keyboard.Listener):
         self.key_pressed = None
 
     def on_press(self, key):
-        if not hasattr(key, "char"):
-            return True
-
-        if key.char == "r":
+        if hasattr(key, "r") or hasattr(key, "shift_r"):
             self.key_pressed = True
+        elif hasattr(key, "char"):
+            if key.char == "r" or key.char == "shift_r":
+                self.key_pressed = True
 
         return True
 
     def on_release(self, key):
-        if not hasattr(key, "char"):
-            return True
-
-        if key.char == "r":
+        if hasattr(key, "r") or hasattr(key, "shift_r"):
             self.key_pressed = False
+        elif hasattr(key, "char"):
+            if key.char == "r" or key.char == "shift_r":
+                self.key_pressed = False
 
         return True
 
@@ -92,7 +92,7 @@ class Recorder:
         self.listener = MyListener()
         self.listener.start()
 
-        print("Press and hold the 'r' key to begin recording")
+        print("Press and hold the 'r' (or Shift^R if on Wayland) key to begin recording")
         if self.first_call:
             print("Wait for 1 second, then start speaking.")
             print("Wait for at least 1 second after you finish speaking.")
@@ -103,7 +103,7 @@ class Recorder:
             )
             print("These instructions are only shown once.")
 
-        print("Release the 'r' key to end recording")
+        print("Release the 'r' (or Shift^R if on Wayland) key to end recording")
         self.task = sched.scheduler(time.time, time.sleep)
         self.event = self.task.enter(
             self.callback_delay, 1, self._record_task, ([path])
