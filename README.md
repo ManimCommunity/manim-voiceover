@@ -15,6 +15,7 @@ Manim Voiceover is a [Manim](https://manim.community) plugin for all things voic
 - Record voiceovers with your microphone during rendering with a simple command line interface.
 - Develop animations with auto-generated AI voices from various free and proprietary services.
 - Per-word timing of animations, i.e. trigger animations at specific words in the voiceover, even for the recordings. This works thanks to [OpenAI Whisper](https://github.com/openai/whisper).
+- **NEW**: Supports both local and cloud-based Whisper for ARM64 architectures (like Apple Silicon) where the local model may not work.
 
 Here is a demo:
 
@@ -40,6 +41,38 @@ Currently supported TTS services (aside from the CLI that allows you to records 
 ## Examples
 
 [Check out the example gallery to get inspired.](https://voiceover.manim.community/en/latest/examples.html)
+
+## Cloud Whisper Support
+
+For ARM64 architectures (like Apple Silicon Macs) or systems where installing the local Whisper model is problematic, you can now use OpenAI's cloud-based Whisper API for speech-to-text alignment:
+
+```bash
+# Run with the provided script
+python manim_cloud_whisper.py -pql examples/cloud_whisper_demo.py CloudWhisperDemo
+```
+
+Or enable it programmatically:
+
+```python
+service = OpenAIService(
+    voice="alloy",
+    model="tts-1",
+    transcription_model="base",
+    use_cloud_whisper=True  # This enables cloud-based Whisper
+)
+```
+
+You can also set an environment variable to enable cloud-based Whisper:
+
+```bash
+# Set the environment variable
+export MANIM_VOICEOVER_USE_CLOUD_WHISPER=1
+
+# Run Manim normally
+manim -pql examples/cloud_whisper_demo.py CloudWhisperDemo
+```
+
+[Learn more about cloud-based Whisper in the documentation.](https://voiceover.manim.community/en/latest/cloud_whisper.html)
 
 ## Translate
 

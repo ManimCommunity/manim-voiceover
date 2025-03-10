@@ -1,0 +1,190 @@
+[
+  {
+    "input_text": "This is a direct test of the cloud-based Whisper feature.",
+    "input_data": {
+      "input_text": "This is a direct test of the cloud-based Whisper feature.",
+      "service": "openai",
+      "config": {
+        "voice": "alloy",
+        "model": "tts-1",
+        "speed": 1.0
+      }
+    },
+    "original_audio": "this-is-a-direct-test-of-the-cloud-based-whisper-841ab5cd.mp3",
+    "word_boundaries": [
+      {
+        "audio_offset": 0,
+        "text_offset": 0,
+        "word_length": 4,
+        "text": "This",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 2000000,
+        "text_offset": 5,
+        "word_length": 2,
+        "text": "is",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 3600000,
+        "text_offset": 8,
+        "word_length": 1,
+        "text": "a",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 5000000,
+        "text_offset": 10,
+        "word_length": 6,
+        "text": "direct",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 7799999,
+        "text_offset": 17,
+        "word_length": 4,
+        "text": "test",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 12599999,
+        "text_offset": 22,
+        "word_length": 2,
+        "text": "of",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 15800000,
+        "text_offset": 25,
+        "word_length": 3,
+        "text": "the",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 17200000,
+        "text_offset": 29,
+        "word_length": 5,
+        "text": "cloud",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 19800000,
+        "text_offset": 35,
+        "word_length": 5,
+        "text": "based",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 22599999,
+        "text_offset": 41,
+        "word_length": 7,
+        "text": "whisper",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 26199998,
+        "text_offset": 49,
+        "word_length": 7,
+        "text": "feature",
+        "boundary_type": "Word"
+      }
+    ],
+    "transcribed_text": "This is a direct test of the cloud-based whisper feature.",
+    "final_audio": "this-is-a-direct-test-of-the-cloud-based-whisper-841ab5cd.mp3"
+  },
+  {
+    "input_text": "This is a direct test of the cloud-based Whisper feature.",
+    "input_data": {
+      "input_text": "This is a direct test of the cloud-based Whisper feature.",
+      "service": "openai",
+      "config": {
+        "voice": "alloy",
+        "model": "tts-1",
+        "speed": 1.0
+      }
+    },
+    "original_audio": "this-is-a-direct-test-of-the-cloud-based-whisper-841ab5cd.mp3",
+    "word_boundaries": [
+      {
+        "audio_offset": 0,
+        "text_offset": 0,
+        "word_length": 4,
+        "text": "This",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 2000000,
+        "text_offset": 5,
+        "word_length": 2,
+        "text": "is",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 3600000,
+        "text_offset": 8,
+        "word_length": 1,
+        "text": "a",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 5000000,
+        "text_offset": 10,
+        "word_length": 6,
+        "text": "direct",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 7799999,
+        "text_offset": 17,
+        "word_length": 4,
+        "text": "test",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 12599999,
+        "text_offset": 22,
+        "word_length": 2,
+        "text": "of",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 15800000,
+        "text_offset": 25,
+        "word_length": 3,
+        "text": "the",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 17200000,
+        "text_offset": 29,
+        "word_length": 5,
+        "text": "cloud",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 19800000,
+        "text_offset": 35,
+        "word_length": 5,
+        "text": "based",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 22599999,
+        "text_offset": 41,
+        "word_length": 7,
+        "text": "whisper",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 26199998,
+        "text_offset": 49,
+        "word_length": 7,
+        "text": "feature",
+        "boundary_type": "Word"
+      }
+    ],
+    "transcribed_text": "This is a direct test of the cloud-based whisper feature.",
+    "final_audio": "this-is-a-direct-test-of-the-cloud-based-whisper-841ab5cd.mp3"
+  }
+]

@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional, Generator
 import re
 import typing as t
+import os
 
 from manim import Scene, config
 from manim_voiceover.services.base import SpeechService
@@ -35,6 +36,15 @@ class VoiceoverScene(Scene):
             create_subcaption (bool, optional): Whether to create subcaptions for the scene. Defaults to True. If `config.save_last_frame` is True, the argument is
             ignored and no subcaptions will be created.
         """
+        # Check for environment variable to enable cloud-based Whisper
+        if os.environ.get("MANIM_VOICEOVER_USE_CLOUD_WHISPER") == "1":
+            speech_service.use_cloud_whisper = True
+            print("Cloud-based Whisper enabled via environment variable.")
+            
+        # Set use_cloud_whisper from the config if it has the attribute
+        elif hasattr(config, "use_cloud_whisper"):
+            speech_service.use_cloud_whisper = config.use_cloud_whisper
+            
         self.speech_service = speech_service
         self.current_tracker = None
         if config.save_last_frame:

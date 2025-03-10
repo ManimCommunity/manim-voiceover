@@ -1,0 +1,13 @@
+[
+  {
+    "input_text": "This is a test of the cloud-based Whisper feature.",
+    "input_data": {
+      "input_text": "This is a test of the cloud-based Whisper feature.",
+      "service": "gtts"
+    },
+    "original_audio": "this-is-a-test-of-the-cloud-based-whisper-feature-c4598c9b.mp3",
+    "word_boundaries": [],
+    "transcribed_text": "This is a test of the cloud-based Whisper feature.",
+    "final_audio": "this-is-a-test-of-the-cloud-based-whisper-feature-c4598c9b.mp3"
+  }
+]

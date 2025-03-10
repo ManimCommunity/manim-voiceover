@@ -50,6 +50,7 @@ class OpenAIService(SpeechService):
         voice: str = "alloy",
         model: str = "tts-1-hd",
         transcription_model="base",
+        use_cloud_whisper: bool = True,
         **kwargs
     ):
         """
@@ -60,12 +61,21 @@ class OpenAIService(SpeechService):
             model (str, optional): The TTS model to use.
                 See the `API page <https://platform.openai.com/docs/api-reference/audio/createSpeech>`__
                 for all the available options. Defaults to ``"tts-1-hd"``.
+            transcription_model (str, optional): The Whisper model to use for transcription.
+                Defaults to ``"base"``.
+            use_cloud_whisper (bool, optional): Whether to use OpenAI's cloud-based
+                Whisper API for transcription instead of the local model. Defaults to True.
         """
         prompt_ask_missing_extras("openai", "openai", "OpenAIService")
         self.voice = voice
         self.model = model
 
-        SpeechService.__init__(self, transcription_model=transcription_model, **kwargs)
+        SpeechService.__init__(
+            self, 
+            transcription_model=transcription_model, 
+            use_cloud_whisper=use_cloud_whisper,
+            **kwargs
+        )
 
     def generate_from_text(
         self, text: str, cache_dir: str = None, path: str = None, **kwargs
@@ -114,6 +124,7 @@ class OpenAIService(SpeechService):
             "input_text": text,
             "input_data": input_data,
             "original_audio": audio_path,
+            "final_audio": audio_path,
         }
 
         return json_dict

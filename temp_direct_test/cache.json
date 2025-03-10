@@ -1,0 +1,84 @@
+[
+  {
+    "input_text": "This is a test of the cloud-based Whisper feature.",
+    "input_data": {
+      "input_text": "This is a test of the cloud-based Whisper feature.",
+      "service": "openai"
+    },
+    "original_audio": "direct_test.mp3",
+    "word_boundaries": [
+      {
+        "audio_offset": 0,
+        "text_offset": 0,
+        "word_length": 4,
+        "text": "This",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 219,
+        "text_offset": 5,
+        "word_length": 2,
+        "text": "is",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 379,
+        "text_offset": 8,
+        "word_length": 1,
+        "text": "a",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 519,
+        "text_offset": 10,
+        "word_length": 4,
+        "text": "test",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 879,
+        "text_offset": 15,
+        "word_length": 2,
+        "text": "of",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 1159,
+        "text_offset": 18,
+        "word_length": 3,
+        "text": "the",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 1320,
+        "text_offset": 22,
+        "word_length": 5,
+        "text": "cloud",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 1600,
+        "text_offset": 28,
+        "word_length": 5,
+        "text": "based",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 1919,
+        "text_offset": 34,
+        "word_length": 7,
+        "text": "whisper",
+        "boundary_type": "Word"
+      },
+      {
+        "audio_offset": 2299,
+        "text_offset": 42,
+        "word_length": 7,
+        "text": "feature",
+        "boundary_type": "Word"
+      }
+    ],
+    "transcribed_text": "This is a test of the cloud-based whisper feature.",
+    "final_audio": "direct_test.mp3"
+  }
+]
