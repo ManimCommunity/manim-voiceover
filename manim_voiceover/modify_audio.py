@@ -11,9 +11,10 @@ def adjust_speed(input_path: str, output_path: str, tempo: float) -> None:
         path_, ext = os.path.splitext(input_path)
         output_path = path_ + str(uuid.uuid1()) + ext
 
-    tfm = sox.Transformer()
-    tfm.tempo(tempo)
-    tfm.build(input_filepath=input_path, output_filepath=output_path)
+    # AudioStretchy ratio is inverted: ratio > 1.0 = slower, < 1.0 = faster.
+    # Our tempo convention: tempo > 1.0 = faster. So ratio = 1/tempo.
+    stretch_audio(input_path, output_path, ratio=1.0 / tempo)
+
     if same_destination:
         os.rename(output_path, input_path)
 

@@ -1,3 +1,4 @@
+import fcntl
 import importlib
 import json
 import re
@@ -101,22 +102,31 @@ def trim_silence(
 
 
 def append_to_json_file(json_file: str, data: dict):
-    """Append data to json file"""
-    if not os.path.exists(json_file):
-        with open(json_file, "w") as f:
-            json.dump([data], f, indent=2)
-        return
+    """Append data to JSON file.
+    Uses file locking to prevent corruption when multiple processes
+    write to the same cache file concurrently.
+    """
 
-    with open(json_file, "r") as f:
-        json_data = json.load(f)
+    lock_path = str(json_file) + ".lock"
+    with open(lock_path, "w") as lock_f:
+        fcntl.flock(lock_f, fcntl.LOCK_EX)
+        try:
+            if not os.path.exists(json_file):
+                with open(json_file, "w") as f:
+                    json.dump([data], f, indent=2)
+                return
 
-    if not isinstance(json_data, list):
-        raise ValueError("JSON file should be a list")
+            with open(json_file, "r") as f:
+                json_data = json.load(f)
 
-    json_data.append(data)
-    with open(json_file, "w") as f:
-        json.dump(json_data, f, indent=2)
-    return
+            if not isinstance(json_data, list):
+                raise ValueError("JSON file should be a list")
+
+            json_data.append(data)
+            with open(json_file, "w") as f:
+                json.dump(json_data, f, indent=2)
+        finally:
+            fcntl.flock(lock_f, fcntl.LOCK_UN)
 
 
 def prompt_ask_missing_package(target_module: str, package_name: str):

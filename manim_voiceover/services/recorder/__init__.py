@@ -42,7 +42,7 @@ class RecorderService(SpeechService):
             rate (int, optional): Sampling rate. Defaults to 44100.
             chunk (int, optional): Chunk size. Defaults to 512.
             device_index (int, optional): Device index, if you don't want to choose it every time you render. Defaults to None.
-            transcription_model (str, optional): The `OpenAI Whisper model <https://github.com/openai/whisper#available-models-and-languages>`_ to use for transcription. Defaults to "base".
+            transcription_model (str, optional): The `Whisper model <https://github.com/SYSTRAN/faster-whisper#available-models>`_ to use for transcription. Defaults to "base".
             trim_silence_threshold (float, optional): Threshold for trimming silence in decibels. Defaults to -40.0 dB.
             trim_buffer_start (int, optional): Buffer duration for trimming silence at the start. Defaults to 200 ms.
             trim_buffer_end (int, optional): Buffer duration for trimming silence at the end. Defaults to 200 ms.

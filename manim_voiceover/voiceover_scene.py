@@ -2,7 +2,6 @@ from math import ceil
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Optional, Generator
-import re
 import typing as t
 
 from manim import Scene, config

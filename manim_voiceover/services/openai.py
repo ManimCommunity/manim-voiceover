@@ -50,6 +50,7 @@ class OpenAIService(SpeechService):
         voice: str = "alloy",
         model: str = "tts-1-hd",
         transcription_model="base",
+        api_key: str = None,
         **kwargs
     ):
         """
@@ -60,10 +61,13 @@ class OpenAIService(SpeechService):
             model (str, optional): The TTS model to use.
                 See the `API page <https://platform.openai.com/docs/api-reference/audio/createSpeech>`__
                 for all the available options. Defaults to ``"tts-1-hd"``.
+            api_key (str, optional): The OpenAI API key. If not provided, falls back
+                to the ``OPENAI_API_KEY`` environment variable.
         """
         prompt_ask_missing_extras("openai", "openai", "OpenAIService")
         self.voice = voice
         self.model = model
+        self.api_key = api_key
 
         SpeechService.__init__(self, transcription_model=transcription_model, **kwargs)
 
@@ -80,6 +84,13 @@ class OpenAIService(SpeechService):
             raise ValueError("The speed must be between 0.25 and 4.0.")
 
         input_text = remove_bookmarks(text)
+
+        if not input_text or not input_text.strip():
+            raise ValueError(
+                "The input text is empty after removing bookmarks. "
+                "Please provide non-empty text for speech synthesis."
+            )
+
         input_data = {
             "input_text": input_text,
             "service": "openai",
@@ -99,10 +110,12 @@ class OpenAIService(SpeechService):
         else:
             audio_path = path
 
-        if os.getenv("OPENAI_API_KEY") is None:
+        api_key = self.api_key or os.getenv("OPENAI_API_KEY")
+        if api_key is None:
             create_dotenv_openai()
 
-        response = openai.audio.speech.create(
+        client = openai.OpenAI(api_key=api_key)
+        response = client.audio.speech.create(
             model=self.model,
             voice=self.voice,
             input=input_text,
