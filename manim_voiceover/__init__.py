@@ -1,6 +1,9 @@
+from importlib.metadata import version, PackageNotFoundError
+
 from manim_voiceover.tracker import VoiceoverTracker
 from manim_voiceover.voiceover_scene import VoiceoverScene
 
-import pkg_resources
-
-__version__: str = pkg_resources.get_distribution(__name__).version
+try:
+    __version__ = version(__name__)
+except PackageNotFoundError:
+    __version__ = "0.0.0+unknown"
