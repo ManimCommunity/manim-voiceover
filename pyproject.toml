@@ -1,14 +1,13 @@
-[tool.poetry]
+[project]
 name = "manim-voiceover"
-version = "0.3.7"
+version = "0.3.8"
 description = "Manim plugin for all things voiceover"
-authors = ["The Manim Community Developers <contact@manim.community>"]
-license = "MIT"
 readme = "README.md"
-packages = [{ include = "manim_voiceover" }]
-repository = "https://github.com/ManimCommunity/manim-voiceover"
-homepage = "https://voiceover.manim.community"
-documentation = "https://voiceover.manim.community"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+    { name = "The Manim Community Developers", email = "contact@manim.community" },
+]
 keywords = [
     "text-to-speech",
     "tts",
@@ -29,94 +28,85 @@ classifiers = [
     "Topic :: Multimedia :: Sound/Audio :: Speech",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Visualization",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Natural Language :: English",
 ]
-
-[tool.poetry.scripts]
-manim_translate = 'manim_voiceover.translate.translate:main'
-manim_render_translation = 'manim_voiceover.translate.render:main'
-
-[tool.poetry.dependencies]
-python = ">=3.8,<4"
-manim = "*"
-sox = "^1.4.1"
-python-dotenv = "^0.21.0"
-mutagen = "^1.46.0"
-pydub = "^0.25.1"
-azure-cognitiveservices-speech = { version = "^1.24.0", optional = true }
-PyAudio = { version = "^0.2.12", optional = true }
-gTTS = { version = "^2.2.4", optional = true }
-pyttsx3 = { version = "^2.90", optional = true }
-openai = { version = "^1.6.1", optional = true }
-# torch = { version = "*", optional = true }
-# TTS = { version = "*", optional = true }
-pynput = { version = "^1.7.6", optional = true }
-# deep-translator = { version = "^1.9.2", optional = true }
-deepl = { version = "^1.12.0", optional = true }
-pip = ">=21.0.1"
-openai-whisper = { version = "^20230314", optional = true }
-stable-ts = { version ="^2.6.2", optional = true }
-python-slugify = "^8.0.1"
-elevenlabs = {version = "^0.2.27", optional = true}
-
-[tool.poetry.extras]
-azure = ["azure-cognitiveservices-speech"]
-gtts = ["gTTS"]
-openai = ["openai"]
-pyttsx3 = ["pyttsx3"]
-# coqui = ["torch", "TTS"]
-coqui = [] # Removed TTS as deps for now
-recorder = ["PyAudio", "pynput"]
-translate = ["deepl"]
-elevenlabs = ["elevenlabs"]
-transcribe = ["openai-whisper", "stable-ts"]
-all = [
-    "azure-cognitiveservices-speech",
-    "gTTS",
-    "pyttsx3",
-    "torch",
-    "TTS",
-    "PyAudio",
-    "pynput",
-    "openai",
-    "deepl",
-    "openai-whisper",
-    "stable-ts",
-    "elevenlabs"
+dependencies = [
+    "manim",
+    "sox>=1.4.1,<2",
+    "python-dotenv>=0.21.0,<0.22",
+    "mutagen>=1.46.0,<2",
+    "pydub>=0.25.1,<0.26",
+    "pip>=21.0.1",
+    "python-slugify>=8.0.1,<9",
 ]
 
-[tool.poetry.group.dev.dependencies]
-Pygments = "^2.13.0"
-pytest-cov = "^3.0.0"
-pytest = "^6.0"
-pylint = "^2.12.2"
-Sphinx = "^5"
-sphinx-copybutton = "^0.4.0"
-sphinxext-opengraph = "^0.5.1"
-furo = "^2022.9.29"
-recommonmark = "^0.7.1"
-matplotlib = "^3.3.2"
-pre-commit = "^2.11.1"
-gitpython = "^3"
-pygithub = "^1"
-isort = "^5.8.0"
-pytest-xdist = "^2.2"
-mypy = "^0.931"
-types-requests = "^2.25.6"
-sphinxcontrib-programoutput = "^0.17"
-psutil-wheels = { version = "5.8.0", python = ">=3.10" }
-psutil = { version = "^5.8.0", python = "<3.10" }
-sphinxcontrib-video = "^0.0.1.dev3"
-sphinx-sitemap = "^2.2.1"
+[project.optional-dependencies]
+azure = ["azure-cognitiveservices-speech>=1.24.0,<2"]
+gtts = ["gTTS>=2.2.4,<3"]
+openai = ["openai>=1.6.1,<2"]
+pyttsx3 = ["pyttsx3>=2.90,<3"]
+coqui = []
+recorder = ["PyAudio>=0.2.12,<0.3", "pynput>=1.7.6,<2"]
+translate = ["deepl>=1.12.0,<2"]
+elevenlabs = ["elevenlabs>=0.2.27,<0.3"]
+transcribe = ["openai-whisper>=20230314", "stable-ts>=2.6.2,<3"]
+all = [
+    "azure-cognitiveservices-speech>=1.24.0,<2",
+    "gTTS>=2.2.4,<3",
+    "pyttsx3>=2.90,<3",
+    "PyAudio>=0.2.12,<0.3",
+    "pynput>=1.7.6,<2",
+    "openai>=1.6.1,<2",
+    "deepl>=1.12.0,<2",
+    "openai-whisper>=20230314",
+    "stable-ts>=2.6.2,<3",
+    "elevenlabs>=0.2.27,<0.3",
+]
 
+[project.urls]
+Repository = "https://github.com/ManimCommunity/manim-voiceover"
+Homepage = "https://voiceover.manim.community"
+Documentation = "https://voiceover.manim.community"
 
-[tool.poetry.plugins."manim.plugins"]
-"manim_voiceover" = "manim_voiceover"
+[project.scripts]
+manim_translate = "manim_voiceover.translate.translate:main"
+manim_render_translation = "manim_voiceover.translate.render:main"
+
+[project.entry-points."manim.plugins"]
+manim_voiceover = "manim_voiceover"
+
+[dependency-groups]
+dev = [
+    "Pygments>=2.13.0,<3",
+    "pytest-cov>=3.0.0,<4",
+    "pytest>=6.0,<7",
+    "pylint>=2.12.2,<3",
+    "Sphinx>=5,<6",
+    "sphinx-copybutton>=0.4.0,<0.5",
+    "sphinxext-opengraph>=0.5.1,<0.6",
+    "furo>=2022.9.29,<2023.0.0",
+    "recommonmark>=0.7.1,<0.8",
+    "matplotlib>=3.3.2,<4",
+    "pre-commit>=2.11.1,<3",
+    "gitpython>=3,<4",
+    "pygithub>=1,<2",
+    "isort>=5.8.0,<6",
+    "pytest-xdist>=2.2,<3",
+    "mypy>=0.931,<0.932",
+    "types-requests>=2.25.6,<3",
+    "sphinxcontrib-programoutput>=0.17,<0.18",
+    "psutil-wheels==5.8.0; python_version >= '3.10'",
+    "psutil>=5.8.0,<6; python_version < '3.10'",
+    "sphinxcontrib-video==0.0.1.dev3",
+    "sphinx-sitemap>=2.2.1,<3",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["manim_voiceover"]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
