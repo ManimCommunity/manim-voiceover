@@ -79,6 +79,8 @@ class OpenAIService(SpeechService):
         if not (0.25 <= speed <= 4.0):
             raise ValueError("The speed must be between 0.25 and 4.0.")
 
+        instructions = kwargs.get('instructions', self.additional_kwargs.get('instructions'))
+
         input_text = remove_bookmarks(text)
         input_data = {
             "input_text": input_text,
@@ -87,6 +89,7 @@ class OpenAIService(SpeechService):
                 "voice": self.voice,
                 "model": self.model,
                 "speed": speed,
+                "instructions": instructions,
             },
         }
 
@@ -107,6 +110,7 @@ class OpenAIService(SpeechService):
             voice=self.voice,
             input=input_text,
             speed=speed,
+            instructions=instructions,
         )
         response.stream_to_file(str(Path(cache_dir) / audio_path))
 
