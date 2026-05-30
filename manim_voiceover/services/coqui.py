@@ -7,10 +7,10 @@ from manim_voiceover.services.base import SpeechService
 try:
     from TTS.api import TTS
 except ImportError:
-    logger.error("Missing packages. Run `pip install TTS` to use CoquiService.")
+    logger.error("Missing packages. Run `pip install coqui-tts` to use CoquiService.")
 
 # DEFAULT_MODEL = TTS.list_models()[0]
-DEFAULT_MODEL = "tts_models/en/ljspeech/tacotron2-DDC"
+DEFAULT_MODEL = "tts_models/en/ljspeech/fast_pitch"
 
 
 class CoquiService(SpeechService):
@@ -48,7 +48,7 @@ class CoquiService(SpeechService):
         )
 
         self.init_kwargs = kwargs
-        prompt_ask_missing_package("TTS", "TTS>=0.13.3")
+        prompt_ask_missing_package("coqui-tts", "coqui-tts")
         SpeechService.__init__(self, **kwargs)
 
     def generate_from_text(

@@ -249,7 +249,8 @@ class Recorder:
 """
             )
             try:
-                key = input()[-1].lower()
+                user_input = input().strip()
+                key = user_input[-1].lower() if user_input else "b"
                 if key == "l":
                     audio = AudioSegment.from_file(path)
                     play(audio)
@@ -260,6 +261,8 @@ class Recorder:
                     self._record(path)
                 elif key == "a":
                     break
+                elif key == "b":
+                    print("Blank input")
                 else:
                     print("Invalid input")
             except KeyboardInterrupt:
