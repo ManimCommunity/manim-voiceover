@@ -83,8 +83,7 @@ def split_on_silence_modified(
     ]
 
 
-# Disable this for now
-class _StitcherService(SpeechService):
+class StitcherService(SpeechService):
     """Speech service for stitching audio recordings back onto a Manim scene"""
 
     def __init__(
@@ -147,7 +146,7 @@ class _StitcherService(SpeechService):
                 bitrate="256k",
                 format="mp3",
             )
-            output_dict["segments"].append({"index": i, "path": output_path})
+            output_dict["segments"].append({"index": i, "path": data_hash + ".mp3"})
 
         # Save output info
         with open(self.get_json_path(), "w") as f:
