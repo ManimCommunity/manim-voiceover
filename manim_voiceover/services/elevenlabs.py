@@ -45,7 +45,8 @@ class ElevenLabsService(SpeechService):
 
     @staticmethod
     def _available_voices() -> Iterable["Voice"]:
-        available_voices = voices().voices
+        voices_response = voices()
+        available_voices = getattr(voices_response, "voices", voices_response)
         if not isinstance(available_voices, IterableABC):
             raise TypeError("ElevenLabs voices response must be iterable")
         return available_voices

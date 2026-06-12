@@ -621,6 +621,15 @@ def test_elevenlabs_select_voice_warning_and_empty_voice_list(monkeypatch):
         service._select_voice("missing", None)
 
 
+def test_elevenlabs_available_voices_accepts_pinned_sdk_list_response(monkeypatch):
+    import manim_voiceover.services.elevenlabs as eleven
+
+    fake_voice = SimpleNamespace(name="Default", voice_id="voice-id")
+    monkeypatch.setattr("manim_voiceover.services.elevenlabs.voices", lambda: [fake_voice])
+
+    assert list(eleven.ElevenLabsService._available_voices()) == [fake_voice]
+
+
 def test_elevenlabs_dotenv_contract(monkeypatch):
     import manim_voiceover.services.elevenlabs as eleven
 
