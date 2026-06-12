@@ -1,13 +1,13 @@
+import importlib
 import sched
 import time
 import wave
 from pathlib import Path
-from typing import Dict, List, Optional, Protocol, Tuple
+from typing import Callable, Dict, List, Optional, Protocol, Tuple, cast
 
 import pyaudio
 from pydub import AudioSegment
 from pydub.playback import play
-from pynput import keyboard
 
 from manim_voiceover.helper import trim_silence, wav2mp3
 
@@ -20,10 +20,40 @@ class RecorderStream(Protocol):
     def close(self) -> None: ...
 
 
-class MyListener(keyboard.Listener):
+class KeyboardListener(Protocol):
+    def start(self) -> None: ...
+
+
+def _create_keyboard_listener(
+    on_press: Callable[[object], bool],
+    on_release: Callable[[object], bool],
+) -> KeyboardListener:
+    try:
+        keyboard_module = importlib.import_module("pynput.keyboard")
+    except ImportError as exc:
+        raise ImportError(
+            'Missing or unusable pynput keyboard backend. Run `pip install "manim-voiceover[recorder]"` '
+            "and make sure a supported display backend is available."
+        ) from exc
+
+    listener_factory = getattr(keyboard_module, "Listener")
+    if not callable(listener_factory):
+        raise RuntimeError("pynput.keyboard.Listener is not callable.")
+
+    return cast(
+        Callable[[Callable[[object], bool], Callable[[object], bool]], KeyboardListener],
+        listener_factory,
+    )(on_press, on_release)
+
+
+class MyListener:
     def __init__(self) -> None:
-        super(MyListener, self).__init__(self.on_press, self.on_release)
         self.key_pressed = False
+        self._keyboard_listener: Optional[KeyboardListener] = None
+
+    def start(self) -> None:
+        self._keyboard_listener = _create_keyboard_listener(self.on_press, self.on_release)
+        self._keyboard_listener.start()
 
     def on_press(self, key: object) -> bool:
         if hasattr(key, "r") or hasattr(key, "shift_r"):
