@@ -124,7 +124,7 @@ class VoiceoverTracker:
             int: The remaining duration of the voiceover in seconds.
         """
         # result= max(self.end_t - self.scene.last_t, 0)
-        result = max(self.end_t - self.scene.renderer.time + buff, 0)
+        result = max(self.end_t - float(self.scene.renderer.time) + buff, 0.0)
         # print(result)
         return result
 
@@ -153,7 +153,7 @@ class VoiceoverTracker:
         self._check_bookmarks()
         if mark not in self.bookmark_times:
             raise Exception("There is no <bookmark mark='%s' />" % mark)
-        result = max(self.bookmark_times[mark] - self.scene.renderer.time + buff, 0)
+        result = max(self.bookmark_times[mark] - float(self.scene.renderer.time) + buff, 0.0)
         if limit is not None:
             result = min(limit, result)
         return result

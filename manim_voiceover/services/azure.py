@@ -6,7 +6,7 @@ from typing import Dict, List, Mapping, Optional, Protocol, Tuple
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
 
-from manim_voiceover._typing import JsonValue, VoiceoverData, WordBoundary
+from manim_voiceover._typing import JsonValue, VoiceoverData, WordBoundary, json_value
 from manim_voiceover.helper import (
     create_dotenv_file,
     prompt_ask_missing_extras,
@@ -48,18 +48,7 @@ def _required_str(mapping: Mapping[str, object], key: str) -> str:
 
 
 def _json_value(value: object) -> JsonValue:
-    if value is None or isinstance(value, (str, int, float, bool)):
-        return value
-    if isinstance(value, list):
-        return [_json_value(item) for item in value]
-    if isinstance(value, dict):
-        json_dict: Dict[str, JsonValue] = {}
-        for key, item in value.items():
-            if not isinstance(key, str):
-                raise TypeError("JSON object keys must be strings")
-            json_dict[key] = _json_value(item)
-        return json_dict
-    raise TypeError("value must be JSON-compatible")
+    return json_value(value)
 
 
 def _normalize_prosody(value: object) -> Optional[Dict[str, JsonValue]]:
@@ -74,7 +63,7 @@ def _normalize_prosody(value: object) -> Optional[Dict[str, JsonValue]]:
     for key, item in value.items():
         if not isinstance(key, str):
             raise TypeError("prosody must map string keys to JSON-compatible values")
-        prosody[key] = _json_value(item)
+        prosody[key] = json_value(item)
     return prosody
 
 
@@ -206,7 +195,7 @@ class AzureService(SpeechService):
         prosody = _normalize_prosody(kwargs.get("prosody", self.prosody))
         ssml, initial_offset = self._build_ssml(inner, prosody)
 
-        input_data = {
+        input_data: Dict[str, JsonValue] = {
             "input_text": text,
             "ssml": ssml,
             "service": "azure",

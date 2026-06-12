@@ -27,5 +27,5 @@ def get_duration(path: PathLike) -> float:
     info = audio.info
     if info is None:
         raise ValueError(f"Could not read MP3 metadata from {path}")
-    return info.length
+    return float(info.length)
     # return sox.file_info.duration(path)

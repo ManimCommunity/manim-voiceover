@@ -1,12 +1,12 @@
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
 
-from manim_voiceover._typing import VoiceoverData
+from manim_voiceover._typing import JsonValue, VoiceoverData
 from manim_voiceover.helper import (
     create_dotenv_file,
     prompt_ask_missing_extras,
@@ -84,7 +84,7 @@ class OpenAIService(SpeechService):
             raise ValueError("The speed must be between 0.25 and 4.0.")
 
         input_text = remove_bookmarks(text)
-        input_data = {
+        input_data: Dict[str, JsonValue] = {
             "input_text": input_text,
             "service": "openai",
             "config": {

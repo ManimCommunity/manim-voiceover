@@ -257,7 +257,8 @@ class Recorder:
                 frames_per_buffer=self.chunk,
                 stream_callback=self.callback,
             )
-            print("Stream active:", self.stream.is_active())
+            stream = self._stream()
+            print("Stream active:", stream.is_active())
             self.started = True
             print("start Stream")
 

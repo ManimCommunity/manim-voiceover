@@ -53,12 +53,17 @@ def test_modify_audio_helpers(monkeypatch, tmp_path):
 
 def test_azure_helpers_and_errors(monkeypatch):
     import manim_voiceover.services.azure as azure
+    from manim_voiceover._typing import json_object
 
     assert azure._json_value({"items": [1, "two", None, {"ok": True}]}) == {"items": [1, "two", None, {"ok": True}]}
     with pytest.raises(TypeError, match="JSON object keys must be strings"):
         azure._json_value({1: "bad"})
     with pytest.raises(TypeError, match="value must be JSON-compatible"):
         azure._json_value(object())
+    assert json_object({"items": [1, "two", None, {"ok": True}]}) == {"items": [1, "two", None, {"ok": True}]}
+    with pytest.raises(TypeError) as json_object_exc_info:
+        json_object({1: "bad"})
+    assert str(json_object_exc_info.value) == "JSON object keys must be strings"
 
     assert azure._normalize_prosody(None) is None
     assert azure._normalize_prosody({"rate": "+10%", "nested": [1, None]}) == {"rate": "+10%", "nested": [1, None]}
@@ -370,6 +375,12 @@ def test_elevenlabs_helpers(monkeypatch, tmp_path):
         voice_id="id",
         model_dump=lambda exclude_none=True: {"voice_id": "id"},
     )
+    monkeypatch.setattr("manim_voiceover.services.elevenlabs.voices", lambda: SimpleNamespace(voices=[fake_voice]))
+    assert list(eleven.ElevenLabsService._available_voices()) == [fake_voice]
+    monkeypatch.setattr("manim_voiceover.services.elevenlabs.voices", lambda: SimpleNamespace(voices=object()))
+    with pytest.raises(TypeError) as voices_exc_info:
+        list(eleven.ElevenLabsService._available_voices())
+    assert str(voices_exc_info.value) == "ElevenLabs voices response must be iterable"
     monkeypatch.setattr("manim_voiceover.services.elevenlabs.voices", lambda: SimpleNamespace(voices=[fake_voice]))
     service = eleven.ElevenLabsService.__new__(eleven.ElevenLabsService)
     assert service._select_voice("voice", None) is fake_voice

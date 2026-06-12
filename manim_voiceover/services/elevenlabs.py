@@ -1,12 +1,13 @@
 import os
 import sys
+from collections.abc import Iterable as IterableABC
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Union
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
 
-from manim_voiceover._typing import VoiceoverData
+from manim_voiceover._typing import JsonValue, VoiceoverData, json_object
 from manim_voiceover.helper import create_dotenv_file, remove_bookmarks
 from manim_voiceover.services.base import PathLike, SpeechService, initialize_speech_service, path_to_string
 
@@ -44,7 +45,10 @@ class ElevenLabsService(SpeechService):
 
     @staticmethod
     def _available_voices() -> Iterable["Voice"]:
-        return voices().voices
+        available_voices = voices().voices
+        if not isinstance(available_voices, IterableABC):
+            raise TypeError("ElevenLabs voices response must be iterable")
+        return available_voices
 
     @staticmethod
     def _voice_settings_from_dict(voice_settings: VoiceSettingsDict) -> "VoiceSettings":
@@ -161,12 +165,12 @@ class ElevenLabsService(SpeechService):
         cache_dir_path = Path(cache_dir) if cache_dir is not None else Path(self.cache_dir)
 
         input_text = remove_bookmarks(text)
-        input_data = {
+        input_data: Dict[str, JsonValue] = {
             "input_text": input_text,
             "service": "elevenlabs",
             "config": {
                 "model": self.model,
-                "voice": self.voice.model_dump(exclude_none=True),
+                "voice": json_object(self.voice.model_dump(exclude_none=True)),
             },
         }
 

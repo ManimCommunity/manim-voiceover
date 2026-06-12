@@ -34,6 +34,8 @@ jobs:
       run: uv run ruff check .
     - name: Typecheck
       run: uv run ty check manim_voiceover
+    - name: Mypy
+      run: uv run mypy
     - name: Test with coverage
       run: uv run pytest --cov=manim_voiceover --cov-fail-under=85
     - name: Check duplication

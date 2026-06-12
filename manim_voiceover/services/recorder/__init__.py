@@ -1,9 +1,9 @@
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 
 from manim import logger
 
-from manim_voiceover._typing import VoiceoverData
+from manim_voiceover._typing import JsonValue, VoiceoverData
 from manim_voiceover.helper import msg_box, prompt_ask_missing_extras, remove_bookmarks
 from manim_voiceover.services.base import PathLike, SpeechService, initialize_speech_service, path_to_string
 
@@ -84,7 +84,7 @@ class RecorderService(SpeechService):
         if cache_dir is None:
             cache_dir = self.cache_dir
 
-        input_data = {
+        input_data: Dict[str, JsonValue] = {
             # Remove bookmarks so that we don't record a voiceover every time we change a bookmark
             "input_text": input_text,
             "config": {

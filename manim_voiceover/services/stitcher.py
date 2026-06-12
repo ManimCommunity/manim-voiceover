@@ -134,10 +134,10 @@ class _StitcherService(SpeechService):
             keep_silence=self.keep_silence,
         )
 
-        output_dict = {
+        output_dict: Dict[str, object] = {
             "params": self._params(),
-            "segments": [],
         }
+        segments: List[Dict[str, object]] = []
         for i, chunk in enumerate(chunks):
             # silence_chunk = AudioSegment.silent(duration=800)
             # audio_chunk = chunk + silence_chunk
@@ -152,9 +152,10 @@ class _StitcherService(SpeechService):
                 bitrate="256k",
                 format="mp3",
             )
-            output_dict["segments"].append({"index": i, "path": output_path})
+            segments.append({"index": i, "path": output_path})
 
         # Save output info
+        output_dict["segments"] = segments
         with open(self.get_json_path(), "w") as f:
             f.write(json.dumps(output_dict, indent=4))
 

@@ -129,7 +129,7 @@ class VoiceoverScene(Scene):
         subcaptions = [" ".join(i) for i in chunks_]
         subcaption_weights = [len(subcaption) / len("".join(subcaptions)) for subcaption in subcaptions]
 
-        current_offset = 0
+        current_offset = 0.0
         for idx, subcaption in enumerate(subcaptions):
             chunk_duration = duration * subcaption_weights[idx]
             self.add_subcaption(

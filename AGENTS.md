@@ -5,5 +5,7 @@ These instructions apply to this repository.
 - Keep generated changes small and reviewable by maintainers.
 - Preserve the public package API unless the change is explicitly scoped as breaking.
 - Add or update tests when changing behavior.
-- Run the relevant local checks before submitting a change.
+- Run `uv run ruff format --check .`, `uv run ruff check .`, `uv run ty check manim_voiceover`, `uv run mypy`, `uv run pytest --cov=manim_voiceover --cov-fail-under=85`, `uvx slophammer-py@0.3.0 dry .`, `uv run pip-audit`, and `uvx slophammer-py@0.3.0 check . --execute` before submitting a change.
+- Public functions and meaningful helpers must stay annotated and pass Ruff `ANN`, ty, and strict mypy.
+- Keep `Any`, casts, and import ignores isolated to external-library boundaries with a clear reason.
 - Use the existing project style and avoid unrelated formatting churn.

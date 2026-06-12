@@ -110,8 +110,9 @@ dev = [
     "pygithub>=1,<2",
     "isort>=5.8.0,<6",
     "pytest-xdist>=3.6,<4",
-    "mypy>=0.931,<0.932",
+    "mypy>=1.13,<1.14",
     "types-requests>=2.25.6,<3",
+    "types-python-slugify>=8.0.2,<9",
     "sphinxcontrib-programoutput>=0.17,<0.18",
     "psutil-wheels==5.8.0; python_version >= '3.10'",
     "psutil>=5.8.0,<6; python_version < '3.10'",
@@ -124,7 +125,7 @@ dev = [
 line-length = 127
 target-version = "py38"
 src = ["manim_voiceover", "tests"]
-extend-exclude = ["docs", "examples"]
+extend-exclude = ["docs", "examples", "mutants"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "ANN", "C90", "TID"]
@@ -151,6 +152,13 @@ show_missing = true
 
 [tool.mutmut]
 source_paths = ["manim_voiceover"]
+
+[tool.mypy]
+python_version = "3.8"
+strict = true
+ignore_missing_imports = true
+show_error_codes = true
+files = ["manim_voiceover"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["manim_voiceover"]

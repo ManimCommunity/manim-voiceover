@@ -4,6 +4,30 @@ JsonScalar = Union[str, int, float, bool, None]
 JsonValue = Union[JsonScalar, Dict[str, "JsonValue"], List["JsonValue"]]
 
 
+def json_value(value: object) -> JsonValue:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, list):
+        return [json_value(item) for item in value]
+    if isinstance(value, dict):
+        output: Dict[str, JsonValue] = {}
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise TypeError("JSON object keys must be strings")
+            output[key] = json_value(item)
+        return output
+    raise TypeError("value must be JSON-compatible")
+
+
+def json_object(value: Mapping[object, object]) -> Dict[str, JsonValue]:
+    output: Dict[str, JsonValue] = {}
+    for key, item in value.items():
+        if not isinstance(key, str):
+            raise TypeError("JSON object keys must be strings")
+        output[key] = json_value(item)
+    return output
+
+
 class WordTimestamp(TypedDict):
     word: str
     start: float
