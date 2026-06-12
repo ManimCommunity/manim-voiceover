@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "findings": [
+    {
+      "rule_id": "py.complexity-required",
+      "path": "pyproject.toml"
+    },
+    {
+      "rule_id": "py.coverage-required",
+      "path": ".github/workflows"
+    },
+    {
+      "rule_id": "py.dependency-audit-required",
+      "path": ".github/workflows"
+    },
+    {
+      "rule_id": "py.dry-required",
+      "path": ".github/workflows"
+    },
+    {
+      "rule_id": "py.format-required",
+      "path": ".github/workflows"
+    },
+    {
+      "rule_id": "py.mutation-required",
+      "path": ".github/workflows"
+    },
+    {
+      "rule_id": "py.typecheck-required",
+      "path": ".github/workflows"
+    },
+    {
+      "rule_id": "py.typed-marker-required",
+      "path": "pyproject.toml"
+    }
+  ]
+}

@@ -18,7 +18,7 @@ def chunks(lst: list, n: int):
 
 
 def remove_bookmarks(input: str) -> str:
-    return re.sub("<bookmark\s*mark\s*=['\"]\w*[\"']\s*/>", "", input)
+    return re.sub(r"<bookmark\s*mark\s*=['\"]\w*[\"']\s*/>", "", input)
 
 
 def wav2mp3(wav_path, mp3_path=None, remove_wav=True, bitrate="312k"):

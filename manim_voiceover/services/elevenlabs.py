@@ -149,8 +149,7 @@ class ElevenLabsService(SpeechService):
         path: Optional[str] = None,
         **kwargs,
     ) -> dict:
-        if cache_dir is None:
-            cache_dir = self.cache_dir  # type: ignore
+        cache_dir_path = Path(cache_dir) if cache_dir is not None else Path(self.cache_dir)
 
         input_text = remove_bookmarks(text)
         input_data = {
@@ -163,7 +162,7 @@ class ElevenLabsService(SpeechService):
         }
 
         # if not config.disable_caching:
-        cached_result = self.get_cached_result(input_data, cache_dir)
+        cached_result = self.get_cached_result(input_data, cache_dir_path)
 
         if cached_result is not None:
             return cached_result
@@ -180,7 +179,7 @@ class ElevenLabsService(SpeechService):
                 model=self.model,
                 output_format=self.output_format,
             )
-            save(audio, str(Path(cache_dir) / audio_path))  # type: ignore
+            save(audio, str(cache_dir_path / audio_path))
         except Exception as e:
             logger.error(e)
             raise Exception("Failed to initialize ElevenLabs.")
