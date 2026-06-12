@@ -155,9 +155,25 @@ source_paths = ["manim_voiceover"]
 [tool.mypy]
 python_version = "3.8"
 strict = true
-ignore_missing_imports = true
 show_error_codes = true
 files = ["manim_voiceover"]
+
+# These dependencies do not ship usable type information for the supported
+# version range. Keep missing-import ignores scoped to those external
+# boundaries instead of weakening all project imports.
+[[tool.mypy.overrides]]
+module = [
+    "azure.*",
+    "elevenlabs",
+    "gtts",
+    "pyaudio",
+    "pydub",
+    "pydub.*",
+    "pyttsx3",
+    "scipy.interpolate",
+    "sox",
+]
+ignore_missing_imports = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["manim_voiceover"]
