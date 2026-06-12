@@ -148,6 +148,15 @@ def test_render_edge_contracts(tmp_path, monkeypatch, capsys):
         )
         assert render._locales_to_render(localedir, "messages", None) == ["fr"]
 
+    with monkeypatch.context() as scoped_monkeypatch:
+        scoped_monkeypatch.setattr("manim_voiceover.translate.render.os.listdir", lambda path: ["missing", "present"])
+        scoped_monkeypatch.setattr(
+            "manim_voiceover.translate.render.os.path.exists",
+            lambda path: Path(path).parts[-3:] == ("present", "LC_MESSAGES", "messages.po"),
+        )
+        assert render._locales_to_render(localedir, "messages", None) == ["present"]
+        assert capsys.readouterr().out == "Skipping missing because messages.po does not exist\n"
+
     calls = []
     monkeypatch.setenv("LOCALE", "old")
     monkeypatch.setattr(
