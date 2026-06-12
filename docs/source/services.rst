@@ -37,11 +37,6 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - No
      - Yes
      - Requires ElevenLabs account. Click `here <https://elevenlabs.io/sign-up>`__ to sign up.
-   * - :py:class:`~coqui.CoquiService`
-     - Good, human-like
-     - Yes
-     - No
-     - Requires `PyTorch <https://pytorch.org/>`__ to run. May be difficult to set up on certain platforms.
    * - :py:class:`~gtts.GTTSService`
      - Good
      - No
@@ -108,24 +103,6 @@ docs <https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/>
 for more details.
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/azure-example.py>`__ to get started.
-
-:py:class:`~coqui.CoquiService`
-*******************************
-
-`Coqui TTS <https://tts.readthedocs.io/>`__ is an open source neural text-to-speech engine.
-It is a fork of Mozilla TTS, which is an implementation of Tacotron 2.
-It is a very good TTS engine that produces human-like speech.
-However, it requires `PyTorch <https://pytorch.org/>`__ to run, which may be difficult to set up on certain platforms.
-
-Install Manim Voiceover with the ``coqui`` extra in order to use :py:class:`~coqui.CoquiService`:
-
-.. code:: sh
-
-   pip install "manim-voiceover[coqui]"
-
-If you run into issues with PyTorch or NumPy, try changing your Python version to 3.9.
-
-Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/coqui-example.py>`__ to get started.
 
 :py:class:`~gtts.GTTSService`
 *****************************

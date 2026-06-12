@@ -23,7 +23,6 @@ https://user-images.githubusercontent.com/2453968/198145393-6a1bd709-4441-4821-8
 Currently supported TTS services (aside from the CLI that allows you to records your own voice):
 
 - [Azure Text to Speech](https://azure.microsoft.com/en-us/services/cognitive-services/text-to-speech/) (Recommended for AI voices)
-- [Coqui TTS](https://github.com/coqui-ai/TTS/)
 - [gTTS](https://github.com/pndurette/gTTS/)
 - [pyttsx3](https://github.com/nateshmbhat/pyttsx3)
 

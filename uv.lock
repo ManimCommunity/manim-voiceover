@@ -4105,7 +4105,7 @@ requires-dist = [
     { name = "stable-ts", marker = "extra == 'all'", specifier = ">=2.6.2,<3" },
     { name = "stable-ts", marker = "extra == 'transcribe'", specifier = ">=2.6.2,<3" },
 ]
-provides-extras = ["azure", "gtts", "openai", "pyttsx3", "coqui", "recorder", "translate", "elevenlabs", "transcribe", "all"]
+provides-extras = ["azure", "gtts", "openai", "pyttsx3", "recorder", "translate", "elevenlabs", "transcribe", "all"]
 
 [package.metadata.requires-dev]
 dev = [
