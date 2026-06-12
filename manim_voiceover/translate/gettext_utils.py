@@ -14,7 +14,10 @@ except ImportError:
     logger.error('Missing packages. Run `pip install "manim-voiceover[translate]"` to be able to translate voiceovers.')
 
 
-PathLike = t.Union[str, os.PathLike[str]]
+if t.TYPE_CHECKING:
+    PathLike = t.Union[str, os.PathLike[str]]
+else:
+    PathLike = t.Union[str, os.PathLike]
 
 
 def init_gettext(files: t.Sequence[PathLike], domain: str, localedir: Path) -> None:

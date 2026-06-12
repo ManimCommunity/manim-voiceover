@@ -22,7 +22,10 @@ from manim_voiceover.helper import (
 from manim_voiceover.modify_audio import adjust_speed
 from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
 
-PathLike = t.Union[str, os.PathLike[str]]
+if t.TYPE_CHECKING:
+    PathLike = t.Union[str, os.PathLike[str]]
+else:
+    PathLike = t.Union[str, os.PathLike]
 
 
 class TranscriptionResult(t.Protocol):

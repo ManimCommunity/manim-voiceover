@@ -5,7 +5,7 @@ import re
 import sys
 import textwrap
 from pathlib import Path
-from typing import Iterator, List, Mapping, Optional, Sequence, TypeVar, Union
+from typing import TYPE_CHECKING, Iterator, List, Mapping, Optional, Sequence, TypeVar, Union
 
 import pip
 from manim import logger
@@ -14,7 +14,10 @@ from pydub import AudioSegment
 from manim_voiceover._typing import JsonValue, VoiceoverData
 
 T = TypeVar("T")
-PathLike = Union[str, os.PathLike[str]]
+if TYPE_CHECKING:
+    PathLike = Union[str, os.PathLike[str]]
+else:
+    PathLike = Union[str, os.PathLike]
 
 
 def chunks(lst: Sequence[T], n: int) -> Iterator[Sequence[T]]:
