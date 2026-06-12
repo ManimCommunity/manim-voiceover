@@ -1,7 +1,12 @@
 import os
-import sox
 import uuid
+from pathlib import Path
+from typing import Union
+
+import sox
 from mutagen.mp3 import MP3
+
+PathLike = Union[str, Path]
 
 
 def adjust_speed(input_path: str, output_path: str, tempo: float) -> None:
@@ -18,7 +23,10 @@ def adjust_speed(input_path: str, output_path: str, tempo: float) -> None:
         os.rename(output_path, input_path)
 
 
-def get_duration(path: str) -> float:
+def get_duration(path: PathLike) -> float:
     audio = MP3(path)
-    return audio.info.length
+    info = audio.info
+    if info is None:
+        raise ValueError(f"Could not read MP3 metadata from {path}")
+    return info.length
     # return sox.file_info.duration(path)

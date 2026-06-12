@@ -1,15 +1,13 @@
-from math import ceil
 from contextlib import contextmanager
+from math import ceil
 from pathlib import Path
-from typing import Optional, Generator
-import re
-import typing as t
+from typing import Dict, Generator, NoReturn, Optional
 
 from manim import Scene, config
+
+from manim_voiceover.helper import chunks, remove_bookmarks
 from manim_voiceover.services.base import SpeechService
 from manim_voiceover.tracker import VoiceoverTracker
-from manim_voiceover.helper import chunks, remove_bookmarks
-
 
 # SCRIPT_FILE_PATH = "media/script.txt"
 
@@ -32,8 +30,9 @@ class VoiceoverScene(Scene):
 
         Args:
             speech_service (SpeechService): The speech service to be used.
-            create_subcaption (bool, optional): Whether to create subcaptions for the scene. Defaults to True. If `config.save_last_frame` is True, the argument is
-            ignored and no subcaptions will be created.
+            create_subcaption (bool, optional): Whether to create subcaptions for the scene.
+                Defaults to True. If `config.save_last_frame` is True, the argument is ignored
+                and no subcaptions will be created.
         """
         self.speech_service = speech_service
         self.current_tracker = None
@@ -48,26 +47,42 @@ class VoiceoverScene(Scene):
         subcaption: Optional[str] = None,
         max_subcaption_len: int = 70,
         subcaption_buff: float = 0.1,
-        **kwargs,
+        **kwargs: object,
     ) -> VoiceoverTracker:
         """Adds voiceover to the scene.
 
         Args:
             text (str): The text to be spoken.
-            subcaption (Optional[str], optional): Alternative subcaption text. If not specified, `text` is chosen as the subcaption. Defaults to None.
-            max_subcaption_len (int, optional): Maximum number of characters for a subcaption. Subcaptions that are longer are split into chunks that are smaller than `max_subcaption_len`. Defaults to 70.
+            subcaption (Optional[str], optional): Alternative subcaption text. If not specified,
+                `text` is chosen as the subcaption. Defaults to None.
+            max_subcaption_len (int, optional): Maximum number of characters for a subcaption.
+                Longer subcaptions are split into smaller chunks. Defaults to 70.
             subcaption_buff (float, optional): The duration between split subcaption chunks in seconds. Defaults to 0.1.
 
         Returns:
             VoiceoverTracker: The tracker object for the voiceover.
         """
-        if not hasattr(self, "speech_service"):
-            raise Exception(
-                "You need to call init_voiceover() before adding a voiceover."
-            )
+        return self._add_voiceover_text(
+            text,
+            service_kwargs=kwargs,
+            subcaption=subcaption,
+            max_subcaption_len=max_subcaption_len,
+            subcaption_buff=subcaption_buff,
+        )
 
-        dict_ = self.speech_service._wrap_generate_from_text(text, **kwargs)
-        tracker = VoiceoverTracker(self, dict_, self.speech_service.cache_dir)
+    def _add_voiceover_text(
+        self,
+        text: str,
+        service_kwargs: Dict[str, object],
+        subcaption: Optional[str] = None,
+        max_subcaption_len: int = 70,
+        subcaption_buff: float = 0.1,
+    ) -> VoiceoverTracker:
+        if not hasattr(self, "speech_service"):
+            raise Exception("You need to call init_voiceover() before adding a voiceover.")
+
+        dict_ = self.speech_service._wrap_generate_from_text(text, **service_kwargs)
+        tracker = VoiceoverTracker(self, dict_, Path(self.speech_service.cache_dir))
         self.renderer.skip_animations = self.renderer._original_skipping_status
         self.add_sound(str(Path(self.speech_service.cache_dir) / dict_["final_audio"]))
         self.current_tracker = tracker
@@ -95,12 +110,15 @@ class VoiceoverScene(Scene):
         subcaption_buff: float = 0.1,
         max_subcaption_len: int = 70,
     ) -> None:
-        """Adds a subcaption to the scene. If the subcaption is longer than `max_subcaption_len`, it is split into chunks that are smaller than `max_subcaption_len`.
+        """Adds a subcaption to the scene.
+
+        If the subcaption is longer than `max_subcaption_len`, it is split into smaller chunks.
 
         Args:
             subcaption (str): The subcaption text.
             duration (float): The duration of the subcaption in seconds.
-            max_subcaption_len (int, optional): Maximum number of characters for a subcaption. Subcaptions that are longer are split into chunks that are smaller than `max_subcaption_len`. Defaults to 70.
+            max_subcaption_len (int, optional): Maximum number of characters for a subcaption.
+                Longer subcaptions are split into smaller chunks. Defaults to 70.
             subcaption_buff (float, optional): The duration between split subcaption chunks in seconds. Defaults to 0.1.
         """
         subcaption = " ".join(subcaption.split())
@@ -108,17 +126,11 @@ class VoiceoverScene(Scene):
         tokens = subcaption.split(" ")
         chunk_len = ceil(len(tokens) / n_chunk)
         chunks_ = list(chunks(tokens, chunk_len))
-        try:
-            assert len(chunks_) == n_chunk or len(chunks_) == n_chunk - 1
-        except AssertionError:
-            import ipdb
-
-            ipdb.set_trace()
+        if len(chunks_) not in (n_chunk, n_chunk - 1):
+            raise RuntimeError("Subcaption chunking produced an unexpected number of chunks.")
 
         subcaptions = [" ".join(i) for i in chunks_]
-        subcaption_weights = [
-            len(subcaption) / len("".join(subcaptions)) for subcaption in subcaptions
-        ]
+        subcaption_weights = [len(subcaption) / len("".join(subcaptions)) for subcaption in subcaptions]
 
         current_offset = 0
         for idx, subcaption in enumerate(subcaptions):
@@ -130,7 +142,7 @@ class VoiceoverScene(Scene):
             )
             current_offset += chunk_duration
 
-    def add_voiceover_ssml(self, ssml: str, **kwargs) -> None:
+    def add_voiceover_ssml(self, ssml: str, **kwargs: object) -> NoReturn:
         raise NotImplementedError("SSML input not implemented yet.")
 
     # def save_to_script_file(self, text: str) -> None:
@@ -164,11 +176,16 @@ class VoiceoverScene(Scene):
         Args:
             mark (str): The `mark` attribute of the bookmark to wait for.
         """
+        if self.current_tracker is None:
+            raise RuntimeError("No active voiceover tracker is available.")
         self.safe_wait(self.current_tracker.time_until_bookmark(mark))
 
     @contextmanager
     def voiceover(
-        self, text: t.Optional[str] = None, ssml: t.Optional[str] = None, **kwargs
+        self,
+        text: Optional[str] = None,
+        ssml: Optional[str] = None,
+        **kwargs: object,
     ) -> Generator[VoiceoverTracker, None, None]:
         """The main function to be used for adding voiceover to a scene.
 
@@ -182,10 +199,42 @@ class VoiceoverScene(Scene):
         if text is None and ssml is None:
             raise ValueError("Please specify either a voiceover text or SSML string.")
 
+        service_kwargs = dict(kwargs)
+        subcaption = _pop_optional_str(service_kwargs, "subcaption")
+        max_subcaption_len = _pop_int(service_kwargs, "max_subcaption_len", default=70)
+        subcaption_buff = _pop_float(service_kwargs, "subcaption_buff", default=0.1)
+
         try:
             if text is not None:
-                yield self.add_voiceover_text(text, **kwargs)
+                yield self._add_voiceover_text(
+                    text,
+                    service_kwargs=service_kwargs,
+                    subcaption=subcaption,
+                    max_subcaption_len=max_subcaption_len,
+                    subcaption_buff=subcaption_buff,
+                )
             elif ssml is not None:
-                yield self.add_voiceover_ssml(ssml, **kwargs)
+                yield self.add_voiceover_ssml(ssml, **service_kwargs)
         finally:
             self.wait_for_voiceover()
+
+
+def _pop_optional_str(values: Dict[str, object], key: str) -> Optional[str]:
+    value = values.pop(key, None)
+    if value is None or isinstance(value, str):
+        return value
+    raise TypeError(f"{key} must be a string or None")
+
+
+def _pop_int(values: Dict[str, object], key: str, default: int) -> int:
+    value = values.pop(key, default)
+    if isinstance(value, int):
+        return value
+    raise TypeError(f"{key} must be an int")
+
+
+def _pop_float(values: Dict[str, object], key: str, default: float) -> float:
+    value = values.pop(key, default)
+    if isinstance(value, (float, int)):
+        return float(value)
+    raise TypeError(f"{key} must be a float")

@@ -1,0 +1,48 @@
+python:
+  coverage:
+    threshold: 85
+    paths:
+      - manim_voiceover
+    exclude:
+      - pattern: "docs/**"
+        reason: "Documentation source is not shipped runtime package code."
+      - pattern: "examples/**"
+        reason: "Example scenes are documentation/demo code, not production library code."
+  complexity:
+    max: 8
+  dry:
+    max_findings: 0
+    paths:
+      - manim_voiceover
+    exclude:
+      - pattern: "docs/**"
+        reason: "Documentation source is not production library code."
+      - pattern: "examples/**"
+        reason: "Example scenes are intentionally illustrative and may repeat setup code."
+    copied_blocks:
+      enabled: true
+      min_tokens: 100
+  mutation:
+    targets:
+      - manim_voiceover/helper.py
+      - manim_voiceover/tracker.py
+      - manim_voiceover/voiceover_scene.py
+    exclude:
+      - pattern: "docs/**"
+        reason: "Documentation source is not production library code."
+      - pattern: "examples/**"
+        reason: "Example scenes are documentation/demo code."
+  dependency_boundaries:
+    - from: manim_voiceover/services
+      allow:
+        - manim_voiceover/_typing
+        - manim_voiceover/defaults
+        - manim_voiceover/helper
+        - manim_voiceover/modify_audio
+        - manim_voiceover/tracker
+    - from: manim_voiceover/translate
+      allow:
+        - manim_voiceover/defaults
+        - manim_voiceover/helper
+  typecheck:
+    demotions: []

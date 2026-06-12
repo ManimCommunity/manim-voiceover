@@ -1,7 +1,7 @@
-from manim_voiceover.tracker import VoiceoverTracker
-from manim_voiceover.voiceover_scene import VoiceoverScene
-
 from importlib.metadata import PackageNotFoundError, version
+
+from manim_voiceover.tracker import VoiceoverTracker as VoiceoverTracker
+from manim_voiceover.voiceover_scene import VoiceoverScene as VoiceoverScene
 
 try:
     __version__: str = version("manim-voiceover")

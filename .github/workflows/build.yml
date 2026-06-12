@@ -1,6 +1,3 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
 name: Build
 
 on:
@@ -10,36 +7,44 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents:
-    write
+  contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
+    - uses: actions/checkout@v6
+    - uses: astral-sh/setup-uv@v7
+    - name: Set up Python
+      uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
-    - name: Install dependencies
+        python-version: "3.12"
+    - name: Install system dependencies
       run: |
-        python -m pip install --upgrade pip
         sudo apt-get update
-        sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
+        sudo apt-get install libcairo2-dev libpango1.0-dev ffmpeg portaudio19-dev
+    - name: Install Python dependencies
+      run: uv sync --dev --frozen
+    - name: Add virtual environment tools to PATH
+      run: echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+    - name: Check formatting
+      run: uv run ruff format --check .
+    - name: Lint
+      run: uv run ruff check .
+    - name: Typecheck
+      run: uv run ty check manim_voiceover
+    - name: Test with coverage
+      run: uv run pytest --cov=manim_voiceover --cov-fail-under=85
+    - name: Check duplication
+      run: uvx slophammer-py@0.3.0 dry .
+    - name: Check mutations
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Install the package
+        uv run mutmut run
+        rm -rf mutants
+    - name: Audit dependencies
+      run: uv run pip-audit
+    - name: Run Slophammer
       run: |
-        pip install .
-    - name: Test with pytest
-      run: |
-        pytest
+        uvx slophammer-py@0.3.0 check .
+        uvx slophammer-py@0.3.0 check . --execute

@@ -1,42 +1,39 @@
-from pathlib import Path
 import re
-import numpy as np
-from manim import logger
+from pathlib import Path
+from typing import Dict, List, Optional, Union
 
-from typing import Optional, List
+from manim import Scene, logger
 from scipy.interpolate import interp1d
 
-from manim import Scene
-from manim_voiceover.modify_audio import get_duration
+from manim_voiceover._typing import VoiceoverData, WordBoundary
 from manim_voiceover.helper import remove_bookmarks
+from manim_voiceover.modify_audio import get_duration
 
 AUDIO_OFFSET_RESOLUTION = 10_000_000
 
 
 class TimeInterpolator:
-    def __init__(self, word_boundaries: List[dict]):
-        self.x = []
-        self.y = []
+    def __init__(self, word_boundaries: List[WordBoundary]) -> None:
+        self.x: List[int] = []
+        self.y: List[float] = []
         for wb in word_boundaries:
             self.x.append(wb["text_offset"])
             self.y.append(wb["audio_offset"] / AUDIO_OFFSET_RESOLUTION)
 
         self.f = interp1d(self.x, self.y)
 
-    def interpolate(self, distance: int) -> np.ndarray:
+    def interpolate(self, distance: Union[int, float]) -> float:
         try:
-            return self.f(distance)
-        except:
-            logger.warning(
-                "TimeInterpolator received weird input, there may be something wrong with the word boundaries."
-            )
+            return float(self.f(distance))
+        except ValueError:
+            logger.warning("TimeInterpolator received weird input, there may be something wrong with the word boundaries.")
             return self.y[-1]
 
 
 class VoiceoverTracker:
     """Class to track the progress of a voiceover in a scene."""
 
-    def __init__(self, scene: Scene, data: dict, cache_dir: str):
+    def __init__(self, scene: Scene, data: VoiceoverData, cache_dir: Union[str, Path]) -> None:
         """Initializes a VoiceoverTracker object.
 
         Args:
@@ -57,32 +54,31 @@ class VoiceoverTracker:
         if "word_boundaries" in self.data:
             self._process_bookmarks()
 
-    def _get_fallback_word_boundaries(self):
+    def _get_fallback_word_boundaries(self) -> List[WordBoundary]:
         """
         Returns dummy word boundaries assuming a linear mapping between
         text and audio. Used when word boundaries are not available.
         """
         input_text = remove_bookmarks(self.data["input_text"])
-        return [
-            {
-                "audio_offset": 0,
-                "text_offset": 0,
-                "word_length": len(input_text),
-                "text": self.data["input_text"],
-                "boundary_type": "Word",
-            },
-            {
-                "audio_offset": self.duration * AUDIO_OFFSET_RESOLUTION,
-                "text_offset": len(input_text),
-                "word_length": 1,
-                "text": ".",
-                "boundary_type": "Word",
-            },
-        ]
+        start_boundary: WordBoundary = {
+            "audio_offset": 0,
+            "text_offset": 0,
+            "word_length": len(input_text),
+            "text": self.data["input_text"],
+            "boundary_type": "Word",
+        }
+        end_boundary: WordBoundary = {
+            "audio_offset": int(self.duration * AUDIO_OFFSET_RESOLUTION),
+            "text_offset": len(input_text),
+            "word_length": 1,
+            "text": ".",
+            "boundary_type": "Word",
+        }
+        return [start_boundary, end_boundary]
 
     def _process_bookmarks(self) -> None:
-        self.bookmark_times = {}
-        self.bookmark_distances = {}
+        self.bookmark_times: Dict[str, float] = {}
+        self.bookmark_distances: Dict[str, int] = {}
 
         word_boundaries = self.data["word_boundaries"]
         if not word_boundaries or len(word_boundaries) < 2:
@@ -115,9 +111,7 @@ class VoiceoverTracker:
 
         for mark, dist in self.bookmark_distances.items():
             # Normalize text offset
-            elapsed = self.time_interpolator.interpolate(
-                dist * transcribed_text_len / net_text_len
-            )
+            elapsed = self.time_interpolator.interpolate(dist * transcribed_text_len / net_text_len)
             self.bookmark_times[mark] = self.start_t + elapsed
 
     def get_remaining_duration(self, buff: float = 0.0) -> float:
@@ -134,7 +128,7 @@ class VoiceoverTracker:
         # print(result)
         return result
 
-    def _check_bookmarks(self):
+    def _check_bookmarks(self) -> None:
         if not hasattr(self, "bookmark_times"):
             raise Exception(
                 "Word boundaries are required for timing with bookmarks. "
@@ -145,9 +139,7 @@ class VoiceoverTracker:
                 "See https://github.com/openai/whisper for a list of all the available models."
             )
 
-    def time_until_bookmark(
-        self, mark: str, buff: int = 0, limit: Optional[int] = None
-    ) -> int:
+    def time_until_bookmark(self, mark: str, buff: float = 0.0, limit: Optional[float] = None) -> float:
         """Returns the time until a bookmark.
 
         Args:
@@ -159,7 +151,7 @@ class VoiceoverTracker:
             int:
         """
         self._check_bookmarks()
-        if not mark in self.bookmark_times:
+        if mark not in self.bookmark_times:
             raise Exception("There is no <bookmark mark='%s' />" % mark)
         result = max(self.bookmark_times[mark] - self.scene.renderer.time + buff, 0)
         if limit is not None:

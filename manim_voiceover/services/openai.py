@@ -1,38 +1,36 @@
 import os
 import sys
 from pathlib import Path
+from typing import Optional
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
 
+from manim_voiceover._typing import VoiceoverData
 from manim_voiceover.helper import (
     create_dotenv_file,
     prompt_ask_missing_extras,
     remove_bookmarks,
 )
-from manim_voiceover.services.base import SpeechService
+from manim_voiceover.services.base import PathLike, SpeechService, initialize_speech_service, path_to_string
 
 try:
     import openai
 except ImportError:
-    logger.error(
-        "Missing packages. "
-        'Run `pip install "manim-voiceover[openai]"` to use OpenAIService.'
-    )
+    logger.error('Missing packages. Run `pip install "manim-voiceover[openai]"` to use OpenAIService.')
 
 
 load_dotenv(find_dotenv(usecwd=True))
 
 
-def create_dotenv_openai():
+def create_dotenv_openai() -> None:
     logger.info(
         "Check out https://voiceover.manim.community/en/stable/services.html "
         "to learn how to create an account and get your subscription key."
     )
     if not create_dotenv_file(["OPENAI_API_KEY"]):
         raise ValueError(
-            "The environment variable OPENAI_API_KEY is not set. Please set it "
-            "or create a .env file with the variables."
+            "The environment variable OPENAI_API_KEY is not set. Please set it or create a .env file with the variables."
         )
     logger.info("The .env file has been created. Please run Manim again.")
     sys.exit()
@@ -49,9 +47,9 @@ class OpenAIService(SpeechService):
         self,
         voice: str = "alloy",
         model: str = "tts-1-hd",
-        transcription_model="base",
-        **kwargs
-    ):
+        transcription_model: str = "base",
+        **kwargs: object,
+    ) -> None:
         """
         Args:
             voice (str, optional): The voice to use. See the
@@ -65,16 +63,22 @@ class OpenAIService(SpeechService):
         self.voice = voice
         self.model = model
 
-        SpeechService.__init__(self, transcription_model=transcription_model, **kwargs)
+        initialize_speech_service(self, kwargs, transcription_model=transcription_model)
 
     def generate_from_text(
-        self, text: str, cache_dir: str = None, path: str = None, **kwargs
-    ) -> dict:
+        self,
+        text: str,
+        cache_dir: Optional[PathLike] = None,
+        path: Optional[PathLike] = None,
+        **kwargs: object,
+    ) -> VoiceoverData:
         """"""
         if cache_dir is None:
             cache_dir = self.cache_dir
 
         speed = kwargs.get("speed", 1.0)
+        if not isinstance(speed, (int, float)):
+            raise TypeError("speed must be a number")
 
         if not (0.25 <= speed <= 4.0):
             raise ValueError("The speed must be between 0.25 and 4.0.")
@@ -97,20 +101,20 @@ class OpenAIService(SpeechService):
         if path is None:
             audio_path = self.get_audio_basename(input_data) + ".mp3"
         else:
-            audio_path = path
+            audio_path = path_to_string(path)
 
         if os.getenv("OPENAI_API_KEY") is None:
             create_dotenv_openai()
 
-        response = openai.audio.speech.create(
+        with openai.audio.speech.with_streaming_response.create(
             model=self.model,
             voice=self.voice,
             input=input_text,
             speed=speed,
-        )
-        response.stream_to_file(str(Path(cache_dir) / audio_path))
+        ) as response:
+            response.stream_to_file(str(Path(cache_dir) / audio_path))
 
-        json_dict = {
+        json_dict: VoiceoverData = {
             "input_text": text,
             "input_data": input_data,
             "original_audio": audio_path,

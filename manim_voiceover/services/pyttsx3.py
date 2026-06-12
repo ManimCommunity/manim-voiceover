@@ -1,21 +1,23 @@
 from pathlib import Path
+from typing import Optional
+
 from manim import logger
+
+from manim_voiceover._typing import VoiceoverData
 from manim_voiceover.helper import prompt_ask_missing_extras
 
 try:
     from pyttsx3 import Engine
 except ImportError:
-    logger.error(
-        'Missing packages. Run `pip install "manim-voiceover[pyttsx3]"` to use PyTTSX3Service.'
-    )
+    logger.error('Missing packages. Run `pip install "manim-voiceover[pyttsx3]"` to use PyTTSX3Service.')
 
-from manim_voiceover.services.base import SpeechService
+from manim_voiceover.services.base import PathLike, SpeechService, initialize_speech_service, path_to_string
 
 
 class PyTTSX3Service(SpeechService):
     """Speech service class for pyttsx3."""
 
-    def __init__(self, engine=None, **kwargs):
+    def __init__(self, engine: Optional["Engine"] = None, **kwargs: object) -> None:
         """"""
         prompt_ask_missing_extras("pyttsx3", "pyttsx3", "PyTTSX3Service")
 
@@ -23,11 +25,15 @@ class PyTTSX3Service(SpeechService):
             engine = Engine()
 
         self.engine = engine
-        SpeechService.__init__(self, **kwargs)
+        initialize_speech_service(self, kwargs)
 
     def generate_from_text(
-        self, text: str, cache_dir: str = None, path: str = None
-    ) -> dict:
+        self,
+        text: str,
+        cache_dir: Optional[PathLike] = None,
+        path: Optional[PathLike] = None,
+        **kwargs: object,
+    ) -> VoiceoverData:
         """"""
         if cache_dir is None:
             cache_dir = self.cache_dir
@@ -41,13 +47,13 @@ class PyTTSX3Service(SpeechService):
         if path is None:
             audio_path = self.get_audio_basename(input_data) + ".mp3"
         else:
-            audio_path = path
+            audio_path = path_to_string(path)
 
         self.engine.save_to_file(text, str(Path(cache_dir) / audio_path))
         self.engine.runAndWait()
         self.engine.stop()
 
-        json_dict = {
+        json_dict: VoiceoverData = {
             "input_text": text,
             "input_data": input_data,
             "original_audio": audio_path,

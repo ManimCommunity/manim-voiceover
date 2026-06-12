@@ -1,10 +1,9 @@
 import argparse
 import os
+import subprocess
 import sys
 from pathlib import Path
-
-import subprocess
-
+from typing import List, Optional
 
 # Get the current working directory as Path
 CWD = Path.cwd()
@@ -59,14 +58,7 @@ parser.add_argument(
 )
 
 
-def main():
-    args = parser.parse_args()
-    file = args.file
-    domain = args.domain
-    localedir = args.localedir
-    quality = args.quality
-    scene = args.scene
-
+def _validate_inputs(file: str, localedir: Path, quality: str, scene: str) -> None:
     # If locale directory does not exist, raise error
     if not os.path.exists(localedir):
         raise FileNotFoundError(f"Locale directory {localedir} does not exist")
@@ -80,13 +72,16 @@ def main():
         raise ValueError(f"Quality must be one of {','.join(ALLOWED_Q)}")
 
     # If scene is not in file, raise error
-    if scene not in open(file).read():
+    with open(file, "r") as scene_file:
+        file_content = scene_file.read()
+    if scene not in file_content:
         raise ValueError(f"Scene {scene} is not in file {file}")
 
-    locales = []
 
-    if args.locale is None:
+def _locales_to_render(localedir: Path, domain: str, locale_arg: Optional[str]) -> List[str]:
+    if locale_arg is None:
         # Iterate all locale directories
+        locales = []
         for locale in os.listdir(localedir):
             # Check if the .po file exists
             po_path = localedir / locale / "LC_MESSAGES" / f"{domain}.po"
@@ -94,47 +89,54 @@ def main():
                 print(f"Skipping {locale} because {domain}.po does not exist")
                 continue
             locales.append(locale)
-    else:
-        locales = args.locale.split(",")
+        return locales
+    return locale_arg.split(",")
+
+
+def _render_locale(file: str, domain: str, localedir: Path, quality: str, scene: str, locale: str) -> int:
+    mo_path = localedir / locale / "LC_MESSAGES" / f"{domain}.mo"
+
+    # If the .mo file does not exist, create it
+    if not os.path.exists(mo_path):
+        po_path = localedir / locale / "LC_MESSAGES" / f"{domain}.po"
+        print(f"Creating {domain}.mo for {locale}")
+        subprocess.run(["msgfmt", po_path, "-o", mo_path], check=False)
+
+    print(f"Rendering {scene} in {locale}...")
+    # Set LOCALE environment variable to locale
+    os.environ["LOCALE"] = locale
+    ofile = scene + "_" + locale + ".mp4"
+    cmd = [
+        "manim",
+        f"-q{quality}",
+        file,
+        scene,
+        "-o",
+        ofile,
+        "--disable_caching",
+    ]
+
+    return subprocess.run(cmd, env={"LOCALE": locale, "DOMAIN": domain}, check=False).returncode
+
+
+def main() -> None:
+    args = parser.parse_args()
+    file = args.file
+    domain = args.domain
+    localedir = args.localedir
+    quality = args.quality
+    scene = args.scene
+
+    _validate_inputs(file, localedir, quality, scene)
+    locales = _locales_to_render(localedir, domain, args.locale)
 
     # Iterate all locale directories
     for locale in locales:
-        # Check if the .po file exists
-        po_path = localedir / locale / "LC_MESSAGES" / f"{domain}.po"
-        mo_path = localedir / locale / "LC_MESSAGES" / f"{domain}.mo"
-
-        # if not os.path.exists(po_path):
-        #     print(f"Skipping {locale} because {domain}.po does not exist")
-        #     continue
-
-        # If the .mo file does not exist, create it
-        if not os.path.exists(mo_path):
-            print(f"Creating {domain}.mo for {locale}")
-            subprocess.run(["msgfmt", po_path, "-o", mo_path])
-
-        print(f"Rendering {scene} in {locale}...")
-        # Set LOCALE environment variable to locale
-        os.environ["LOCALE"] = locale
-        ofile = scene + "_" + locale + ".mp4"
-        cmd = [
-            "manim",
-            f"-q{quality}",
-            file,
-            scene,
-            "-o",
-            ofile,
-            "--disable_caching",
-        ]
-
-        # Run manim with the command
         try:
-            result = subprocess.run(cmd, env={"LOCALE": locale, "DOMAIN": domain}).returncode
+            result = _render_locale(file, domain, localedir, quality, scene, locale)
         except KeyboardInterrupt:
             print("KeyboardInterrupt")
             sys.exit(0)
-        except:
-            sys.exit(0)
-
         if result != 0:
             sys.exit(result)
 

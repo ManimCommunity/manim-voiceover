@@ -1,8 +1,8 @@
-import re
 import os
-import typing as t
-
+import re
 import subprocess
+import typing as t
+from pathlib import Path
 
 from manim import logger
 
@@ -11,12 +11,13 @@ from manim_voiceover.helper import prompt_ask_missing_extras
 try:
     import deepl
 except ImportError:
-    logger.error(
-        'Missing packages. Run `pip install "manim-voiceover[translate]"` to be able to translate voiceovers.'
-    )
+    logger.error('Missing packages. Run `pip install "manim-voiceover[translate]"` to be able to translate voiceovers.')
 
 
-def init_gettext(files, domain, localedir):
+PathLike = t.Union[str, os.PathLike[str]]
+
+
+def init_gettext(files: t.Sequence[PathLike], domain: str, localedir: Path) -> None:
     """Initialize gettext for a list of files"""
     # If locale directory does not exist, create it
     if not os.path.exists(localedir):
@@ -29,13 +30,13 @@ def init_gettext(files, domain, localedir):
         # Check if pot_path exists
         if os.path.exists(pot_path):
             # If it does, update it
-            subprocess.run(["xgettext", "-j", "-o", pot_path, file])
+            subprocess.run(["xgettext", "-j", "-o", pot_path, file], check=False)
         else:
             # If it does not, create it
-            subprocess.run(["xgettext", "-o", pot_path, file])
+            subprocess.run(["xgettext", "-o", pot_path, file], check=False)
 
 
-def init_language(target_lang, domain, localedir):
+def init_language(target_lang: str, domain: str, localedir: Path) -> Path:
     """Initialize a language for a domain"""
     # Init language directory
     lang_dir = localedir / target_lang / "LC_MESSAGES"
@@ -54,44 +55,43 @@ def init_language(target_lang, domain, localedir):
         pass
     else:
         # If it does not, create it
-        subprocess.run(["msginit", "--no-translator", "-i", localedir / f"{domain}.pot", "-o", po_path, "-l", target_lang])
+        subprocess.run(
+            ["msginit", "--no-translator", "-i", localedir / f"{domain}.pot", "-o", po_path, "-l", target_lang],
+            check=False,
+        )
 
     return po_path
 
 
-def extract_str(part):
+def extract_str(part: str) -> str:
     """Extract repr'd string from a PO file entry"""
     # If there are lines that are comments, remove them
-    tokens = [
-        i.strip()[1:-1]
-        for i in part.strip().split("\n")
-        if i.strip().startswith('"') and i.strip().endswith('"')
-    ]
+    tokens = [i.strip()[1:-1] for i in part.strip().split("\n") if i.strip().startswith('"') and i.strip().endswith('"')]
     return "".join(tokens)
 
 
 class POEntry:
     """An entry in a PO file"""
 
-    def __init__(self, msgid_part, msgstr_part, header=None):
+    def __init__(self, msgid_part: str, msgstr_part: str, header: t.Optional[str] = None) -> None:
         self.msgid_repr = msgid_part
         self.msgstr_repr = msgstr_part
         self.header = header  # Headers are important, keep them
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.to_string()
 
     @property
-    def msgid(self):
+    def msgid(self) -> str:
         return extract_str(self.msgid_repr)
 
     @property
-    def msgstr(self):
+    def msgstr(self) -> str:
         return extract_str(self.msgstr_repr)
 
     # Set the msgstr
     @msgstr.setter
-    def msgstr(self, value):
+    def msgstr(self, value: str) -> None:
         # Escape double quotes
         value = value.replace('"', '\\"')
         # Escample whitespace
@@ -101,7 +101,7 @@ class POEntry:
 
         self.msgstr_repr = " " + '"' + value + '"'
 
-    def to_string(self):
+    def to_string(self) -> str:
         header = ""
         if self.header is not None:
             header = self.header
@@ -111,7 +111,7 @@ class POEntry:
 class POFile:
     """A PO file"""
 
-    def __init__(self, path: str, source_lang: str):
+    def __init__(self, path: PathLike, source_lang: str) -> None:
         self.path = path
         self.source_lang = source_lang
 
@@ -138,28 +138,18 @@ class POFile:
             entry = POEntry(msgid_part, msgstr_part, header=header)
             self.entries.append(entry)
 
-    def translate(self, target_lang, api_key=None):
-        "Translates a .po file using DeepL. Note: This overwrites the .po file."
-
-        assert api_key is not None, "Please provide a DeepL API key."
-
-        prompt_ask_missing_extras("deepl", "translate", "POFile")
-
+    @staticmethod
+    def _normalize_target_lang(target_lang: str) -> str:
         if target_lang == "en":
-            target_lang = "en-US"
-        elif target_lang == "pt":
-            target_lang = "pt-BR"
+            return "en-US"
+        if target_lang == "pt":
+            return "pt-BR"
+        return target_lang
 
-        translate_idx = []
-        for idx, entry in enumerate(self.entries):
-            if entry.msgid == "" or entry.msgstr != "":
-                continue
-            translate_idx.append(idx)
+    def _translation_indices(self) -> t.List[int]:
+        return [idx for idx, entry in enumerate(self.entries) if entry.msgid != "" and entry.msgstr == ""]
 
-        if len(translate_idx) == 0:
-            print(f"{self.path} is already translated.")
-            return False
-
+    def _strings_to_translate(self, translate_idx: t.Sequence[int]) -> t.List[str]:
         to_translate = []
         for idx in translate_idx:
             string_to_translate = self.entries[idx].msgid
@@ -170,10 +160,24 @@ class POFile:
             string_to_translate = string_to_translate.replace("\\r", "\r")
 
             # Join the lines
-            string_to_translate = " ".join(string_to_translate.split("\n"))
+            to_translate.append(" ".join(string_to_translate.split("\n")))
+        return to_translate
 
-            to_translate.append(string_to_translate)
+    def translate(self, target_lang: str, api_key: t.Optional[str] = None) -> bool:
+        "Translates a .po file using DeepL. Note: This overwrites the .po file."
 
+        assert api_key is not None, "Please provide a DeepL API key."
+
+        prompt_ask_missing_extras("deepl", "translate", "POFile")
+
+        target_lang = self._normalize_target_lang(target_lang)
+        translate_idx = self._translation_indices()
+
+        if len(translate_idx) == 0:
+            print(f"{self.path} is already translated.")
+            return False
+
+        to_translate = self._strings_to_translate(translate_idx)
         translate_text = "<msg/>".join(to_translate)
 
         translator = deepl.Translator(api_key)
@@ -189,22 +193,19 @@ class POFile:
         #     api_key=api_key, source=source_lang, target=target_lang, use_free_api=True
         # ).translate(translate_text)
 
-        translated = translated.text.split("<msg/>")
+        if isinstance(translated, list):
+            raise RuntimeError("DeepL returned multiple results for a single translation request.")
+        translated_strings = translated.text.split("<msg/>")
+        if len(translated_strings) != len(translate_idx):
+            raise RuntimeError("DeepL returned a different number of translations than requested.")
 
-        try:
-            for idx, translation in zip(translate_idx, translated):
-                self.entries[idx].msgstr = translation
-                # translated_dict[list(to_translate.keys())[idx]] = translation
-        except:
-            print("This shouldn't happen. Please report this bug.")
-            import ipdb
-
-            ipdb.set_trace()
+        for idx, translation in zip(translate_idx, translated_strings):
+            self.entries[idx].msgstr = translation
 
         self.save(self.path)
         return True
 
-    def save(self, path):
+    def save(self, path: PathLike) -> None:
         content = "".join([i.to_string() for i in self.entries])
 
         with open(path, "w") as f:

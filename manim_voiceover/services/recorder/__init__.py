@@ -1,19 +1,21 @@
 from pathlib import Path
-from manim_voiceover.helper import msg_box, prompt_ask_missing_extras, remove_bookmarks
+from typing import Optional
 
-from manim_voiceover.services.base import SpeechService
 from manim import logger
+
+from manim_voiceover._typing import VoiceoverData
+from manim_voiceover.helper import msg_box, prompt_ask_missing_extras, remove_bookmarks
+from manim_voiceover.services.base import PathLike, SpeechService, initialize_speech_service, path_to_string
 
 try:
     import pyaudio
+
     from manim_voiceover.services.recorder.utility import Recorder
 
     # Workaround to get this included in the docs
     DEFAULT_FORMAT = pyaudio.paInt16
 except ImportError:
-    logger.error(
-        'Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.'
-    )
+    logger.error('Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.')
     DEFAULT_FORMAT = None
 
 
@@ -22,18 +24,18 @@ class RecorderService(SpeechService):
 
     def __init__(
         self,
-        format: int = DEFAULT_FORMAT,
+        format: Optional[int] = DEFAULT_FORMAT,
         channels: int = 1,
         rate: int = 44100,
         chunk: int = 512,
-        device_index: int = None,
+        device_index: Optional[int] = None,
         transcription_model: str = "base",
         trim_silence_threshold: float = -40.0,
         trim_buffer_start: int = 200,
         trim_buffer_end: int = 200,
         callback_delay: float = 0.05,
-        **kwargs,
-    ):
+        **kwargs: object,
+    ) -> None:
         """Initialize the speech service.
 
         Args:
@@ -41,13 +43,17 @@ class RecorderService(SpeechService):
             channels (int, optional): Number of channels. Defaults to 1.
             rate (int, optional): Sampling rate. Defaults to 44100.
             chunk (int, optional): Chunk size. Defaults to 512.
-            device_index (int, optional): Device index, if you don't want to choose it every time you render. Defaults to None.
-            transcription_model (str, optional): The `OpenAI Whisper model <https://github.com/openai/whisper#available-models-and-languages>`_ to use for transcription. Defaults to "base".
+            device_index (int, optional): Device index, if you don't want to choose it every time you render.
+                Defaults to None.
+            transcription_model (str, optional): The OpenAI Whisper model to use for transcription.
+                Defaults to "base".
             trim_silence_threshold (float, optional): Threshold for trimming silence in decibels. Defaults to -40.0 dB.
             trim_buffer_start (int, optional): Buffer duration for trimming silence at the start. Defaults to 200 ms.
             trim_buffer_end (int, optional): Buffer duration for trimming silence at the end. Defaults to 200 ms.
         """
         prompt_ask_missing_extras(["pyaudio", "pynput"], "recorder", "RecorderService")
+        if format is None:
+            raise ImportError('Missing packages. Run `pip install "manim-voiceover[recorder]"` to use RecorderService.')
 
         self.recorder = Recorder(
             format=format,
@@ -61,11 +67,15 @@ class RecorderService(SpeechService):
             callback_delay=callback_delay,
         )
 
-        SpeechService.__init__(self, transcription_model=transcription_model, **kwargs)
+        initialize_speech_service(self, kwargs, transcription_model=transcription_model)
 
     def generate_from_text(
-        self, text: str, cache_dir: str = None, path: str = None, **kwargs
-    ) -> dict:
+        self,
+        text: str,
+        cache_dir: Optional[PathLike] = None,
+        path: Optional[PathLike] = None,
+        **kwargs: object,
+    ) -> VoiceoverData:
         """"""
 
         # Remove bookmarks
@@ -92,13 +102,13 @@ class RecorderService(SpeechService):
         if path is None:
             audio_path = self.get_audio_basename(input_data) + ".mp3"
         else:
-            audio_path = path
+            audio_path = path_to_string(path)
 
         self.recorder._trigger_set_device()
         box = msg_box("Voiceover:\n\n" + input_text)
         self.recorder.record(str(Path(cache_dir) / audio_path), box)
 
-        json_dict = {
+        json_dict: VoiceoverData = {
             "input_text": text,
             "input_data": input_data,
             "original_audio": audio_path,

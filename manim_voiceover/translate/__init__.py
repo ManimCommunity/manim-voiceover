@@ -1,9 +1,10 @@
-import os
 import gettext
+import os
+from typing import Callable, Optional
 
 
-def get_gettext(locale=None, domain=None):
-    ret = gettext.gettext
+def get_gettext(locale: Optional[str] = None, domain: Optional[str] = None) -> Callable[[str], str]:
+    ret: Callable[[str], str] = gettext.gettext
 
     if locale is None:
         locale = os.getenv("LOCALE")
@@ -15,6 +16,8 @@ def get_gettext(locale=None, domain=None):
         raise ValueError("LOCALE is set but DOMAIN is not.")
 
     if locale is not None:
+        if domain is None:
+            raise ValueError("DOMAIN is required when LOCALE is set.")
         # Set gettext language
         trans = gettext.translation(
             domain,

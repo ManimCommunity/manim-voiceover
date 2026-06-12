@@ -1,2 +1,4 @@
-def test_import():
-    from manim_voiceover import VoiceoverScene
+def test_import() -> None:
+    import manim_voiceover
+
+    assert manim_voiceover.__version__

@@ -1,13 +1,13 @@
 import argparse
 import os
 import sys
-from time import sleep
 from pathlib import Path
+from time import sleep
+
 import dotenv
 
 from manim_voiceover.defaults import DEEPL_AVAILABLE_TARGET_LANG
 from manim_voiceover.translate.gettext_utils import POFile, init_gettext, init_language
-
 
 # Get the current working directory as Path
 CWD = Path.cwd()
@@ -58,13 +58,14 @@ parser.add_argument(
 )
 
 
-def main():
+def main() -> None:
     dotenv.load_dotenv(".env")
     DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
 
     if DEEPL_API_KEY is None:
         print(
-            "Please set the DEEPL_API_KEY environment variable to your DeepL API Key. (Available under https://www.deepl.com/account/summary)"
+            "Please set the DEEPL_API_KEY environment variable to your DeepL API Key. "
+            "(Available under https://www.deepl.com/account/summary)"
         )
         sys.exit(1)
 
