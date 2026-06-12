@@ -49,20 +49,19 @@ def wav2mp3(
 
 def msg_box(msg: str, indent: int = 1, width: Optional[int] = None, title: Optional[str] = None) -> str:
     """Print message-box with optional title."""
-    # Wrap lines that are longer than 80 characters
-    if width is None and len(msg) > 80:
-        width = 80
-        lines = []
-        for line in msg.splitlines():
-            if len(line) > width:
-                line = line[:width] + " " + line[width:]
-            lines.extend(textwrap.wrap(line, width))
-        msg = "\n".join(lines)
-
-    lines = msg.split("\n")
+    raw_lines = msg.splitlines() or [""]
     space = " " * indent
-    if not width:
-        width = max(map(len, lines))
+    if width is None:
+        width = max(map(len, raw_lines))
+        width = min(width, 80)
+    elif width == 0:
+        width = max(map(len, raw_lines))
+    lines = []
+    for line in raw_lines:
+        if width == 0:
+            lines.append(line)
+        else:
+            lines.extend(textwrap.wrap(line, width) or [""])
     box = f"╔{'═' * (width + indent * 2)}╗\n"  # upper_border
     if title:
         box += f"║{space}{title:<{width}}{space}║\n"  # title
@@ -80,13 +79,11 @@ def detect_leading_silence(sound: AudioSegment, silence_threshold: float = -20.0
 
     iterate over chunks until you find the first one with sound
     """
-    trim_ms = 0  # ms
-
     assert chunk_size > 0  # to avoid infinite loop
-    while sound[trim_ms : trim_ms + chunk_size].dBFS < silence_threshold and trim_ms < len(sound):
-        trim_ms += chunk_size
-
-    return trim_ms
+    for trim_ms in range(0, len(sound), chunk_size):
+        if sound[trim_ms : trim_ms + chunk_size].dBFS >= silence_threshold:
+            return trim_ms
+    return len(sound)
 
 
 def trim_silence(
@@ -110,20 +107,18 @@ def trim_silence(
 
 def append_to_json_file(json_file: PathLike, data: Union[Mapping[str, JsonValue], VoiceoverData]) -> None:
     """Append data to json file"""
-    if not os.path.exists(json_file):
-        with open(json_file, "w") as f:
-            json.dump([data], f, indent=2)
+    json_path = Path(json_file)
+    if not json_path.exists():
+        json_path.write_text(json.dumps([data], indent=2))
         return
 
-    with open(json_file, "r") as f:
-        json_data = json.load(f)
+    json_data = json.loads(json_path.read_text())
 
     if not isinstance(json_data, list):
         raise ValueError("JSON file should be a list")
 
     json_data.append(data)
-    with open(json_file, "w") as f:
-        json.dump(json_data, f, indent=2)
+    json_path.write_text(json.dumps(json_data, indent=2))
 
 
 def prompt_ask_missing_package(target_module: str, package_name: str) -> None:

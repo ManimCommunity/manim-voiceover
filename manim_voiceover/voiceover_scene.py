@@ -123,12 +123,9 @@ class VoiceoverScene(Scene):
         """
         subcaption = " ".join(subcaption.split())
         n_chunk = ceil(len(subcaption) / max_subcaption_len)
-        tokens = subcaption.split(" ")
+        tokens = subcaption.split()
         chunk_len = ceil(len(tokens) / n_chunk)
         chunks_ = list(chunks(tokens, chunk_len))
-        if len(chunks_) not in (n_chunk, n_chunk - 1):
-            raise RuntimeError("Subcaption chunking produced an unexpected number of chunks.")
-
         subcaptions = [" ".join(i) for i in chunks_]
         subcaption_weights = [len(subcaption) / len("".join(subcaptions)) for subcaption in subcaptions]
 

@@ -41,6 +41,7 @@ jobs:
     - name: Check mutations
       run: |
         uv run mutmut run
+        uv run python scripts/check_mutmut_results.py
         rm -rf mutants
     - name: Audit dependencies
       run: uv run pip-audit
