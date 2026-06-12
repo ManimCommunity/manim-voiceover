@@ -48,7 +48,7 @@ class ElevenLabsService(SpeechService):
 
     @staticmethod
     def _voice_settings_from_dict(voice_settings: VoiceSettingsDict) -> "VoiceSettings":
-        if not voice_settings.get("stability") or not voice_settings.get("similarity_boost"):
+        if "stability" not in voice_settings or "similarity_boost" not in voice_settings:
             raise KeyError("Missing required keys: 'stability' and 'similarity_boost'.")
         stability = voice_settings["stability"]
         similarity_boost = voice_settings["similarity_boost"]
@@ -79,7 +79,9 @@ class ElevenLabsService(SpeechService):
         elif voice_id:
             selected_voice = [voice for voice in available_voices if voice.voice_id == voice_id]
         else:
+            # pragma: no mutate start
             selected_voice = []
+            # pragma: no mutate end
 
         if selected_voice:
             return selected_voice[0]

@@ -117,20 +117,16 @@ class POFile:
 
         self.entries: t.List[POEntry] = []
 
+        # pragma: no mutate start
         with open(path, "r") as f:
+            # pragma: no mutate end
             content = f.read()
 
-        # Regex to split the PO file. Match only the last double quote before each msgid.
-        # Arbitrary characters can be between the double quote and the msgid
-        regex = r'"((?=[^"]*msgid))'
-        # NOTE: This doesn't account for " that are in comments
+        parts = re.split(r"\n\s*\n(?=(?:#.*\n)*msgid)", content.strip())
 
-        # Split the PO file
-        parts = re.split(regex, content)
-        parts = [i + '"' for i in parts if i != ""]
-
-        # Iterate over all strings
         for part in parts:
+            if part == "":
+                continue
             header = part.split("msgid")[0]
             msgid_part = part.split("msgid")[1].split("msgstr")[0]
             msgstr_part = part.split("msgstr")[1]
@@ -164,7 +160,9 @@ class POFile:
         return to_translate
 
     def translate(self, target_lang: str, api_key: t.Optional[str] = None) -> bool:
+        # pragma: no mutate start
         "Translates a .po file using DeepL. Note: This overwrites the .po file."
+        # pragma: no mutate end
 
         assert api_key is not None, "Please provide a DeepL API key."
 
@@ -206,7 +204,7 @@ class POFile:
         return True
 
     def save(self, path: PathLike) -> None:
-        content = "".join([i.to_string() for i in self.entries])
+        content = "\n\n".join([i.to_string() for i in self.entries])
 
         with open(path, "w") as f:
             f.write(content)

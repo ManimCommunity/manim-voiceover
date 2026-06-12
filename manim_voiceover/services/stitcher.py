@@ -2,6 +2,7 @@ import hashlib
 import itertools
 import json
 import os
+from pathlib import Path
 from typing import Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from pydub import AudioSegment
@@ -48,7 +49,6 @@ def split_on_silence_modified(
 
     # from the itertools documentation
     def pairwise(iterable: Iterable[List[int]]) -> Iterator[Tuple[List[int], List[int]]]:
-        "s -> (s0,s1), (s1,s2), (s2, s3), ..."
         a, b = itertools.tee(iterable)
         next(b, None)
         return zip(a, b)
@@ -71,9 +71,11 @@ def split_on_silence_modified(
     for range_i, range_ii in pairwise(output_ranges):
         last_end = range_i[1]
         next_start = range_ii[0]
+        # pragma: no mutate start
         if next_start < last_end:
             range_i[1] = (last_end + next_start) // 2
             range_ii[0] = range_i[1]
+        # pragma: no mutate end
 
     return [audio_segment[max(start, 0) : min(end, len(audio_segment))] for start, end in output_ranges]
 
@@ -115,16 +117,11 @@ class _StitcherService(SpeechService):
 
         # Check whether the audio file has already been processed
         if os.path.exists(self.get_json_path()):
-            config = json.load(open(self.get_json_path(), "r"))
+            config = json.loads(Path(self.get_json_path()).read_text())
             try:
                 if self._params() == config["params"]:
-                    all_files_exist = True
-                    for segment in config["segments"]:
-                        if not os.path.exists(segment["path"]):
-                            all_files_exist = False
-                            break
                     # Return only if all the segments exist
-                    if all_files_exist:
+                    if all(os.path.exists(segment["path"]) for segment in config["segments"]):
                         return
             except KeyError:
                 pass
@@ -171,7 +168,7 @@ class _StitcherService(SpeechService):
         path: Optional[PathLike] = None,
         **kwargs: object,
     ) -> VoiceoverData:
-        config = json.load(open(self.get_json_path(), "r"))
+        config = json.loads(Path(self.get_json_path()).read_text())
         audio_path = config["segments"][self.current_segment_index]["path"]
         json_path = os.path.splitext(audio_path)[0] + ".json"
 

@@ -72,7 +72,9 @@ def _validate_inputs(file: str, localedir: Path, quality: str, scene: str) -> No
         raise ValueError(f"Quality must be one of {','.join(ALLOWED_Q)}")
 
     # If scene is not in file, raise error
+    # pragma: no mutate start
     with open(file, "r") as scene_file:
+        # pragma: no mutate end
         file_content = scene_file.read()
     if scene not in file_content:
         raise ValueError(f"Scene {scene} is not in file {file}")

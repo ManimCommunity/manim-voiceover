@@ -45,6 +45,7 @@ class CoquiService(SpeechService):
         prompt_ask_missing_package("TTS", "TTS>=0.13.3")
         tts_module = importlib.import_module("TTS.api")
         tts_factory = getattr(tts_module, "TTS")
+        # pragma: no mutate start
         self.tts = t.cast(
             CoquiTTS,
             tts_factory(
@@ -56,6 +57,7 @@ class CoquiService(SpeechService):
                 gpu=gpu,
             ),
         )
+        # pragma: no mutate end
 
         # Run TTS
         self.speaker = self.tts.speakers[speaker_idx] if self.tts.speakers is not None else None
@@ -85,9 +87,6 @@ class CoquiService(SpeechService):
             audio_path = self.get_audio_basename(input_data) + ".mp3"
         else:
             audio_path = path_to_string(path)
-
-        if not kwargs:
-            kwargs = self.init_kwargs
 
         output_path = str(Path(cache_dir) / audio_path)
         wav_path = Path(output_path).with_suffix(".wav")

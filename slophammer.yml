@@ -24,9 +24,7 @@ python:
       min_tokens: 100
   mutation:
     targets:
-      - manim_voiceover/helper.py
-      - manim_voiceover/tracker.py
-      - manim_voiceover/voiceover_scene.py
+      - manim_voiceover
     exclude:
       - pattern: "docs/**"
         reason: "Documentation source is not production library code."

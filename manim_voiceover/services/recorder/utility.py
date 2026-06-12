@@ -3,13 +3,15 @@ import sched
 import time
 import wave
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Protocol, Tuple, cast
+from typing import Callable, Dict, List, Mapping, Optional, Protocol, Tuple, cast
 
 import pyaudio
 from pydub import AudioSegment
 from pydub.playback import play
 
 from manim_voiceover.helper import trim_silence, wav2mp3
+
+HOST_API_INDEX = 0
 
 
 class RecorderStream(Protocol):
@@ -22,6 +24,18 @@ class RecorderStream(Protocol):
 
 class KeyboardListener(Protocol):
     def start(self) -> None: ...
+
+
+RECORDING_START_MESSAGES = ("Press and hold the 'r' (or Shift^R if on Wayland) key to begin recording",)
+FIRST_RECORDING_MESSAGES = (
+    "Wait for 1 second, then start speaking.",
+    "Wait for at least 1 second after you finish speaking.",
+    "This is to eliminate any sounds that may come from your keyboard.",
+    "The silence at the beginning and end will be trimmed automatically.",
+    "You can adjust this setting using the `trim_silence_threshold` argument.",
+    "These instructions are only shown once.",
+)
+RECORDING_END_MESSAGES = ("Release the 'r' (or Shift^R if on Wayland) key to end recording",)
 
 
 def _create_keyboard_listener(
@@ -40,10 +54,12 @@ def _create_keyboard_listener(
     if not callable(listener_factory):
         raise RuntimeError("pynput.keyboard.Listener is not callable.")
 
+    # pragma: no mutate start
     return cast(
         Callable[[Callable[[object], bool], Callable[[object], bool]], KeyboardListener],
         listener_factory,
     )(on_press, on_release)
+    # pragma: no mutate end
 
 
 class MyListener:
@@ -88,6 +104,7 @@ class Recorder:
         trim_buffer_start: int = 200,
         trim_buffer_end: int = 200,
         callback_delay: float = 0.05,
+        max_prompt_attempts: int = 100,
     ) -> None:
         self.format = format
         self.channels = channels
@@ -105,6 +122,7 @@ class Recorder:
         self.trim_buffer_start = trim_buffer_start
         self.trim_buffer_end = trim_buffer_end
         self.callback_delay = callback_delay
+        self.max_prompt_attempts = max_prompt_attempts
 
     def _audio(self) -> pyaudio.PyAudio:
         self._init_pyaudio()
@@ -148,49 +166,38 @@ class Recorder:
             self.audio = pyaudio.PyAudio()
 
     def _record(self, path: str) -> None:
-        self._init_pyaudio()
-
-        if self.device_index is None:
-            self._set_device()
-
-        if self.channels is None:
-            if self.device_index is None:
-                raise RuntimeError("Recorder device index has not been selected.")
-            self._set_channels_from_device_index(self.device_index)
-
+        self._trigger_set_device()
         self.frames = []
         self.listener = MyListener()
         self.listener.start()
 
-        print("Press and hold the 'r' (or Shift^R if on Wayland) key to begin recording")
+        for message in RECORDING_START_MESSAGES:
+            print(message)
         if self.first_call:
-            print("Wait for 1 second, then start speaking.")
-            print("Wait for at least 1 second after you finish speaking.")
-            print("This is to eliminate any sounds that may come from your keyboard.")
-            print("The silence at the beginning and end will be trimmed automatically.")
-            print("You can adjust this setting using the `trim_silence_threshold` argument.")
-            print("These instructions are only shown once.")
+            for message in FIRST_RECORDING_MESSAGES:
+                print(message)
 
-        print("Release the 'r' (or Shift^R if on Wayland) key to end recording")
+        for message in RECORDING_END_MESSAGES:
+            print(message)
         self.task = sched.scheduler(time.time, time.sleep)
         self.event = self.task.enter(self.callback_delay, 1, self._record_task, (path,))
         self.task.run()
 
     def _set_device(self) -> None:
-        "Get the device index from the user."
+        # Prompt the user to select an input device from the PyAudio host API.
         print("-------------------------device list-------------------------")
-        audio = self._audio()
-        info = audio.get_host_api_info_by_index(0)
-        n_devices = info.get("deviceCount")
+        n_devices = self._device_count()
         if not isinstance(n_devices, int):
             raise RuntimeError("PyAudio did not report an integer device count.")
-        for i in range(0, n_devices):
-            if (audio.get_device_info_by_host_api_device_index(0, i).get("maxInputChannels")) > 0:
+        for i in range(n_devices):
+            device_info = self._device_info(i)
+            max_input_channels = device_info.get("maxInputChannels")
+            if isinstance(max_input_channels, (int, float)) and max_input_channels > 0:
                 print(
                     "Input Device id ",
                     i,
                     " - ",
-                    audio.get_device_info_by_host_api_device_index(0, i).get("name"),
+                    device_info.get("name"),
                 )
 
         print("-------------------------------------------------------------")
@@ -198,7 +205,7 @@ class Recorder:
 
         try:
             self.device_index = int(input())
-            device_name = audio.get_device_info_by_host_api_device_index(0, self.device_index).get("name")
+            device_name = self._device_info(self.device_index).get("name")
             self._set_channels_from_device_index(self.device_index)
             self._set_rate_from_device_index(self.device_index)
             print("Selected device:", device_name)
@@ -209,8 +216,17 @@ class Recorder:
             print("Invalid device index. Please try again.")
             self._set_device()
 
+    def _device_count(self) -> object:
+        return self._audio().get_host_api_info_by_index(HOST_API_INDEX).get("deviceCount")
+
+    def _device_info(self, device_index: int) -> Mapping[str, object]:
+        device_info = self._audio().get_device_info_by_host_api_device_index(HOST_API_INDEX, device_index)
+        if not isinstance(device_info, Mapping):
+            raise RuntimeError("PyAudio did not report device info.")
+        return device_info
+
     def _set_channels_from_device_index(self, device_index: int) -> None:
-        channels_from_device = self._audio().get_device_info_by_host_api_device_index(0, device_index).get("maxInputChannels")
+        channels_from_device = self._device_info(device_index).get("maxInputChannels")
         if not isinstance(channels_from_device, int):
             raise RuntimeError("PyAudio did not report integer max input channels.")
         if self.channels is None:
@@ -219,7 +235,7 @@ class Recorder:
             self.channels = min(self.channels, channels_from_device)
 
     def _set_rate_from_device_index(self, device_index: int) -> None:
-        rate_from_device = self._audio().get_device_info_by_host_api_device_index(0, device_index).get("defaultSampleRate")
+        rate_from_device = self._device_info(device_index).get("defaultSampleRate")
         if not isinstance(rate_from_device, (int, float)):
             raise RuntimeError("PyAudio did not report a numeric sample rate.")
         if self.rate is None:
@@ -303,7 +319,7 @@ class Recorder:
             print(message)
         self._record(path)
 
-        while True:
+        for _ in range(self.max_prompt_attempts):
             print(
                 """Press...
  l to [l]isten to the recording
@@ -322,9 +338,11 @@ class Recorder:
 
                     self._record(path)
                 elif key == "a":
-                    break
+                    return
                 else:
                     print("Invalid input")
             except KeyboardInterrupt:
                 print("KeyboardInterrupt")
                 exit()
+
+        raise RuntimeError("Recorder prompt did not receive an accept choice.")

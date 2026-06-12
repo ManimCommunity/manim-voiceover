@@ -151,11 +151,6 @@ show_missing = true
 
 [tool.mutmut]
 source_paths = ["manim_voiceover"]
-only_mutate = [
-    "manim_voiceover/helper.py",
-    "manim_voiceover/tracker.py",
-    "manim_voiceover/voiceover_scene.py",
-]
 
 [tool.hatch.build.targets.wheel]
 packages = ["manim_voiceover"]

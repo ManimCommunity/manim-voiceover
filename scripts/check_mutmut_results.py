@@ -1,7 +1,7 @@
 import subprocess
 import sys
 
-FAILING_STATUSES = {"survived", "timeout", "no tests", "suspicious"}
+FAILING_STATUSES = {"survived", "timeout", "no tests", "suspicious", "not checked"}
 
 
 def collect_failures(output: str) -> list[tuple[str, str]]:

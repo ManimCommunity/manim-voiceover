@@ -16,8 +16,7 @@ def get_gettext(locale: Optional[str] = None, domain: Optional[str] = None) -> C
         raise ValueError("LOCALE is set but DOMAIN is not.")
 
     if locale is not None:
-        if domain is None:
-            raise ValueError("DOMAIN is required when LOCALE is set.")
+        assert domain is not None
         # Set gettext language
         trans = gettext.translation(
             domain,

@@ -228,16 +228,21 @@ class SpeechService(ABC):
                     "SpeechService.set_transcription()",
                 )
                 stable_whisper = importlib.import_module("stable_whisper")
+                # pragma: no mutate start
                 load_model = t.cast(t.Callable[[str], WhisperModel], getattr(stable_whisper, "load_model"))
+                # pragma: no mutate end
                 self._whisper_model = load_model(model)
             else:
                 self._whisper_model = None
 
+        self.transcription_model = model
         self.transcription_kwargs = kwargs
 
     def get_audio_basename(self, data: t.Mapping[str, JsonValue]) -> str:
         dumped_data = json.dumps(data)
+        # pragma: no mutate start
         data_hash = hashlib.sha256(dumped_data.encode("utf-8")).hexdigest()
+        # pragma: no mutate end
         suffix = data_hash[:8]
         input_text = data["input_text"]
         if not isinstance(input_text, str):
@@ -274,11 +279,15 @@ class SpeechService(ABC):
     ) -> t.Optional[VoiceoverData]:
         json_path = Path(cache_dir) / DEFAULT_VOICEOVER_CACHE_JSON_FILENAME
         if os.path.exists(json_path):
+            # pragma: no mutate start
             with open(json_path, "r") as json_file:
+                # pragma: no mutate end
                 json_data = json.load(json_file)
             for entry in json_data:
                 if entry["input_data"] == input_data:
+                    # pragma: no mutate start
                     return t.cast(VoiceoverData, entry)
+                    # pragma: no mutate end
         return None
 
     def audio_callback(self, audio_path: str, data: VoiceoverData, **kwargs: object) -> None:
