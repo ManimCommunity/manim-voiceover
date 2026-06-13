@@ -139,6 +139,10 @@ max-complexity = 8
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: tests that execute external tools or full workflows",
+    "network: tests that require outbound network access",
+]
 
 [tool.coverage.run]
 source = ["manim_voiceover"]
