@@ -109,7 +109,7 @@ def test_pyttsx3_service_generate(tmp_path, monkeypatch):
 
     engine = FakeEngine()
     monkeypatch.setattr(
-        "manim_voiceover.services.pyttsx3.Engine",
+        "manim_voiceover.services.pyttsx3.pyttsx3.init",
         lambda: pytest.fail("Injected pyttsx3 engine should not be replaced."),
     )
     service = PyTTSX3Service(engine=engine, cache_dir=tmp_path)

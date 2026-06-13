@@ -7,6 +7,7 @@ from manim_voiceover._typing import VoiceoverData
 from manim_voiceover.helper import prompt_ask_missing_extras
 
 try:
+    import pyttsx3
     from pyttsx3 import Engine
 except ImportError:
     logger.error('Missing packages. Run `pip install "manim-voiceover[pyttsx3]"` to use PyTTSX3Service.')
@@ -22,7 +23,7 @@ class PyTTSX3Service(SpeechService):
         prompt_ask_missing_extras("pyttsx3", "pyttsx3", "PyTTSX3Service")
 
         if engine is None:
-            engine = Engine()
+            engine = pyttsx3.init()
 
         self.engine = engine
         initialize_speech_service(self, kwargs)

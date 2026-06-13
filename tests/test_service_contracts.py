@@ -977,7 +977,7 @@ def test_pyttsx3_constructor_and_generation_contract(tmp_path, monkeypatch):
 
     engine_events = []
     monkeypatch.setattr("manim_voiceover.services.pyttsx3.prompt_ask_missing_extras", lambda *args: prompt_calls.append(args))
-    monkeypatch.setattr("manim_voiceover.services.pyttsx3.Engine", FakeEngine)
+    monkeypatch.setattr("manim_voiceover.services.pyttsx3.pyttsx3.init", FakeEngine)
     monkeypatch.setattr("manim_voiceover.services.pyttsx3.initialize_speech_service", fake_initialize)
 
     service = pyttsx3_service.PyTTSX3Service(custom=True)
