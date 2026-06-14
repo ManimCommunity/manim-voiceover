@@ -411,7 +411,6 @@ def test_gemini_cache_dotenv_key_and_response_errors(monkeypatch, tmp_path):
     with pytest.raises(ValueError) as auth_mode_exc_info:
         gemini._resolve_auth_mode(None)
     assert str(auth_mode_exc_info.value) == 'auth_mode must be "api_key" or "adc"'
-    monkeypatch.delenv("GEMINI_AUTH_MODE", raising=False)
 
     logs = []
     dotenv_calls = []
@@ -468,6 +467,72 @@ def test_gemini_cache_dotenv_key_and_response_errors(monkeypatch, tmp_path):
             )
         )
     assert str(bytes_exc_info.value) == "Gemini response inline audio data must be bytes"
+
+
+def test_gemini_first_env_value_prefers_first_non_empty_env(monkeypatch):
+    import manim_voiceover.services.gemini as gemini
+
+    for name in ["GEMINI_TEST_MISSING", "GEMINI_TEST_EMPTY", "GEMINI_TEST_VALUE", "GEMINI_TEST_FIRST"]:
+        monkeypatch.delenv(name, raising=False)
+
+    assert gemini._first_env_value(["GEMINI_TEST_MISSING", "GEMINI_TEST_EMPTY"]) is None
+
+    monkeypatch.setenv("GEMINI_TEST_EMPTY", "")
+    monkeypatch.setenv("GEMINI_TEST_VALUE", "env-value")
+    assert gemini._first_env_value(["GEMINI_TEST_EMPTY", "GEMINI_TEST_VALUE"]) == "env-value"
+
+    monkeypatch.setenv("GEMINI_TEST_FIRST", "first-value")
+    assert gemini._first_env_value(["GEMINI_TEST_FIRST", "GEMINI_TEST_VALUE"]) == "first-value"
+
+
+def test_gemini_adc_client_config_resolution(monkeypatch):
+    import manim_voiceover.services.gemini as gemini
+
+    for name in gemini.GEMINI_PROJECT_NAMES + gemini.GEMINI_LOCATION_NAMES:
+        monkeypatch.delenv(name, raising=False)
+
+    default_calls = []
+    adc_credentials = object()
+
+    def fake_default(*, scopes):
+        default_calls.append(scopes)
+        return adc_credentials, "default-project"
+
+    monkeypatch.setattr("manim_voiceover.services.gemini.google.auth.default", fake_default)
+    monkeypatch.setenv("GEMINI_PROJECT", "env-project")
+    monkeypatch.setenv("GEMINI_LOCATION", "asia-southeast1")
+    credentials, project, location = gemini._get_adc_client_config(None, None)
+    assert credentials is adc_credentials
+    assert project == "env-project"
+    assert location == "asia-southeast1"
+    assert default_calls == [gemini.ADC_SCOPES]
+
+    monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "google-project")
+    monkeypatch.setenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+    _, project, location = gemini._get_adc_client_config(None, None)
+    assert project == "google-project"
+    assert location == "us-central1"
+
+    _, project, location = gemini._get_adc_client_config("explicit-project", "europe-west1")
+    assert project == "explicit-project"
+    assert location == "europe-west1"
+
+    for name in gemini.GEMINI_PROJECT_NAMES + gemini.GEMINI_LOCATION_NAMES:
+        monkeypatch.delenv(name, raising=False)
+    _, project, location = gemini._get_adc_client_config(None, None)
+    assert project == "default-project"
+    assert location == gemini.DEFAULT_GEMINI_LOCATION
+
+    monkeypatch.setattr(
+        "manim_voiceover.services.gemini.google.auth.default",
+        lambda *, scopes: (adc_credentials, None),
+    )
+    with pytest.raises(ValueError) as adc_project_exc_info:
+        gemini._get_adc_client_config(None, None)
+    assert str(adc_project_exc_info.value) == (
+        "Gemini ADC authentication requires a Google Cloud project. "
+        "Set GOOGLE_CLOUD_PROJECT, GEMINI_PROJECT, or pass project=..."
+    )
 
 
 def test_elevenlabs_helpers(monkeypatch, tmp_path):

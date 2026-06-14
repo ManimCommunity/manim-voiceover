@@ -4,7 +4,7 @@ import os
 import sys
 import wave
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Literal, Optional, Protocol, Tuple, cast
+from typing import TYPE_CHECKING, Dict, List, Literal, Optional, Protocol, Tuple
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
@@ -43,16 +43,12 @@ ADC_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
 
 
 class _GeminiModels(Protocol):
-    def generate_content(self, **kwargs: object) -> object: ...
+    def generate_content(self, *, model: str, contents: str, config: types.GenerateContentConfig) -> object: ...
 
 
 class _GeminiClient(Protocol):
     @property
     def models(self) -> _GeminiModels: ...
-
-
-def _as_gemini_client(client: object) -> _GeminiClient:
-    return cast(_GeminiClient, client)
 
 
 def create_dotenv_gemini() -> None:
@@ -79,8 +75,10 @@ def _get_gemini_api_key() -> str:
 
 def _resolve_auth_mode(auth_mode: Optional[str]) -> GeminiAuthMode:
     raw_auth_mode = auth_mode or os.getenv(GEMINI_AUTH_MODE_NAME) or "api_key"
-    if raw_auth_mode in ("api_key", "adc"):
-        return cast(GeminiAuthMode, raw_auth_mode)
+    if raw_auth_mode == "api_key":
+        return "api_key"
+    if raw_auth_mode == "adc":
+        return "adc"
     raise ValueError('auth_mode must be "api_key" or "adc"')
 
 
@@ -111,15 +109,13 @@ def _create_client(
 ) -> _GeminiClient:
     if _resolve_auth_mode(auth_mode) == "adc":
         credentials, resolved_project, resolved_location = _get_adc_client_config(project, location)
-        return _as_gemini_client(
-            genai.Client(
-                vertexai=True,
-                credentials=credentials,
-                project=resolved_project,
-                location=resolved_location,
-            )
+        return genai.Client(
+            vertexai=True,
+            credentials=credentials,
+            project=resolved_project,
+            location=resolved_location,
         )
-    return _as_gemini_client(genai.Client(api_key=_get_gemini_api_key()))
+    return genai.Client(api_key=_get_gemini_api_key())
 
 
 def _required_object_attribute(value: object, name: str) -> object:
