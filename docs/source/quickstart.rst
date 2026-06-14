@@ -37,19 +37,19 @@ You can also inherit from multiple scene classes:
 This should work as long as the variables or methods of parent classes do not collide.
 
 Manim Voiceover can use various text-to-speech engines, some
-proprietary and some free. A good one to start with is gTTS, which uses
-the Google Translate API. We found out that this is the best
-for beginning to use the library owing to its cross-platform compatibility—however it still needs
-an internet connection.
+proprietary and some free. For generated AI voices, the recommended
+starting point is Gemini text-to-speech. It requires an internet
+connection and a Gemini API key or Google Cloud Application Default
+Credentials.
 
 .. code:: py
 
    from manim_voiceover import VoiceoverScene
-   from manim_voiceover.services.gtts import GTTSService
+   from manim_voiceover.services.gemini import GeminiService
 
    class MyAwesomeScene(VoiceoverScene):
        def construct(self):
-           self.set_speech_service(GTTSService())
+           self.set_speech_service(GeminiService(voice="Kore"))
 
 The logic for adding a voiceover is pretty simple. Wrap the animation
 inside a ``with`` block that calls ``self.voiceover()``:
@@ -85,8 +85,8 @@ The ``text`` argument is automatically reused for video subcaptions. Alternative
        self.play(Create(circle))
 
 See :doc:`examples` and the `examples directory <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples>`__
-for more examples. We recommend starting with the `gTTS
-example <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/gtts-example.py>`__.
+for more examples. We recommend starting with the `Gemini demo
+example <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/voiceover-demo.py>`__.
 
 Bookmarks
 *********
@@ -104,16 +104,16 @@ Record your own voiceover
 
 Manim Voiceover can record your voiceover directly from the command line. We recommend the following workflow:
 
-1. Develop your animation with one of the text-to-speech engines, e.g. :py:class:`services.gtts.GTTSService`:
+1. Develop your animation with one of the text-to-speech engines, e.g. :py:class:`services.gemini.GeminiService`:
 
 .. code:: py
 
    from manim_voiceover import VoiceoverScene
-   from manim_voiceover.services.gtts import GTTSService
+   from manim_voiceover.services.gemini import GeminiService
 
    class MyAwesomeScene(VoiceoverScene):
        def construct(self):
-           self.set_speech_service(GTTSService())
+           self.set_speech_service(GeminiService(voice="Kore"))
 
            with self.voiceover(text="This circle is drawn as I speak.") as tracker:
                self.play(Create(circle))
@@ -124,12 +124,12 @@ Manim Voiceover can record your voiceover directly from the command line. We rec
 .. code:: py
 
    from manim_voiceover import VoiceoverScene
-   # from manim_voiceover.services.gtts import GTTSService
+   # from manim_voiceover.services.gemini import GeminiService
    from manim_voiceover.services.recorder import RecorderService
 
    class MyAwesomeScene(VoiceoverScene):
        def construct(self):
-           # self.set_speech_service(GTTSService())
+           # self.set_speech_service(GeminiService(voice="Kore"))
            self.set_speech_service(RecorderService())
 
            with self.voiceover(text="This circle is drawn as I speak.") as tracker:

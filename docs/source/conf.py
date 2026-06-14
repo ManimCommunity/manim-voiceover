@@ -141,8 +141,8 @@ sitemap_url_scheme = "{link}"
 
 # external links
 extlinks = {
-    "issue": ("https://github.com/ManimCommunity/manim/issues/%s", "#"),
-    "pr": ("https://github.com/ManimCommunity/manim/pull/%s", "#"),
+    "issue": ("https://github.com/ManimCommunity/manim/issues/%s", "#%s"),
+    "pr": ("https://github.com/ManimCommunity/manim/pull/%s", "#%s"),
 }
 
 # opengraph settings

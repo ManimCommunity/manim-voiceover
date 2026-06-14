@@ -27,6 +27,11 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - N/A
      - N/A
      - This is a utility class to record your own voiceovers with a microphone.
+   * - :py:class:`~gemini.GeminiService`
+     - Very good, human-like
+     - No
+     - Yes
+     - Recommended for generated AI voices. Requires a Gemini API key or Google Cloud ADC, and Python 3.11 or newer.
    * - :py:class:`~azure.AzureService`
      - Very good, human-like
      - No
@@ -42,11 +47,6 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - No
      - No
      - It's a free API subsidized by Google, so there is a likelihood it may stop working in the future.
-   * - :py:class:`~gemini.GeminiService`
-     - Very good, human-like
-     - No
-     - Yes
-     - Requires a Gemini API key or Google Cloud ADC, and Python 3.11 or newer.
    * - :py:class:`~openai.OpenAIService`
      - Very good, human-like
      - No
@@ -73,11 +73,43 @@ Install Manim Voiceover with the ``recorder`` extra in order to use :py:class:`~
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/recorder-example.py>`__ to get started.
 
+:py:class:`~gemini.GeminiService`
+*********************************
+
+`Gemini text-to-speech <https://ai.google.dev/gemini-api/docs/speech-generation>`__ is the recommended service for generated AI voices in Manim Voiceover. It provides controllable text-to-speech through the Google Gen AI SDK, and requires an internet connection and Python 3.11 or newer.
+
+Install Manim Voiceover with the ``gemini`` extra in order to use :py:class:`~gemini.GeminiService`:
+
+.. code:: sh
+
+   pip install "manim-voiceover[gemini]"
+
+For Gemini Developer API authentication, create a file called ``.env``
+that contains your API key in the same directory where you call Manim.
+
+.. code:: sh
+
+   GEMINI_API_KEY="..." # insert the API key here
+
+Gemini uses API-key authentication by default:
+
+.. code:: python
+
+   self.set_speech_service(GeminiService(voice="Kore"))
+
+For Google Cloud Vertex AI authentication, use Application Default
+Credentials and set ``auth_mode="adc"``:
+
+.. code:: python
+
+   self.set_speech_service(
+       GeminiService(voice="Kore", auth_mode="adc", project="my-project-id")
+   )
 
 :py:class:`~azure.AzureService`
 *******************************
 
-As of now, the highest quality text-to-speech service available in Manim Voiceover is `Microsoft Azure Speech Service <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/overview>`__. To use it, you will need to `create an
+`Microsoft Azure Speech Service <https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/overview>`__ is also available for generated voices. To use it, you will need to `create an
 Azure account <https://azure.microsoft.com/en-us/free/>`__.
 
 .. tip::
@@ -122,39 +154,6 @@ Install Manim Voiceover with the ``gtts`` extra in order to use :py:class:`~gtts
    pip install "manim-voiceover[gtts]"
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/gtts-example.py>`__ to get started.
-
-:py:class:`~gemini.GeminiService`
-*********************************
-
-`Gemini text-to-speech <https://ai.google.dev/gemini-api/docs/speech-generation>`__ provides controllable text-to-speech through the Google Gen AI SDK. It requires an internet connection and Python 3.11 or newer.
-
-Install Manim Voiceover with the ``gemini`` extra in order to use :py:class:`~gemini.GeminiService`:
-
-.. code:: sh
-
-   pip install "manim-voiceover[gemini]"
-
-For Gemini Developer API authentication, create a file called ``.env``
-that contains your API key in the same directory where you call Manim.
-
-.. code:: sh
-
-   GEMINI_API_KEY="..." # insert the API key here
-
-Gemini uses API-key authentication by default:
-
-.. code:: python
-
-   self.set_speech_service(GeminiService(voice="Kore"))
-
-For Google Cloud Vertex AI authentication, use Application Default
-Credentials and set ``auth_mode="adc"``:
-
-.. code:: python
-
-   self.set_speech_service(
-       GeminiService(voice="Kore", auth_mode="adc", project="my-project-id")
-   )
 
 :py:class:`~openai.OpenAIService`
 *************************************

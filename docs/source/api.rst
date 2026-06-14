@@ -26,11 +26,15 @@ Speech services
    :members:
    :show-inheritance:
 
-.. automodule:: manim_voiceover.services.azure
+.. automodule:: manim_voiceover.services.gemini
    :members:
    :show-inheritance:
 
 .. automodule:: manim_voiceover.services.gtts
+   :members:
+   :show-inheritance:
+
+.. automodule:: manim_voiceover.services.azure
    :members:
    :show-inheritance:
 
@@ -43,10 +47,6 @@ Speech services
    :show-inheritance:
 
 .. automodule:: manim_voiceover.services.elevenlabs
-   :members:
-   :show-inheritance:
-
-.. automodule:: manim_voiceover.services.gemini
    :members:
    :show-inheritance:
 
