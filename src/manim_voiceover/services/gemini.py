@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import os
 import sys
-import typing as t
 import wave
 from pathlib import Path
+from typing import TYPE_CHECKING, Literal, Protocol
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
@@ -21,13 +21,13 @@ except ImportError:
     logger.error('Missing packages. Run `pip install "manim-voiceover[gemini]"` to use GeminiService.')
 
 
-if t.TYPE_CHECKING:
+if TYPE_CHECKING:
     from google.auth.credentials import Credentials
 
 
 load_dotenv(find_dotenv(usecwd=True))
 
-GeminiAuthMode = t.Literal["api_key", "adc"]
+GeminiAuthMode = Literal["api_key", "adc"]
 
 GEMINI_API_KEY_NAMES = ["GOOGLE_API_KEY", "GEMINI_API_KEY"]
 GEMINI_AUTH_MODE_NAME = "GEMINI_AUTH_MODE"
@@ -42,11 +42,11 @@ GEMINI_CHANNELS = 1
 ADC_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
 
 
-class _GeminiModels(t.Protocol):
+class _GeminiModels(Protocol):
     def generate_content(self, *, model: str, contents: str, config: types.GenerateContentConfig) -> object: ...
 
 
-class _GeminiClient(t.Protocol):
+class _GeminiClient(Protocol):
     @property
     def models(self) -> _GeminiModels: ...
 

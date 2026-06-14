@@ -2,9 +2,10 @@ import hashlib
 import importlib
 import json
 import os
-import typing as t
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Mapping, MutableMapping, Sequence
 from pathlib import Path
+from typing import Protocol, cast
 
 from manim import config, logger
 from slugify import slugify
@@ -28,17 +29,17 @@ from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
 PathLike = str | os.PathLike[str]
 
 
-class TranscriptionResult(t.Protocol):
+class TranscriptionResult(Protocol):
     text: str
 
     def segments_to_dicts(self) -> list[TranscriptionSegment]: ...
 
 
-class WhisperModel(t.Protocol):
+class WhisperModel(Protocol):
     def transcribe(self, audio_path: str, **kwargs: object) -> TranscriptionResult: ...
 
 
-def _pop_optional_path(kwargs: t.MutableMapping[str, object], key: str) -> PathLike | None:
+def _pop_optional_path(kwargs: MutableMapping[str, object], key: str) -> PathLike | None:
     value = kwargs.pop(key, None)
     if value is None:
         return None
@@ -56,21 +57,21 @@ def path_to_string(path: PathLike) -> str:
     raise TypeError("path must resolve to a string path")
 
 
-def _pop_optional_str(kwargs: t.MutableMapping[str, object], key: str) -> str | None:
+def _pop_optional_str(kwargs: MutableMapping[str, object], key: str) -> str | None:
     value = kwargs.pop(key, None)
     if value is None or isinstance(value, str):
         return value
     raise TypeError(f"{key} must be a string or None")
 
 
-def _pop_float(kwargs: t.MutableMapping[str, object], key: str, default: float) -> float:
+def _pop_float(kwargs: MutableMapping[str, object], key: str, default: float) -> float:
     value = kwargs.pop(key, default)
     if isinstance(value, (int, float)):
         return float(value)
     raise TypeError(f"{key} must be a number")
 
 
-def _pop_optional_dict(kwargs: t.MutableMapping[str, object], key: str) -> dict[str, object] | None:
+def _pop_optional_dict(kwargs: MutableMapping[str, object], key: str) -> dict[str, object] | None:
     value = kwargs.pop(key, None)
     if value is None:
         return None
@@ -81,7 +82,7 @@ def _pop_optional_dict(kwargs: t.MutableMapping[str, object], key: str) -> dict[
 
 def initialize_speech_service(
     service: "SpeechService",
-    kwargs: t.MutableMapping[str, object],
+    kwargs: MutableMapping[str, object],
     transcription_model: str | None = None,
 ) -> None:
     model = _pop_optional_str(kwargs, "transcription_model")
@@ -95,7 +96,7 @@ def initialize_speech_service(
     service.additional_kwargs.update(kwargs)
 
 
-def timestamps_to_word_boundaries(segments: t.Sequence[TranscriptionSegment]) -> list[WordBoundary]:
+def timestamps_to_word_boundaries(segments: Sequence[TranscriptionSegment]) -> list[WordBoundary]:
     word_boundaries: list[WordBoundary] = []
     current_text_offset = 0
     for segment in segments:
@@ -234,7 +235,7 @@ class SpeechService(ABC):
                 )
                 stable_whisper = importlib.import_module("stable_whisper")
                 # pragma: no mutate start
-                load_model = t.cast(t.Callable[[str], WhisperModel], getattr(stable_whisper, "load_model"))
+                load_model = cast(Callable[[str], WhisperModel], getattr(stable_whisper, "load_model"))
                 # pragma: no mutate end
                 self._whisper_model = load_model(model)
             else:
@@ -243,7 +244,7 @@ class SpeechService(ABC):
         self.transcription_model = model
         self.transcription_kwargs = kwargs
 
-    def get_audio_basename(self, data: t.Mapping[str, JsonValue]) -> str:
+    def get_audio_basename(self, data: Mapping[str, JsonValue]) -> str:
         dumped_data = json.dumps(data)
         # pragma: no mutate start
         data_hash = hashlib.sha256(dumped_data.encode("utf-8")).hexdigest()
@@ -279,7 +280,7 @@ class SpeechService(ABC):
 
     def get_cached_result(
         self,
-        input_data: t.Mapping[str, JsonValue],
+        input_data: Mapping[str, JsonValue],
         cache_dir: PathLike,
     ) -> VoiceoverData | None:
         json_path = Path(cache_dir) / DEFAULT_VOICEOVER_CACHE_JSON_FILENAME

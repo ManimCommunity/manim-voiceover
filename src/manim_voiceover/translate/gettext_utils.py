@@ -1,7 +1,7 @@
 import os
 import re
 import subprocess
-import typing as t
+from collections.abc import Sequence
 from pathlib import Path
 
 from manim import logger
@@ -17,7 +17,7 @@ except ImportError:
 PathLike = str | os.PathLike[str]
 
 
-def init_gettext(files: t.Sequence[PathLike], domain: str, localedir: Path) -> None:
+def init_gettext(files: Sequence[PathLike], domain: str, localedir: Path) -> None:
     """Initialize gettext for a list of files"""
     # If locale directory does not exist, create it
     if not os.path.exists(localedir):
@@ -145,7 +145,7 @@ class POFile:
     def _translation_indices(self) -> list[int]:
         return [idx for idx, entry in enumerate(self.entries) if entry.msgid != "" and entry.msgstr == ""]
 
-    def _strings_to_translate(self, translate_idx: t.Sequence[int]) -> list[str]:
+    def _strings_to_translate(self, translate_idx: Sequence[int]) -> list[str]:
         to_translate = []
         for idx in translate_idx:
             string_to_translate = self.entries[idx].msgid

@@ -1,8 +1,8 @@
-import typing as t
 from collections.abc import Generator
 from contextlib import contextmanager
 from math import ceil
 from pathlib import Path
+from typing import NoReturn
 
 from manim import Scene, config
 
@@ -140,7 +140,7 @@ class VoiceoverScene(Scene):
             )
             current_offset += chunk_duration
 
-    def add_voiceover_ssml(self, ssml: str, **kwargs: object) -> t.NoReturn:
+    def add_voiceover_ssml(self, ssml: str, **kwargs: object) -> NoReturn:
         raise NotImplementedError("SSML input not implemented yet.")
 
     # def save_to_script_file(self, text: str) -> None:

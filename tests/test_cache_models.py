@@ -81,6 +81,23 @@ def test_cache_entry_preserves_provider_specific_input_data():
     assert serialize_voiceover_input_data(entry.input_data) == raw_entry["input_data"]
 
 
+def test_cache_entry_accepts_custom_input_data_without_service():
+    raw_entry = {
+        "input_text": "Hello world",
+        "input_data": {
+            "input_text": "Hello world",
+            "custom_option": "custom-value",
+        },
+        "original_audio": "hello-world-abc12345.mp3",
+    }
+
+    entry = parse_voiceover_cache_entry(raw_entry)
+
+    assert serialize_voiceover_cache_entry(entry) == raw_entry
+    assert entry.input_data is not None
+    assert serialize_voiceover_input_data(entry.input_data) == raw_entry["input_data"]
+
+
 def test_append_voiceover_cache_entry_writes_top_level_list(tmp_path):
     cache_path = tmp_path / DEFAULT_VOICEOVER_CACHE_JSON_FILENAME
     entry = {

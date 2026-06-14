@@ -1,8 +1,8 @@
 import os
 import sys
-import typing as t
 from collections.abc import Mapping
 from pathlib import Path
+from typing import Protocol
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
@@ -24,12 +24,12 @@ except ImportError:
 load_dotenv(find_dotenv(usecwd=True))
 
 
-class CancellationDetailsProtocol(t.Protocol):
+class CancellationDetailsProtocol(Protocol):
     reason: object
     error_details: str | None
 
 
-class SpeechSynthesisResultProtocol(t.Protocol):
+class SpeechSynthesisResultProtocol(Protocol):
     reason: object
     cancellation_details: CancellationDetailsProtocol
 

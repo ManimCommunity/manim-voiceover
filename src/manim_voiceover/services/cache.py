@@ -1,7 +1,8 @@
 import json
 import os
-import typing as t
+from collections.abc import Mapping
 from pathlib import Path
+from typing import cast
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 from pydantic import JsonValue as PydanticJsonValue
@@ -16,7 +17,7 @@ class VoiceoverInputDataModel(BaseModel):
     model_config = ConfigDict(extra="allow", strict=True)
 
     input_text: str
-    service: str
+    service: str | None = None
     config: dict[str, PydanticJsonValue] | None = None
 
 
@@ -45,7 +46,7 @@ class VoiceoverCacheEntryModel(BaseModel):
 
 
 def _dump_model_json_object(model: BaseModel) -> dict[str, JsonValue]:
-    dumped: t.Mapping[str, object] = model.model_dump(exclude_none=True)
+    dumped: Mapping[str, object] = model.model_dump(exclude_none=True)
     return json_object(dumped)
 
 
@@ -63,7 +64,7 @@ def serialize_voiceover_input_data(input_data: VoiceoverInputDataModel) -> dict[
 def serialize_voiceover_cache_entry(entry: VoiceoverCacheEntryModel) -> VoiceoverData:
     # Keep the dynamic dict conversion isolated at the cache boundary.
     # pragma: no mutate start
-    return t.cast(VoiceoverData, _dump_model_json_object(entry))
+    return cast(VoiceoverData, _dump_model_json_object(entry))
     # pragma: no mutate end
 
 
@@ -81,7 +82,7 @@ def load_voiceover_cache(json_file: PathLike) -> list[VoiceoverCacheEntryModel]:
 
 def append_voiceover_cache_entry(
     json_file: PathLike,
-    entry: VoiceoverCacheEntryModel | VoiceoverData | t.Mapping[str, object],
+    entry: VoiceoverCacheEntryModel | VoiceoverData | Mapping[str, object],
 ) -> None:
     parsed_entry = entry if isinstance(entry, VoiceoverCacheEntryModel) else parse_voiceover_cache_entry(entry)
     append_to_json_file(json_file, serialize_voiceover_cache_entry(parsed_entry))

@@ -26,6 +26,20 @@ class DummyService(SpeechService):
         }
 
 
+class CustomInputService(SpeechService):
+    def __init__(self, cache_dir: Path):
+        super().__init__(cache_dir=cache_dir)
+
+    def generate_from_text(self, text, cache_dir=None, path=None, **kwargs):
+        audio_path = Path(self.cache_dir) / "voice.mp3"
+        audio_path.write_bytes(b"not-real-mp3")
+        return {
+            "input_text": text,
+            "input_data": {"input_text": text, "custom_option": "custom-value"},
+            "original_audio": "voice.mp3",
+        }
+
+
 def test_helper_text_and_json_utilities(tmp_path):
     assert list(chunks([1, 2, 3, 4, 5], 2)) == [[1, 2], [3, 4], [5]]
     assert remove_bookmarks("a <bookmark mark='x'/> b") == "a  b"
@@ -58,6 +72,15 @@ def test_speech_service_wraps_generation_and_cache(tmp_path, monkeypatch):
     assert cache[0]["input_text"] == "hello world"
     assert service.get_audio_basename({"input_text": "hello <bookmark mark='a'/> world"}).startswith("hello-world")
     assert service.get_cached_result(cache[0]["input_data"], tmp_path)["input_text"] == "hello world"
+
+
+def test_speech_service_accepts_custom_input_data_without_service(tmp_path):
+    service = CustomInputService(tmp_path)
+
+    result = service._wrap_generate_from_text("hello world")
+
+    assert result["input_data"] == {"input_text": "hello world", "custom_option": "custom-value"}
+    assert service.get_cached_result(result["input_data"], tmp_path) == result
 
 
 def test_tracker_bookmark_timing(monkeypatch, tmp_path):

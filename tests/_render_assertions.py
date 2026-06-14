@@ -1,8 +1,8 @@
 import json
 import subprocess
-import typing as t
 from collections.abc import Mapping, Sequence
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 from pydub import AudioSegment
@@ -45,8 +45,8 @@ def _ffprobe_audio_stream(video_path: Path) -> Mapping[str, object]:
         capture_output=True,
         text=True,
     )
-    ffprobe_output = t.cast(Mapping[str, object], json.loads(result.stdout))
-    streams = t.cast(Sequence[Mapping[str, object]], ffprobe_output["streams"])
+    ffprobe_output = cast(Mapping[str, object], json.loads(result.stdout))
+    streams = cast(Sequence[Mapping[str, object]], ffprobe_output["streams"])
     assert streams, f"{video_path} does not contain an audio stream"
     return streams[0]
 

@@ -46,7 +46,7 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - Very good, human-like
      - No
      - Yes
-     - Requires a Gemini API key or Google Cloud ADC, and Python 3.10 or newer.
+     - Requires a Gemini API key or Google Cloud ADC, and Python 3.11 or newer.
    * - :py:class:`~openai.OpenAIService`
      - Very good, human-like
      - No
@@ -126,7 +126,7 @@ Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/b
 :py:class:`~gemini.GeminiService`
 *********************************
 
-`Gemini text-to-speech <https://ai.google.dev/gemini-api/docs/speech-generation>`__ provides controllable text-to-speech through the Google Gen AI SDK. It requires an internet connection and Python 3.10 or newer.
+`Gemini text-to-speech <https://ai.google.dev/gemini-api/docs/speech-generation>`__ provides controllable text-to-speech through the Google Gen AI SDK. It requires an internet connection and Python 3.11 or newer.
 
 Install Manim Voiceover with the ``gemini`` extra in order to use :py:class:`~gemini.GeminiService`:
 

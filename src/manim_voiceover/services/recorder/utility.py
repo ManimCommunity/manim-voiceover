@@ -1,10 +1,10 @@
 import importlib
 import sched
 import time
-import typing as t
 import wave
 from collections.abc import Callable, Mapping
 from pathlib import Path
+from typing import Protocol, cast
 
 import pyaudio
 from pydub import AudioSegment
@@ -15,7 +15,7 @@ from manim_voiceover.helper import trim_silence, wav2mp3
 HOST_API_INDEX = 0
 
 
-class RecorderStream(t.Protocol):
+class RecorderStream(Protocol):
     def is_active(self) -> bool: ...
 
     def stop_stream(self) -> None: ...
@@ -23,7 +23,7 @@ class RecorderStream(t.Protocol):
     def close(self) -> None: ...
 
 
-class KeyboardListener(t.Protocol):
+class KeyboardListener(Protocol):
     def start(self) -> None: ...
 
 
@@ -56,7 +56,7 @@ def _create_keyboard_listener(
         raise RuntimeError("pynput.keyboard.Listener is not callable.")
 
     # pragma: no mutate start
-    return t.cast(
+    return cast(
         Callable[[Callable[[object], bool], Callable[[object], bool]], KeyboardListener],
         listener_factory,
     )(on_press, on_release)

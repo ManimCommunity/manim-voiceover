@@ -1,5 +1,5 @@
-import typing as t
 from collections.abc import Mapping
+from typing import TypedDict
 
 JsonScalar = str | int | float | bool | None
 JsonValue = JsonScalar | dict[str, "JsonValue"] | list["JsonValue"]
@@ -29,16 +29,16 @@ def json_object(value: Mapping[str, object]) -> dict[str, JsonValue]:
     return output
 
 
-class WordTimestamp(t.TypedDict):
+class WordTimestamp(TypedDict):
     word: str
     start: float
 
 
-class TranscriptionSegment(t.TypedDict):
+class TranscriptionSegment(TypedDict):
     words: list[WordTimestamp]
 
 
-class WordBoundary(t.TypedDict, total=False):
+class WordBoundary(TypedDict, total=False):
     audio_offset: int
     duration_milliseconds: int
     text_offset: int
@@ -47,7 +47,7 @@ class WordBoundary(t.TypedDict, total=False):
     boundary_type: str
 
 
-class VoiceoverData(t.TypedDict, total=False):
+class VoiceoverData(TypedDict, total=False):
     input_text: str
     input_data: Mapping[str, JsonValue]
     ssml: str

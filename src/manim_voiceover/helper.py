@@ -4,9 +4,9 @@ import os
 import re
 import sys
 import textwrap
-import typing as t
 from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
+from typing import TypeVar
 
 import pip
 from manim import logger
@@ -14,7 +14,7 @@ from pydub import AudioSegment
 
 from manim_voiceover._typing import JsonValue, VoiceoverData
 
-T = t.TypeVar("T")
+T = TypeVar("T")
 PathLike = str | os.PathLike[str]
 
 

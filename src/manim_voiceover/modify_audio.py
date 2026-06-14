@@ -1,7 +1,7 @@
 import os
-import typing as t
 import uuid
 from pathlib import Path
+from typing import Protocol
 
 import sox
 from mutagen.mp3 import MP3
@@ -10,11 +10,11 @@ from mutagen.wave import WAVE
 PathLike = str | Path
 
 
-class _AudioInfo(t.Protocol):
+class _AudioInfo(Protocol):
     length: float
 
 
-class _AudioFile(t.Protocol):
+class _AudioFile(Protocol):
     info: _AudioInfo | None
 
 
