@@ -9,17 +9,20 @@ from pathlib import Path
 from manim import config, logger
 from slugify import slugify
 
-from manim_voiceover._typing import JsonValue, TranscriptionSegment, VoiceoverData, WordBoundary
+from manim_voiceover._typing import JsonValue, TranscriptionSegment, VoiceoverData, WordBoundary, json_object
 from manim_voiceover.defaults import (
     DEFAULT_VOICEOVER_CACHE_DIR,
     DEFAULT_VOICEOVER_CACHE_JSON_FILENAME,
 )
-from manim_voiceover.helper import (
-    append_to_json_file,
-    prompt_ask_missing_extras,
-    remove_bookmarks,
-)
+from manim_voiceover.helper import prompt_ask_missing_extras, remove_bookmarks
 from manim_voiceover.modify_audio import adjust_speed
+from manim_voiceover.services.cache import (
+    append_voiceover_cache_entry,
+    load_voiceover_cache,
+    parse_voiceover_cache_entry,
+    serialize_voiceover_cache_entry,
+    serialize_voiceover_input_data,
+)
 from manim_voiceover.tracker import AUDIO_OFFSET_RESOLUTION
 
 if t.TYPE_CHECKING:
@@ -178,7 +181,9 @@ class SpeechService(ABC):
                 raise TypeError("path must resolve to a string path")
             path = path_string
 
-        dict_ = self.generate_from_text(text, cache_dir=None, path=path, **kwargs)
+        dict_ = serialize_voiceover_cache_entry(
+            parse_voiceover_cache_entry(self.generate_from_text(text, cache_dir=None, path=path, **kwargs))
+        )
         original_audio = dict_["original_audio"]
 
         # Check whether word boundaries exist and if not run stt
@@ -210,7 +215,7 @@ class SpeechService(ABC):
         else:
             dict_["final_audio"] = dict_["original_audio"]
 
-        append_to_json_file(Path(self.cache_dir) / DEFAULT_VOICEOVER_CACHE_JSON_FILENAME, dict_)
+        append_voiceover_cache_entry(Path(self.cache_dir) / DEFAULT_VOICEOVER_CACHE_JSON_FILENAME, dict_)
         return dict_
 
     def set_transcription(self, model: t.Optional[str] = None, kwargs: t.Optional[t.Dict[str, object]] = None) -> None:
@@ -281,16 +286,10 @@ class SpeechService(ABC):
         cache_dir: PathLike,
     ) -> t.Optional[VoiceoverData]:
         json_path = Path(cache_dir) / DEFAULT_VOICEOVER_CACHE_JSON_FILENAME
-        if os.path.exists(json_path):
-            # pragma: no mutate start
-            with open(json_path, "r") as json_file:
-                # pragma: no mutate end
-                json_data = json.load(json_file)
-            for entry in json_data:
-                if entry["input_data"] == input_data:
-                    # pragma: no mutate start
-                    return t.cast(VoiceoverData, entry)
-                    # pragma: no mutate end
+        requested_input_data = json_object(input_data)
+        for entry in load_voiceover_cache(json_path):
+            if entry.input_data is not None and serialize_voiceover_input_data(entry.input_data) == requested_input_data:
+                return serialize_voiceover_cache_entry(entry)
         return None
 
     def audio_callback(self, audio_path: str, data: VoiceoverData, **kwargs: object) -> None:

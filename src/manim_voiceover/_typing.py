@@ -19,7 +19,7 @@ def json_value(value: object) -> JsonValue:
     raise TypeError("value must be JSON-compatible")
 
 
-def json_object(value: Mapping[object, object]) -> Dict[str, JsonValue]:
+def json_object(value: Mapping[str, object]) -> Dict[str, JsonValue]:
     output: Dict[str, JsonValue] = {}
     for key, item in value.items():
         if not isinstance(key, str):
