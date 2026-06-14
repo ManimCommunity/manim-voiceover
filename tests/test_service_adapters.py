@@ -135,6 +135,131 @@ def test_elevenlabs_service_generate(tmp_path, monkeypatch):
     assert result["input_data"]["service"] == "elevenlabs"
 
 
+def test_gemini_service_generate(tmp_path, monkeypatch):
+    import manim_voiceover.services.gemini as gemini
+    from manim_voiceover.services.gemini import GeminiService
+
+    clients = []
+    extras_calls = []
+    init_calls = []
+
+    class FakeModels:
+        def generate_content(self, **kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(
+                candidates=[
+                    SimpleNamespace(
+                        content=SimpleNamespace(parts=[SimpleNamespace(inline_data=SimpleNamespace(data=b"\x00\x00\x01\x00"))])
+                    )
+                ]
+            )
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            clients.append(kwargs)
+            self.models = FakeModels()
+
+    class FakeTypes:
+        class GenerateContentConfig:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+        class SpeechConfig:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+        class VoiceConfig:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+        class PrebuiltVoiceConfig:
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+    calls = []
+    monkeypatch.setenv("GEMINI_API_KEY", "key")
+    monkeypatch.setattr("manim_voiceover.services.gemini.genai", SimpleNamespace(Client=FakeClient))
+    monkeypatch.setattr("manim_voiceover.services.gemini.types", FakeTypes)
+    monkeypatch.setattr(
+        "manim_voiceover.services.gemini.prompt_ask_missing_extras",
+        lambda *args: extras_calls.append(args),
+    )
+
+    def fake_initialize_speech_service(service, kwargs, *, transcription_model=None):
+        init_calls.append((kwargs, transcription_model))
+        service.cache_dir = kwargs["cache_dir"]
+        service.transcription_model = transcription_model
+
+    monkeypatch.setattr("manim_voiceover.services.gemini.initialize_speech_service", fake_initialize_speech_service)
+
+    service = GeminiService(cache_dir=tmp_path, voice="Kore", model="gemini-tts", transcription_model="base")
+    result = service.generate_from_text("hello <bookmark mark='x'/>", path="gemini.wav")
+
+    assert extras_calls == [("google.genai", "gemini", "GeminiService")]
+    assert init_calls == [({"cache_dir": tmp_path}, "base")]
+    assert clients == [{"api_key": "key"}]
+    assert result["input_text"] == "hello <bookmark mark='x'/>"
+    assert result["original_audio"] == "gemini.wav"
+    assert result["input_data"] == {
+        "input_text": "hello ",
+        "service": "gemini",
+        "config": {
+            "voice": "Kore",
+            "model": "gemini-tts",
+        },
+    }
+    assert calls[0]["model"] == "gemini-tts"
+    assert calls[0]["contents"] == "hello "
+    config = calls[0]["config"]
+    assert config.kwargs["response_modalities"] == ["AUDIO"]
+    speech_config = config.kwargs["speech_config"]
+    voice_config = speech_config.kwargs["voice_config"]
+    prebuilt_voice_config = voice_config.kwargs["prebuilt_voice_config"]
+    assert prebuilt_voice_config.kwargs["voice_name"] == "Kore"
+
+    generated_path = tmp_path / "gemini.wav"
+    assert generated_path.read_bytes().startswith(b"RIFF")
+
+    basename_inputs = []
+    monkeypatch.setattr(
+        service,
+        "get_audio_basename",
+        lambda input_data: basename_inputs.append(input_data) or "gemini-generated",
+    )
+    generated = service.generate_from_text("basename <bookmark mark='y'/>")
+    assert basename_inputs == [generated["input_data"]]
+    assert generated["input_text"] == "basename <bookmark mark='y'/>"
+    assert generated["original_audio"] == "gemini-generated.wav"
+    assert (tmp_path / "gemini-generated.wav").read_bytes().startswith(b"RIFF")
+
+    assert (
+        gemini._extract_pcm_audio(
+            SimpleNamespace(
+                candidates=[
+                    SimpleNamespace(content=SimpleNamespace(parts=[SimpleNamespace(inline_data=SimpleNamespace(data=b"pcm"))]))
+                ]
+            )
+        )
+        == b"pcm"
+    )
+
+    clients.clear()
+    adc_credentials = object()
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setattr(
+        "manim_voiceover.services.gemini.google.auth.default", lambda scopes: (adc_credentials, "default-project")
+    )
+    GeminiService(cache_dir=tmp_path, auth_mode="adc", project="cloud-project", location="us-central1")
+    assert clients == [
+        {
+            "vertexai": True,
+            "credentials": adc_credentials,
+            "project": "cloud-project",
+            "location": "us-central1",
+        }
+    ]
+
+
 def test_azure_service_helpers_and_generate(tmp_path, monkeypatch):
     from manim_voiceover.services.azure import AzureService, serialize_word_boundary
 
