@@ -1,7 +1,6 @@
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Optional
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
@@ -68,8 +67,8 @@ class OpenAIService(SpeechService):
     def generate_from_text(
         self,
         text: str,
-        cache_dir: Optional[PathLike] = None,
-        path: Optional[PathLike] = None,
+        cache_dir: PathLike | None = None,
+        path: PathLike | None = None,
         **kwargs: object,
     ) -> VoiceoverData:
         """"""
@@ -84,7 +83,7 @@ class OpenAIService(SpeechService):
             raise ValueError("The speed must be between 0.25 and 4.0.")
 
         input_text = remove_bookmarks(text)
-        input_data: Dict[str, JsonValue] = {
+        input_data: dict[str, JsonValue] = {
             "input_text": input_text,
             "service": "openai",
             "config": {

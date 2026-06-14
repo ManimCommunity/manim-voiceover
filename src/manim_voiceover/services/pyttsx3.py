@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Optional
 
 from manim import logger
 
@@ -18,7 +19,7 @@ from manim_voiceover.services.base import PathLike, SpeechService, initialize_sp
 class PyTTSX3Service(SpeechService):
     """Speech service class for pyttsx3."""
 
-    def __init__(self, engine: Optional["Engine"] = None, **kwargs: object) -> None:
+    def __init__(self, engine: Engine | None = None, **kwargs: object) -> None:
         """"""
         prompt_ask_missing_extras("pyttsx3", "pyttsx3", "PyTTSX3Service")
 
@@ -31,8 +32,8 @@ class PyTTSX3Service(SpeechService):
     def generate_from_text(
         self,
         text: str,
-        cache_dir: Optional[PathLike] = None,
-        path: Optional[PathLike] = None,
+        cache_dir: PathLike | None = None,
+        path: PathLike | None = None,
         **kwargs: object,
     ) -> VoiceoverData:
         """"""

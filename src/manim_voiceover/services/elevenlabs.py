@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import os
 import sys
+from collections.abc import Iterable
 from collections.abc import Iterable as IterableABC
 from pathlib import Path
-from typing import Dict, Iterable, Optional, Union
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
@@ -20,7 +22,7 @@ except ImportError:
 load_dotenv(find_dotenv(usecwd=True))
 
 
-VoiceSettingsDict = Dict[str, Union[float, bool]]
+VoiceSettingsDict = dict[str, float | bool]
 
 
 def create_dotenv_elevenlabs() -> None:
@@ -44,7 +46,7 @@ class ElevenLabsService(SpeechService):
     """Speech service for ElevenLabs API."""
 
     @staticmethod
-    def _available_voices() -> Iterable["Voice"]:
+    def _available_voices() -> Iterable[Voice]:
         voices_response = voices()
         available_voices = getattr(voices_response, "voices", voices_response)
         if not isinstance(available_voices, IterableABC):
@@ -52,7 +54,7 @@ class ElevenLabsService(SpeechService):
         return available_voices
 
     @staticmethod
-    def _voice_settings_from_dict(voice_settings: VoiceSettingsDict) -> "VoiceSettings":
+    def _voice_settings_from_dict(voice_settings: VoiceSettingsDict) -> VoiceSettings:
         if "stability" not in voice_settings or "similarity_boost" not in voice_settings:
             raise KeyError("Missing required keys: 'stability' and 'similarity_boost'.")
         stability = voice_settings["stability"]
@@ -74,7 +76,7 @@ class ElevenLabsService(SpeechService):
             use_speaker_boost=use_speaker_boost,
         )
 
-    def _select_voice(self, voice_name: Optional[str], voice_id: Optional[str]) -> "Voice":
+    def _select_voice(self, voice_name: str | None, voice_id: str | None) -> Voice:
         if not voice_name and not voice_id:
             logger.warning("None of `voice_name` or `voice_id` provided. Will be using default voice.")
 
@@ -98,11 +100,11 @@ class ElevenLabsService(SpeechService):
 
     def __init__(
         self,
-        voice_name: Optional[str] = None,
-        voice_id: Optional[str] = None,
+        voice_name: str | None = None,
+        voice_id: str | None = None,
         model: str = "eleven_monolingual_v1",
-        voice_settings: Optional[Union["VoiceSettings", VoiceSettingsDict]] = None,
-        output_format: "OutputFormat" = "mp3_44100_128",
+        voice_settings: VoiceSettings | VoiceSettingsDict | None = None,
+        output_format: OutputFormat = "mp3_44100_128",
         transcription_model: str = "base",
         **kwargs: object,
     ) -> None:
@@ -159,14 +161,14 @@ class ElevenLabsService(SpeechService):
     def generate_from_text(
         self,
         text: str,
-        cache_dir: Optional[PathLike] = None,
-        path: Optional[PathLike] = None,
+        cache_dir: PathLike | None = None,
+        path: PathLike | None = None,
         **kwargs: object,
     ) -> VoiceoverData:
         cache_dir_path = Path(cache_dir) if cache_dir is not None else Path(self.cache_dir)
 
         input_text = remove_bookmarks(text)
-        input_data: Dict[str, JsonValue] = {
+        input_data: dict[str, JsonValue] = {
             "input_text": input_text,
             "service": "elevenlabs",
             "config": {

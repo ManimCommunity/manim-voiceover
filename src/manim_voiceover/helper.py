@@ -4,8 +4,9 @@ import os
 import re
 import sys
 import textwrap
+import typing as t
+from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, List, Mapping, Optional, Sequence, TypeVar, Union
 
 import pip
 from manim import logger
@@ -13,11 +14,8 @@ from pydub import AudioSegment
 
 from manim_voiceover._typing import JsonValue, VoiceoverData
 
-T = TypeVar("T")
-if TYPE_CHECKING:
-    PathLike = Union[str, os.PathLike[str]]
-else:
-    PathLike = Union[str, os.PathLike]
+T = t.TypeVar("T")
+PathLike = str | os.PathLike[str]
 
 
 def chunks(lst: Sequence[T], n: int) -> Iterator[Sequence[T]]:
@@ -32,7 +30,7 @@ def remove_bookmarks(input: str) -> str:
 
 def wav2mp3(
     wav_path: PathLike,
-    mp3_path: Optional[PathLike] = None,
+    mp3_path: PathLike | None = None,
     remove_wav: bool = True,
     bitrate: str = "312k",
 ) -> None:
@@ -50,7 +48,7 @@ def wav2mp3(
     logger.info(f"Saved {mp3_path}")
 
 
-def msg_box(msg: str, indent: int = 1, width: Optional[int] = None, title: Optional[str] = None) -> str:
+def msg_box(msg: str, indent: int = 1, width: int | None = None, title: str | None = None) -> str:
     """Print message-box with optional title."""
     raw_lines = msg.splitlines() or [""]
     space = " " * indent
@@ -108,7 +106,7 @@ def trim_silence(
     return trimmed_sound
 
 
-def append_to_json_file(json_file: PathLike, data: Union[Mapping[str, JsonValue], VoiceoverData]) -> None:
+def append_to_json_file(json_file: PathLike, data: Mapping[str, JsonValue] | VoiceoverData) -> None:
     """Append data to json file"""
     json_path = Path(json_file)
     if not json_path.exists():
@@ -142,7 +140,7 @@ def prompt_ask_missing_package(target_module: str, package_name: str) -> None:
 
 
 def prompt_ask_missing_extras(
-    target_module: Union[str, List[str]],
+    target_module: str | list[str],
     extras: str,
     dependent_item: str,
 ) -> None:

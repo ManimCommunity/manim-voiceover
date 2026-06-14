@@ -3,7 +3,6 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 # Get the current working directory as Path
 CWD = Path.cwd()
@@ -80,7 +79,7 @@ def _validate_inputs(file: str, localedir: Path, quality: str, scene: str) -> No
         raise ValueError(f"Scene {scene} is not in file {file}")
 
 
-def _locales_to_render(localedir: Path, domain: str, locale_arg: Optional[str]) -> List[str]:
+def _locales_to_render(localedir: Path, domain: str, locale_arg: str | None) -> list[str]:
     if locale_arg is None:
         # Iterate all locale directories
         locales = []

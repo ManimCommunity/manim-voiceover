@@ -2,8 +2,8 @@ import hashlib
 import itertools
 import json
 import os
+from collections.abc import Iterable, Iterator
 from pathlib import Path
-from typing import Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from pydub import AudioSegment
 
@@ -20,10 +20,10 @@ def split_on_silence_modified(
     audio_segment: AudioSegment,
     min_silence_len: int = 1000,
     silence_thresh: int = -16,
-    keep_silence: Union[bool, int, Tuple[int, int]] = (100, 1000),
+    keep_silence: bool | int | tuple[int, int] = (100, 1000),
     seek_step: int = 10,
     **kwargs: object,
-) -> List[AudioSegment]:
+) -> list[AudioSegment]:
     """
     Returns list of audio segments from splitting audio_segment on silent sections
 
@@ -48,7 +48,7 @@ def split_on_silence_modified(
     """
 
     # from the itertools documentation
-    def pairwise(iterable: Iterable[List[int]]) -> Iterator[Tuple[List[int], List[int]]]:
+    def pairwise(iterable: Iterable[list[int]]) -> Iterator[tuple[list[int], list[int]]]:
         a, b = itertools.tee(iterable)
         next(b, None)
         return zip(a, b)
@@ -90,7 +90,7 @@ class _StitcherService(SpeechService):
         min_silence_len: int = 2000,
         silence_thresh: int = -45,
         seek_step: int = 10,
-        keep_silence: Tuple[int, int] = (100, 1000),
+        keep_silence: tuple[int, int] = (100, 1000),
         **kwargs: object,
     ) -> None:
         self.source_path = source_path
@@ -103,7 +103,7 @@ class _StitcherService(SpeechService):
         self.process_audio()
         self.current_segment_index = 0
 
-    def _params(self) -> Dict[str, JsonValue]:
+    def _params(self) -> dict[str, JsonValue]:
         return {
             "source_path": self.source_path,
             "min_silence_len": self.min_silence_len,
@@ -134,10 +134,10 @@ class _StitcherService(SpeechService):
             keep_silence=self.keep_silence,
         )
 
-        output_dict: Dict[str, object] = {
+        output_dict: dict[str, object] = {
             "params": self._params(),
         }
-        segments: List[Dict[str, object]] = []
+        segments: list[dict[str, object]] = []
         for i, chunk in enumerate(chunks):
             # silence_chunk = AudioSegment.silent(duration=800)
             # audio_chunk = chunk + silence_chunk
@@ -165,8 +165,8 @@ class _StitcherService(SpeechService):
     def generate_from_text(
         self,
         text: str,
-        cache_dir: Optional[PathLike] = None,
-        path: Optional[PathLike] = None,
+        cache_dir: PathLike | None = None,
+        path: PathLike | None = None,
         **kwargs: object,
     ) -> VoiceoverData:
         config = json.loads(Path(self.get_json_path()).read_text())

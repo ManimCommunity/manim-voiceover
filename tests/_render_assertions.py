@@ -1,7 +1,8 @@
 import json
 import subprocess
+import typing as t
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import List, Mapping, Sequence, cast
 
 import numpy as np
 from pydub import AudioSegment
@@ -44,8 +45,8 @@ def _ffprobe_audio_stream(video_path: Path) -> Mapping[str, object]:
         capture_output=True,
         text=True,
     )
-    ffprobe_output = cast(Mapping[str, object], json.loads(result.stdout))
-    streams = cast(Sequence[Mapping[str, object]], ffprobe_output["streams"])
+    ffprobe_output = t.cast(Mapping[str, object], json.loads(result.stdout))
+    streams = t.cast(Sequence[Mapping[str, object]], ffprobe_output["streams"])
     assert streams, f"{video_path} does not contain an audio stream"
     return streams[0]
 
@@ -62,7 +63,7 @@ def _median_spectral_bandwidth(audio: AudioSegment) -> float:
     max_amplitude = float(1 << (8 * normalized.sample_width - 1))
     samples = samples / max_amplitude
     frequencies = np.fft.rfftfreq(frame_size, d=1 / samples_per_second)
-    bandwidths: List[float] = []
+    bandwidths: list[float] = []
     for start in range(0, samples.size - frame_size + 1, step):
         frame = samples[start : start + frame_size]
         if float(np.sqrt(np.mean(frame**2))) < 0.005:

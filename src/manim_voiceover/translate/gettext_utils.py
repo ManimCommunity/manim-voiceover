@@ -14,10 +14,7 @@ except ImportError:
     logger.error('Missing packages. Run `pip install "manim-voiceover[translate]"` to be able to translate voiceovers.')
 
 
-if t.TYPE_CHECKING:
-    PathLike = t.Union[str, os.PathLike[str]]
-else:
-    PathLike = t.Union[str, os.PathLike]
+PathLike = str | os.PathLike[str]
 
 
 def init_gettext(files: t.Sequence[PathLike], domain: str, localedir: Path) -> None:
@@ -76,7 +73,7 @@ def extract_str(part: str) -> str:
 class POEntry:
     """An entry in a PO file"""
 
-    def __init__(self, msgid_part: str, msgstr_part: str, header: t.Optional[str] = None) -> None:
+    def __init__(self, msgid_part: str, msgstr_part: str, header: str | None = None) -> None:
         self.msgid_repr = msgid_part
         self.msgstr_repr = msgstr_part
         self.header = header  # Headers are important, keep them
@@ -118,10 +115,10 @@ class POFile:
         self.path = path
         self.source_lang = source_lang
 
-        self.entries: t.List[POEntry] = []
+        self.entries: list[POEntry] = []
 
         # pragma: no mutate start
-        with open(path, "r") as f:
+        with open(path) as f:
             # pragma: no mutate end
             content = f.read()
 
@@ -145,10 +142,10 @@ class POFile:
             return "pt-BR"
         return target_lang
 
-    def _translation_indices(self) -> t.List[int]:
+    def _translation_indices(self) -> list[int]:
         return [idx for idx, entry in enumerate(self.entries) if entry.msgid != "" and entry.msgstr == ""]
 
-    def _strings_to_translate(self, translate_idx: t.Sequence[int]) -> t.List[str]:
+    def _strings_to_translate(self, translate_idx: t.Sequence[int]) -> list[str]:
         to_translate = []
         for idx in translate_idx:
             string_to_translate = self.entries[idx].msgid
@@ -162,7 +159,7 @@ class POFile:
             to_translate.append(" ".join(string_to_translate.split("\n")))
         return to_translate
 
-    def translate(self, target_lang: str, api_key: t.Optional[str] = None) -> bool:
+    def translate(self, target_lang: str, api_key: str | None = None) -> bool:
         # pragma: no mutate start
         "Translates a .po file using DeepL. Note: This overwrites the .po file."
         # pragma: no mutate end

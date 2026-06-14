@@ -1,9 +1,9 @@
 import gettext
 import os
-from typing import Callable, Optional
+from collections.abc import Callable
 
 
-def get_gettext(locale: Optional[str] = None, domain: Optional[str] = None) -> Callable[[str], str]:
+def get_gettext(locale: str | None = None, domain: str | None = None) -> Callable[[str], str]:
     ret: Callable[[str], str] = gettext.gettext
 
     if locale is None:

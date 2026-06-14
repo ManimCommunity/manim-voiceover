@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Dict, Optional
 
 from manim import logger
 
@@ -24,11 +23,11 @@ class RecorderService(SpeechService):
 
     def __init__(
         self,
-        format: Optional[int] = DEFAULT_FORMAT,
+        format: int | None = DEFAULT_FORMAT,
         channels: int = 1,
         rate: int = 44100,
         chunk: int = 512,
-        device_index: Optional[int] = None,
+        device_index: int | None = None,
         transcription_model: str = "base",
         trim_silence_threshold: float = -40.0,
         trim_buffer_start: int = 200,
@@ -72,8 +71,8 @@ class RecorderService(SpeechService):
     def generate_from_text(
         self,
         text: str,
-        cache_dir: Optional[PathLike] = None,
-        path: Optional[PathLike] = None,
+        cache_dir: PathLike | None = None,
+        path: PathLike | None = None,
         **kwargs: object,
     ) -> VoiceoverData:
         """"""
@@ -84,7 +83,7 @@ class RecorderService(SpeechService):
         if cache_dir is None:
             cache_dir = self.cache_dir
 
-        input_data: Dict[str, JsonValue] = {
+        input_data: dict[str, JsonValue] = {
             # Remove bookmarks so that we don't record a voiceover every time we change a bookmark
             "input_text": input_text,
             "config": {

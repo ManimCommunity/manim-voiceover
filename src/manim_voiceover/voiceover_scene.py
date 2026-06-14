@@ -1,7 +1,8 @@
+import typing as t
+from collections.abc import Generator
 from contextlib import contextmanager
 from math import ceil
 from pathlib import Path
-from typing import Dict, Generator, NoReturn, Optional
 
 from manim import Scene, config
 
@@ -16,7 +17,7 @@ class VoiceoverScene(Scene):
     """A scene class that can be used to add voiceover to a scene."""
 
     speech_service: SpeechService
-    current_tracker: Optional[VoiceoverTracker]
+    current_tracker: VoiceoverTracker | None
     create_subcaption: bool
     create_script: bool
 
@@ -44,7 +45,7 @@ class VoiceoverScene(Scene):
     def add_voiceover_text(
         self,
         text: str,
-        subcaption: Optional[str] = None,
+        subcaption: str | None = None,
         max_subcaption_len: int = 70,
         subcaption_buff: float = 0.1,
         **kwargs: object,
@@ -73,8 +74,8 @@ class VoiceoverScene(Scene):
     def _add_voiceover_text(
         self,
         text: str,
-        service_kwargs: Dict[str, object],
-        subcaption: Optional[str] = None,
+        service_kwargs: dict[str, object],
+        subcaption: str | None = None,
         max_subcaption_len: int = 70,
         subcaption_buff: float = 0.1,
     ) -> VoiceoverTracker:
@@ -139,7 +140,7 @@ class VoiceoverScene(Scene):
             )
             current_offset += chunk_duration
 
-    def add_voiceover_ssml(self, ssml: str, **kwargs: object) -> NoReturn:
+    def add_voiceover_ssml(self, ssml: str, **kwargs: object) -> t.NoReturn:
         raise NotImplementedError("SSML input not implemented yet.")
 
     # def save_to_script_file(self, text: str) -> None:
@@ -180,8 +181,8 @@ class VoiceoverScene(Scene):
     @contextmanager
     def voiceover(
         self,
-        text: Optional[str] = None,
-        ssml: Optional[str] = None,
+        text: str | None = None,
+        ssml: str | None = None,
         **kwargs: object,
     ) -> Generator[VoiceoverTracker, None, None]:
         """The main function to be used for adding voiceover to a scene.
@@ -216,21 +217,21 @@ class VoiceoverScene(Scene):
             self.wait_for_voiceover()
 
 
-def _pop_optional_str(values: Dict[str, object], key: str) -> Optional[str]:
+def _pop_optional_str(values: dict[str, object], key: str) -> str | None:
     value = values.pop(key, None)
     if value is None or isinstance(value, str):
         return value
     raise TypeError(f"{key} must be a string or None")
 
 
-def _pop_int(values: Dict[str, object], key: str, default: int) -> int:
+def _pop_int(values: dict[str, object], key: str, default: int) -> int:
     value = values.pop(key, default)
     if isinstance(value, int):
         return value
     raise TypeError(f"{key} must be an int")
 
 
-def _pop_float(values: Dict[str, object], key: str, default: float) -> float:
+def _pop_float(values: dict[str, object], key: str, default: float) -> float:
     value = values.pop(key, default)
     if isinstance(value, (float, int)):
         return float(value)

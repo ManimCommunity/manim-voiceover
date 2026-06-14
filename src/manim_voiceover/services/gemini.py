@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import os
 import sys
+import typing as t
 import wave
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Literal, Optional, Protocol, Tuple
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
@@ -21,13 +21,13 @@ except ImportError:
     logger.error('Missing packages. Run `pip install "manim-voiceover[gemini]"` to use GeminiService.')
 
 
-if TYPE_CHECKING:
+if t.TYPE_CHECKING:
     from google.auth.credentials import Credentials
 
 
 load_dotenv(find_dotenv(usecwd=True))
 
-GeminiAuthMode = Literal["api_key", "adc"]
+GeminiAuthMode = t.Literal["api_key", "adc"]
 
 GEMINI_API_KEY_NAMES = ["GOOGLE_API_KEY", "GEMINI_API_KEY"]
 GEMINI_AUTH_MODE_NAME = "GEMINI_AUTH_MODE"
@@ -42,11 +42,11 @@ GEMINI_CHANNELS = 1
 ADC_SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
 
 
-class _GeminiModels(Protocol):
+class _GeminiModels(t.Protocol):
     def generate_content(self, *, model: str, contents: str, config: types.GenerateContentConfig) -> object: ...
 
 
-class _GeminiClient(Protocol):
+class _GeminiClient(t.Protocol):
     @property
     def models(self) -> _GeminiModels: ...
 
@@ -73,7 +73,7 @@ def _get_gemini_api_key() -> str:
     raise RuntimeError("Gemini API key setup did not exit.")
 
 
-def _resolve_auth_mode(auth_mode: Optional[str]) -> GeminiAuthMode:
+def _resolve_auth_mode(auth_mode: str | None) -> GeminiAuthMode:
     raw_auth_mode = auth_mode or os.getenv(GEMINI_AUTH_MODE_NAME) or "api_key"
     if raw_auth_mode == "api_key":
         return "api_key"
@@ -82,7 +82,7 @@ def _resolve_auth_mode(auth_mode: Optional[str]) -> GeminiAuthMode:
     raise ValueError('auth_mode must be "api_key" or "adc"')
 
 
-def _first_env_value(names: List[str]) -> Optional[str]:
+def _first_env_value(names: list[str]) -> str | None:
     for name in names:
         value = os.getenv(name)
         if value:
@@ -90,7 +90,7 @@ def _first_env_value(names: List[str]) -> Optional[str]:
     return None
 
 
-def _get_adc_client_config(project: Optional[str], location: Optional[str]) -> Tuple[Credentials, str, str]:
+def _get_adc_client_config(project: str | None, location: str | None) -> tuple[Credentials, str, str]:
     credentials, default_project = google.auth.default(scopes=ADC_SCOPES)
     resolved_project = project or _first_env_value(GEMINI_PROJECT_NAMES) or default_project
     if resolved_project is None:
@@ -103,9 +103,9 @@ def _get_adc_client_config(project: Optional[str], location: Optional[str]) -> T
 
 
 def _create_client(
-    auth_mode: Optional[GeminiAuthMode],
-    project: Optional[str],
-    location: Optional[str],
+    auth_mode: GeminiAuthMode | None,
+    project: str | None,
+    location: str | None,
 ) -> _GeminiClient:
     if _resolve_auth_mode(auth_mode) == "adc":
         credentials, resolved_project, resolved_location = _get_adc_client_config(project, location)
@@ -166,10 +166,10 @@ class GeminiService(SpeechService):
         self,
         voice: str = DEFAULT_GEMINI_VOICE,
         model: str = DEFAULT_GEMINI_TTS_MODEL,
-        transcription_model: Optional[str] = None,
-        auth_mode: Optional[GeminiAuthMode] = None,
-        project: Optional[str] = None,
-        location: Optional[str] = None,
+        transcription_model: str | None = None,
+        auth_mode: GeminiAuthMode | None = None,
+        project: str | None = None,
+        location: str | None = None,
         **kwargs: object,
     ) -> None:
         prompt_ask_missing_extras("google.genai", "gemini", "GeminiService")
@@ -181,8 +181,8 @@ class GeminiService(SpeechService):
     def generate_from_text(
         self,
         text: str,
-        cache_dir: Optional[PathLike] = None,
-        path: Optional[PathLike] = None,
+        cache_dir: PathLike | None = None,
+        path: PathLike | None = None,
         **kwargs: object,
     ) -> VoiceoverData:
         """"""
@@ -225,7 +225,7 @@ class GeminiService(SpeechService):
 
         return json_dict
 
-    def _input_data(self, input_text: str) -> Dict[str, JsonValue]:
+    def _input_data(self, input_text: str) -> dict[str, JsonValue]:
         return {
             "input_text": input_text,
             "service": "gemini",

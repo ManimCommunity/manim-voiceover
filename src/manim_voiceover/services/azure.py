@@ -1,7 +1,8 @@
 import os
 import sys
+import typing as t
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Protocol, Tuple
 
 from dotenv import find_dotenv, load_dotenv
 from manim import logger
@@ -23,12 +24,12 @@ except ImportError:
 load_dotenv(find_dotenv(usecwd=True))
 
 
-class CancellationDetailsProtocol(Protocol):
+class CancellationDetailsProtocol(t.Protocol):
     reason: object
-    error_details: Optional[str]
+    error_details: str | None
 
 
-class SpeechSynthesisResultProtocol(Protocol):
+class SpeechSynthesisResultProtocol(t.Protocol):
     reason: object
     cancellation_details: CancellationDetailsProtocol
 
@@ -51,7 +52,7 @@ def _json_value(value: object) -> JsonValue:
     return json_value(value)
 
 
-def _normalize_prosody(value: object) -> Optional[Dict[str, JsonValue]]:
+def _normalize_prosody(value: object) -> dict[str, JsonValue] | None:
     if value is None:
         return None
     if not isinstance(value, dict):
@@ -59,7 +60,7 @@ def _normalize_prosody(value: object) -> Optional[Dict[str, JsonValue]]:
             "The prosody argument must be a dict that contains at least one of the following keys: "
             "'pitch', 'contour', 'range', 'rate', 'volume'."
         )
-    prosody: Dict[str, JsonValue] = {}
+    prosody: dict[str, JsonValue] = {}
     for key, item in value.items():
         if not isinstance(key, str):
             raise TypeError("prosody must map string keys to JSON-compatible values")
@@ -98,7 +99,7 @@ def create_dotenv_azure() -> None:
     sys.exit()
 
 
-def _get_azure_credentials() -> Tuple[str, str]:
+def _get_azure_credentials() -> tuple[str, str]:
     try:
         return os.environ["AZURE_SUBSCRIPTION_KEY"], os.environ["AZURE_SERVICE_REGION"]
     except KeyError:
@@ -118,9 +119,9 @@ class AzureService(SpeechService):
         self,
         voice: str = "en-US-AriaNeural",
         # style="newscast-casual",
-        style: Optional[str] = None,
+        style: str | None = None,
         output_format: str = "Audio48Khz192KBitRateMonoMp3",
-        prosody: Optional[Dict[str, JsonValue]] = None,
+        prosody: dict[str, JsonValue] | None = None,
         **kwargs: object,
     ) -> None:
         """
@@ -139,7 +140,7 @@ class AzureService(SpeechService):
         self.prosody = prosody
         initialize_speech_service(self, kwargs)
 
-    def _build_ssml(self, text: str, prosody: Optional[Dict[str, JsonValue]]) -> Tuple[str, int]:
+    def _build_ssml(self, text: str, prosody: dict[str, JsonValue] | None) -> tuple[str, int]:
         ssml_beginning = (
             '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
             'xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="en-US">'
@@ -180,8 +181,8 @@ class AzureService(SpeechService):
     def generate_from_text(
         self,
         text: str,
-        cache_dir: Optional[PathLike] = None,
-        path: Optional[PathLike] = None,
+        cache_dir: PathLike | None = None,
+        path: PathLike | None = None,
         **kwargs: object,
     ) -> VoiceoverData:
         """"""
@@ -195,7 +196,7 @@ class AzureService(SpeechService):
         prosody = _normalize_prosody(kwargs.get("prosody", self.prosody))
         ssml, initial_offset = self._build_ssml(inner, prosody)
 
-        input_data: Dict[str, JsonValue] = {
+        input_data: dict[str, JsonValue] = {
             "input_text": text,
             "ssml": ssml,
             "service": "azure",
@@ -226,7 +227,7 @@ class AzureService(SpeechService):
         audio_config = speechsdk.audio.AudioOutputConfig(filename=str(Path(cache_dir) / audio_path))
 
         speech_service = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
-        word_boundaries: List[Mapping[str, object]] = []
+        word_boundaries: list[Mapping[str, object]] = []
         # speech_synthesizer.bookmark_reached.connect(lambda evt: print(
         #     "Bookmark reached: {}, audio offset: {}ms, bookmark text: {}.".format(evt, evt.audio_offset, evt.text)))
 

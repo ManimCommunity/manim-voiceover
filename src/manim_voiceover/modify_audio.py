@@ -1,21 +1,21 @@
 import os
+import typing as t
 import uuid
 from pathlib import Path
-from typing import Optional, Protocol, Union
 
 import sox
 from mutagen.mp3 import MP3
 from mutagen.wave import WAVE
 
-PathLike = Union[str, Path]
+PathLike = str | Path
 
 
-class _AudioInfo(Protocol):
+class _AudioInfo(t.Protocol):
     length: float
 
 
-class _AudioFile(Protocol):
-    info: Optional[_AudioInfo]
+class _AudioFile(t.Protocol):
+    info: _AudioInfo | None
 
 
 def _read_wave(path: PathLike) -> _AudioFile:

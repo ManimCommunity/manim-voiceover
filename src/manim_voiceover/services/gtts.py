@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from manim import logger
 
@@ -36,8 +35,8 @@ class GTTSService(SpeechService):
     def generate_from_text(
         self,
         text: str,
-        cache_dir: Optional[PathLike] = None,
-        path: Optional[PathLike] = None,
+        cache_dir: PathLike | None = None,
+        path: PathLike | None = None,
         **kwargs: object,
     ) -> VoiceoverData:
         """"""
