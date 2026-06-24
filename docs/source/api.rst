@@ -34,6 +34,10 @@ Speech services
    :members:
    :show-inheritance:
 
+.. automodule:: manim_voiceover.services.kokoro
+   :members:
+   :show-inheritance:
+
 .. automodule:: manim_voiceover.services.azure
    :members:
    :show-inheritance:

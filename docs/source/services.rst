@@ -47,6 +47,11 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - No
      - No
      - It's a free API subsidized by Google, so there is a likelihood it may stop working in the future.
+   * - :py:class:`~kokoro.KokoroService`
+     - Very good
+     - Yes
+     - No
+     - Local open-weight model. Requires downloading model assets on first run.
    * - :py:class:`~openai.OpenAIService`
      - Very good, human-like
      - No
@@ -154,6 +159,22 @@ Install Manim Voiceover with the ``gtts`` extra in order to use :py:class:`~gtts
    pip install "manim-voiceover[gtts]"
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/gtts-example.py>`__ to get started.
+
+:py:class:`~kokoro.KokoroService`
+*********************************
+
+`Kokoro <https://github.com/hexgrad/kokoro>`__ is an open-weight local text-to-speech model. It can run offline after model assets are downloaded.
+
+Install Manim Voiceover with the ``kokoro`` extra in order to use :py:class:`~kokoro.KokoroService`:
+
+.. code:: sh
+
+   pip install "manim-voiceover[kokoro]"
+
+Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/kokoro-example.py>`__ to get started.
+
+.. note::
+   Some languages require additional grapheme-to-phoneme extras via ``misaki``. See the upstream Kokoro docs for details.
 
 :py:class:`~openai.OpenAIService`
 *************************************

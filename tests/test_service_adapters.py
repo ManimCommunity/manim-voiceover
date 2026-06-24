@@ -23,6 +23,106 @@ def test_gtts_service_generate(tmp_path, monkeypatch):
     assert result["input_data"]["input_text"] == "hello "
 
 
+def test_kokoro_service_generate(tmp_path, monkeypatch):
+    from manim_voiceover.services.kokoro import KokoroService
+
+    extras_calls = []
+    pipeline_init = []
+    synth_calls = []
+
+    class FakeResult:
+        def __init__(self, audio):
+            self.audio = audio
+
+    class FakePipeline:
+        def __init__(self, lang_code):
+            pipeline_init.append(lang_code)
+
+        def __call__(self, text, voice=None, speed=1, split_pattern=r"\n+"):
+            synth_calls.append(
+                {
+                    "text": text,
+                    "voice": voice,
+                    "speed": speed,
+                    "split_pattern": split_pattern,
+                }
+            )
+            yield FakeResult([0.0, 0.5, -0.5])
+            yield FakeResult([1.0, -1.0])
+
+    monkeypatch.setattr("manim_voiceover.services.kokoro.KPipeline", FakePipeline, raising=False)
+    monkeypatch.setattr(
+        "manim_voiceover.services.kokoro.prompt_ask_missing_extras",
+        lambda *args: extras_calls.append(args),
+    )
+
+    service = KokoroService(cache_dir=tmp_path, voice="af_heart", lang_code="a", speed=1.2, split_pattern=None)
+    result = service.generate_from_text("hello <bookmark mark='x'/>", path="kokoro.wav")
+
+    assert extras_calls == [("kokoro", "kokoro", "KokoroService")]
+    assert pipeline_init == ["a"]
+    assert result["original_audio"] == "kokoro.wav"
+    assert result["input_data"] == {
+        "input_text": "hello ",
+        "service": "kokoro",
+        "config": {
+            "voice": "af_heart",
+            "lang_code": "a",
+            "speed": 1.2,
+        },
+    }
+    assert synth_calls == [
+        {
+            "text": "hello ",
+            "voice": "af_heart",
+            "speed": 1.2,
+            "split_pattern": None,
+        }
+    ]
+    assert (tmp_path / "kokoro.wav").read_bytes().startswith(b"RIFF")
+
+    basename_inputs = []
+    monkeypatch.setattr(
+        service,
+        "get_audio_basename",
+        lambda input_data: basename_inputs.append(input_data) or "kokoro-generated",
+    )
+    generated = service.generate_from_text("basename")
+    assert generated["original_audio"] == "kokoro-generated.wav"
+    assert basename_inputs == [generated["input_data"]]
+
+
+def test_kokoro_service_validation_errors(tmp_path, monkeypatch):
+    from manim_voiceover.services.kokoro import KokoroService
+
+    class FakeResult:
+        def __init__(self, audio):
+            self.audio = audio
+
+    class FakePipeline:
+        def __init__(self, lang_code):
+            self.lang_code = lang_code
+
+        def __call__(self, text, voice=None, speed=1, split_pattern=r"\n+"):
+            yield FakeResult([0.0])
+
+    monkeypatch.setattr("manim_voiceover.services.kokoro.KPipeline", FakePipeline, raising=False)
+    monkeypatch.setattr("manim_voiceover.services.kokoro.prompt_ask_missing_extras", lambda *args: None)
+
+    with pytest.raises(ValueError) as exc_info:
+        KokoroService(cache_dir=tmp_path, speed=0)
+    assert str(exc_info.value) == "speed must be greater than 0"
+
+    service = KokoroService(cache_dir=tmp_path)
+    with pytest.raises(TypeError) as exc_info:
+        service.generate_from_text("hello", unknown_option=True)
+    assert str(exc_info.value) == "Unknown Kokoro generation kwargs: unknown_option"
+
+    with pytest.raises(ValueError) as exc_info:
+        service.generate_from_text("hello", speed=0)
+    assert str(exc_info.value) == "speed must be greater than 0"
+
+
 def test_openai_service_generate(tmp_path, monkeypatch):
     from manim_voiceover.services.openai import OpenAIService
 

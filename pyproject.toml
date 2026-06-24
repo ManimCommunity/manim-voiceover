@@ -47,6 +47,7 @@ dependencies = [
 [project.optional-dependencies]
 azure = ["azure-cognitiveservices-speech>=1.24.0,<2"]
 gtts = ["gTTS>=2.2.4,<3"]
+kokoro = ["kokoro>=0.9.4,<1"]
 openai = ["openai>=1.6.1,<2"]
 pyttsx3 = ["pyttsx3>=2.90,<3"]
 recorder = ["PyAudio>=0.2.12,<0.3", "pynput>=1.7.6,<2"]
@@ -57,6 +58,7 @@ transcribe = ["openai-whisper>=20230314", "stable-ts>=2.6.2,<3"]
 all = [
     "azure-cognitiveservices-speech>=1.24.0,<2",
     "gTTS>=2.2.4,<3",
+    "kokoro>=0.9.4,<1",
     "pyttsx3>=2.90,<3",
     "PyAudio>=0.2.12,<0.3",
     "pynput>=1.7.6,<2",
@@ -87,6 +89,7 @@ dev = [
     "deepl>=1.12.0,<2",
     "elevenlabs>=0.2.27,<0.3",
     "gTTS>=2.2.4,<3",
+    "kokoro>=0.9.4,<1",
     "ipdb>=0.13,<0.14",
     "mutmut>=3.2",
     "openai>=1.6.1,<2",
@@ -175,6 +178,7 @@ module = [
     "pydub.*",
     "pyttsx3",
     "google.*",
+    "kokoro",
     "scipy.interpolate",
     "sox",
 ]

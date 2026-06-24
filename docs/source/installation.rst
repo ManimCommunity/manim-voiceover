@@ -1,11 +1,11 @@
 Installation
 ============
 
-Install Manim Voiceover from PyPI with the extras ``gemini`` and ``gtts``:
+Install Manim Voiceover from PyPI with the extras ``gemini``, ``gtts``, and ``kokoro``:
 
 .. code:: sh
 
-   pip install --upgrade "manim-voiceover[gemini,gtts]"
+   pip install --upgrade "manim-voiceover[gemini,gtts,kokoro]"
 
 Check whether your installation works correctly:
 
@@ -48,10 +48,10 @@ On Debian based distros:
 
 .. code:: sh
 
+   sudo apt install portaudio19-dev python3-pyaudio
+   # If you prefer installing PyAudio from pip instead:
    sudo apt install portaudio19-dev
    sudo pip install pyaudio
-   # Or install from apt globally:
-   sudo apt install python3-pyaudio
 
 On macOS, you can install it using `Homebrew <https://brew.sh/>`__:
 

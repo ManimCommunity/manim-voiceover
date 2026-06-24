@@ -23,6 +23,7 @@ https://github.com/user-attachments/assets/12fa2621-a120-4ff4-9976-57d6d2bf1371
 Currently supported TTS services (aside from the CLI that allows you to records your own voice):
 
 - [Gemini Text to Speech](https://ai.google.dev/gemini-api/docs/speech-generation) (Recommended for AI voices)
+- [Kokoro](https://github.com/hexgrad/kokoro) (Recommended local/offline open-weight model)
 - [Azure Text to Speech](https://azure.microsoft.com/en-us/services/cognitive-services/text-to-speech/)
 - [gTTS](https://github.com/pndurette/gTTS/)
 - [pyttsx3](https://github.com/nateshmbhat/pyttsx3)
