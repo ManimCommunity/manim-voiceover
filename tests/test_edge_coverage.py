@@ -695,27 +695,27 @@ def test_stitcher_process_and_generate(tmp_path, monkeypatch):
     assert data["params"] == service._params()
     assert data["segments"][0]["index"] == 0
     assert data["segments"][1]["index"] == 1
-    assert data["segments"][0]["path"] == str(tmp_path / f"{hashlib.sha256(b'chunk-1').hexdigest()}.mp3")
-    assert data["segments"][1]["path"] == str(tmp_path / f"{hashlib.sha256(b'chunk-2').hexdigest()}.mp3")
+    segment_names = [f"{hashlib.sha256(chunk).hexdigest()}.mp3" for chunk in (b"chunk-1", b"chunk-2")]
+    assert data["segments"][0]["path"] == segment_names[0]
+    assert data["segments"][1]["path"] == segment_names[1]
     assert exports == [
-        (data["segments"][0]["path"], "256k", "mp3", b"chunk-1"),
-        (data["segments"][1]["path"], "256k", "mp3", b"chunk-2"),
+        (str(tmp_path / segment_names[0]), "256k", "mp3", b"chunk-1"),
+        (str(tmp_path / segment_names[1]), "256k", "mp3", b"chunk-2"),
     ]
-    assert [Path(segment["path"]).parent for segment in data["segments"]] == [tmp_path, tmp_path]
     assert json_path.read_text() == json.dumps(data, indent=4)
 
     result = service.generate_from_text("hello")
     assert result == {
         "input_text": "hello",
-        "original_audio": data["segments"][0]["path"],
-        "json_path": str(Path(data["segments"][0]["path"]).with_suffix(".json")),
+        "original_audio": segment_names[0],
+        "json_path": str(Path(segment_names[0]).with_suffix(".json")),
     }
     assert service.current_segment_index == 1
     second_result = service.generate_from_text("again")
     assert second_result == {
         "input_text": "again",
-        "original_audio": data["segments"][1]["path"],
-        "json_path": str(Path(data["segments"][1]["path"]).with_suffix(".json")),
+        "original_audio": segment_names[1],
+        "json_path": str(Path(segment_names[1]).with_suffix(".json")),
     }
     assert service.current_segment_index == 2
 
@@ -725,7 +725,7 @@ def test_stitcher_process_and_generate(tmp_path, monkeypatch):
     assert len(split_calls) == 1
     assert len(exports) == 2
 
-    Path(data["segments"][0]["path"]).unlink()
+    Path(tmp_path / segment_names[0]).unlink()
     service_reprocessed = _StitcherService(source_path=str(source_path), cache_dir=tmp_path)
     assert service_reprocessed.current_segment_index == 0
     assert loaded_paths == [str(source_path), str(source_path), str(source_path)]

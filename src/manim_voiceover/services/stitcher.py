@@ -121,7 +121,10 @@ class _StitcherService(SpeechService):
             try:
                 if self._params() == config["params"]:
                     # Return only if all the segments exist
-                    if all(os.path.exists(segment["path"]) for segment in config["segments"]):
+                    if all(
+                        os.path.exists(self._resolve_segment_path(segment["path"]))
+                        for segment in config["segments"]
+                    ):
                         return
             except KeyError:
                 pass
@@ -152,7 +155,7 @@ class _StitcherService(SpeechService):
                 bitrate="256k",
                 format="mp3",
             )
-            segments.append({"index": i, "path": output_path})
+            segments.append({"index": i, "path": data_hash + ".mp3"})
 
         # Save output info
         output_dict["segments"] = segments
@@ -161,6 +164,11 @@ class _StitcherService(SpeechService):
 
     def get_json_path(self) -> str:
         return os.path.splitext(self.source_path)[0] + ".json"
+
+    def _resolve_segment_path(self, path: str) -> str:
+        if os.path.isabs(path):
+            return path
+        return os.path.join(self.cache_dir, path)
 
     def generate_from_text(
         self,
