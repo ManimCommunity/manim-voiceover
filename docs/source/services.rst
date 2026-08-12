@@ -57,6 +57,11 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - Yes
      - No
      - Requires `espeak <https://espeak.sourceforge.net/>`__. Does not work reliably on Mac.
+   * - :py:class:`~pockettts.PocketTTSService`
+     - Good
+     - Yes
+     - No
+     - Runs fully locally on CPU (no GPU or API key required). Choose from a catalog of built-in voices or clone one from an audio file.
 
 It is on our roadmap to provide a high quality TTS engine that runs locally for free. If you have any suggestions, please let us know in the `Discord server <https://manim.community/discord>`__.
 
@@ -227,3 +232,31 @@ docs <https://elevenlabs.io/docs/api-reference/python-text-to-speech-guide#getti
 for more details.
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/elevenlabs-example.py>`__ to get started.
+
+:py:class:`~pockettts.PocketTTSService`
+****************************************
+
+`Pocket TTS <https://github.com/kyutai-labs/pocket-tts>`__ is a small (100M parameter) text-to-speech model from Kyutai that runs fully locally on CPU. It needs neither a GPU nor an API key or account.
+
+Install Manim Voiceover with the ``pockettts`` extra in order to use :py:class:`~pockettts.PocketTTSService`:
+
+.. code:: sh
+
+   pip install "manim-voiceover[pockettts]"
+
+By default, :py:class:`~pockettts.PocketTTSService` picks a built-in voice appropriate for the selected ``language`` (English by default). You can also pick any of the built-in voices explicitly by name via :py:data:`~pockettts.POCKETTTS_AVAILABLE_VOICES`, or clone a voice from your own audio file:
+
+.. code:: python
+
+   self.set_speech_service(PocketTTSService(voice="charles"))
+
+   # Or clone a voice from a local audio file:
+   self.set_speech_service(PocketTTSService(voice="./my_voice.wav"))
+
+To use one of the other supported languages, pass a ``language`` argument, e.g. ``language="french_24l"``:
+
+.. code:: python
+
+   self.set_speech_service(PocketTTSService(language="french_24l"))
+
+Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/pockettts-example.py>`__ to get started.

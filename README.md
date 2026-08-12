@@ -24,7 +24,10 @@ Currently supported TTS services (aside from the CLI that allows you to records 
 
 - [Gemini Text to Speech](https://ai.google.dev/gemini-api/docs/speech-generation) (Recommended for AI voices)
 - [Azure Text to Speech](https://azure.microsoft.com/en-us/services/cognitive-services/text-to-speech/)
+- [ElevenLabs](https://elevenlabs.io/)
 - [gTTS](https://github.com/pndurette/gTTS/)
+- [OpenAI](https://platform.openai.com/docs/guides/text-to-speech/)
+- [Pocket TTS](https://github.com/kyutai-labs/pocket-tts) (runs locally on CPU, no GPU or API key required)
 - [pyttsx3](https://github.com/nateshmbhat/pyttsx3)
 
 [Check out the documentation for more details.](https://voiceover.manim.community/)

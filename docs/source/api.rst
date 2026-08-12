@@ -50,6 +50,10 @@ Speech services
    :members:
    :show-inheritance:
 
+.. automodule:: manim_voiceover.services.pockettts
+   :members:
+   :show-inheritance:
+
 
 Defaults
 ~~~~~~~~

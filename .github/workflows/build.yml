@@ -46,7 +46,10 @@ jobs:
         uv run python scripts/check_mutmut_results.py
         rm -rf mutants
     - name: Audit dependencies
-      run: uv run pip-audit
+      # PYSEC-2026-2132 (click): fix version 8.3.3 violates gtts's own
+      # click<8.2 pin (present even in gtts's latest release), so it can't
+      # be resolved. Ignored here until gtts relaxes that constraint.
+      run: uv run pip-audit --ignore-vuln PYSEC-2026-2132
     - name: Run Slophammer
       run: |
         uvx slophammer-py@0.3.0 check .

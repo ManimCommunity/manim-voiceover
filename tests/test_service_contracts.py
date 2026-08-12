@@ -1020,3 +1020,196 @@ def test_pyttsx3_real_cache_short_circuit(tmp_path):
         "input_data": {"input_text": "cached", "service": "pyttsx3"},
         "original_audio": "cached.mp3",
     }
+
+
+def test_pockettts_constructor_defaults(monkeypatch):
+    import manim_voiceover.services.pockettts as pockettts
+
+    initialized = []
+    prompt_calls = []
+    loaded = []
+
+    class FakeModel:
+        sample_rate = 24000
+
+    class FakeTTSModel:
+        @classmethod
+        def load_model(cls, language=None, quantize=False):
+            loaded.append((language, quantize))
+            return FakeModel()
+
+    monkeypatch.setattr(
+        "manim_voiceover.services.pockettts.prompt_ask_missing_extras",
+        lambda *args: prompt_calls.append(args),
+    )
+    monkeypatch.setattr(
+        "manim_voiceover.services.pockettts.initialize_speech_service",
+        lambda service, kwargs, transcription_model=None: initialized.append((service, kwargs.copy(), transcription_model)),
+    )
+    monkeypatch.setattr("manim_voiceover.services.pockettts.TTSModel", FakeTTSModel)
+
+    service = pockettts.PocketTTSService(extra=True)
+
+    assert service.voice is None
+    assert service.language is None
+    assert service.quantize is False
+    assert prompt_calls == [("pocket_tts", "pockettts", "PocketTTSService")]
+    assert initialized == [(service, {"extra": True}, None)]
+    assert loaded == [(None, False)]
+    assert service._voice_states == {}
+
+    service = pockettts.PocketTTSService(
+        voice="my-voice.wav",
+        language="french_24l",
+        quantize=True,
+        transcription_model="base",
+    )
+    assert service.voice == "my-voice.wav"
+    assert service.language == "french_24l"
+    assert service.quantize is True
+    assert initialized[-1] == (service, {}, "base")
+    assert loaded[-1] == ("french_24l", True)
+
+
+def test_pockettts_generation_caches_voice_state_and_writes_wave(tmp_path):
+    import numpy as np
+
+    import manim_voiceover.services.pockettts as pockettts
+
+    class FakeTensor:
+        def __init__(self, array):
+            self._array = array
+
+        def detach(self):
+            return self
+
+        def cpu(self):
+            return self
+
+        def numpy(self):
+            return self._array
+
+    voice_state_calls = []
+    generate_calls = []
+
+    class FakeModel:
+        sample_rate = 24000
+
+        def get_state_for_audio_prompt(self, voice):
+            voice_state_calls.append(voice)
+            return {"voice": voice}
+
+        def generate_audio(self, voice_state, text, **kwargs):
+            generate_calls.append((voice_state, text, kwargs))
+            return FakeTensor(np.zeros((1, 10), dtype="float32"))
+
+    service = pockettts.PocketTTSService.__new__(pockettts.PocketTTSService)
+    service.cache_dir = tmp_path
+    service.voice = "my-voice.wav"
+    service.language = None
+    service.quantize = False
+    service.model = FakeModel()
+    service._voice_states = {}
+    service.get_cached_result = lambda input_data, cache_dir: None
+    basename_inputs = []
+    service.get_audio_basename = lambda input_data: basename_inputs.append(input_data) or "pockettts-name"
+
+    result = service.generate_from_text("hello <bookmark mark='m'/> world")
+
+    assert voice_state_calls == ["my-voice.wav"]
+    assert generate_calls == [({"voice": "my-voice.wav"}, "hello  world", {})]
+    assert basename_inputs == [result["input_data"]]
+    assert result == {
+        "input_text": "hello <bookmark mark='m'/> world",
+        "input_data": {
+            "input_text": "hello  world",
+            "service": "pockettts",
+            "config": {"voice": "my-voice.wav", "language": None, "quantize": False},
+        },
+        "original_audio": "pockettts-name.wav",
+    }
+    assert (tmp_path / "pockettts-name.wav").exists()
+
+    service.generate_from_text("second call", path="second.wav")
+
+    assert voice_state_calls == ["my-voice.wav"]
+    assert (tmp_path / "second.wav").exists()
+
+
+def test_pockettts_real_cache_short_circuit(tmp_path):
+    import manim_voiceover.services.pockettts as pockettts
+    from manim_voiceover.defaults import DEFAULT_VOICEOVER_CACHE_JSON_FILENAME
+
+    class FailingModel:
+        def get_state_for_audio_prompt(self, voice):
+            pytest.fail("Cached Pocket TTS result should not request a voice state.")
+
+        def generate_audio(self, voice_state, text, **kwargs):
+            pytest.fail("Cached Pocket TTS result should not call the model.")
+
+    service = pockettts.PocketTTSService.__new__(pockettts.PocketTTSService)
+    service.cache_dir = tmp_path
+    service.voice = "alba"
+    service.language = None
+    service.quantize = False
+    service.model = FailingModel()
+    service._voice_states = {}
+    (tmp_path / DEFAULT_VOICEOVER_CACHE_JSON_FILENAME).write_text(
+        '[{"input_text": "cached", "input_data": {"input_text": "cached", "service": "pockettts", '
+        '"config": {"voice": "alba", "language": null, "quantize": false}}, '
+        '"original_audio": "cached.wav"}]'
+    )
+
+    assert service.generate_from_text("cached") == {
+        "input_text": "cached",
+        "input_data": {
+            "input_text": "cached",
+            "service": "pockettts",
+            "config": {"voice": "alba", "language": None, "quantize": False},
+        },
+        "original_audio": "cached.wav",
+    }
+
+
+def test_pockettts_default_voice_for_language(monkeypatch, tmp_path):
+    import manim_voiceover.services.pockettts as pockettts
+
+    assert pockettts._default_voice_for_language(None) == "alba"
+    assert pockettts._default_voice_for_language("english") == "alba"
+    assert pockettts._default_voice_for_language("french_24l") == "estelle"
+    assert pockettts._default_voice_for_language("german_24l") == "juergen"
+    assert pockettts._default_voice_for_language("italian") == "giovanni"
+    assert pockettts._default_voice_for_language("spanish_24l") == "lola"
+    assert pockettts._default_voice_for_language("portuguese") == "rafael"
+
+    voice_state_calls = []
+
+    class FakeModel:
+        sample_rate = 24000
+
+        def get_state_for_audio_prompt(self, voice):
+            voice_state_calls.append(voice)
+            return {"voice": voice}
+
+    service = pockettts.PocketTTSService.__new__(pockettts.PocketTTSService)
+    service.voice = None
+    service.language = "french_24l"
+    service.model = FakeModel()
+    service._voice_states = {}
+
+    assert service._get_voice_state() == {"voice": "estelle"}
+    service._get_voice_state()
+
+    assert voice_state_calls == ["estelle"]
+
+
+def test_pockettts_available_voices_cover_language_defaults():
+    import manim_voiceover.services.pockettts as pockettts
+
+    assert len(pockettts.POCKETTTS_AVAILABLE_VOICES) == len(set(pockettts.POCKETTTS_AVAILABLE_VOICES))
+    assert "alba" in pockettts.POCKETTTS_AVAILABLE_VOICES
+    assert "charles" in pockettts.POCKETTTS_AVAILABLE_VOICES
+
+    assert pockettts.DEFAULT_POCKETTTS_VOICE_FALLBACK in pockettts.POCKETTTS_AVAILABLE_VOICES
+    for voice in pockettts.DEFAULT_POCKETTTS_VOICE_FOR_LANGUAGE.values():
+        assert voice in pockettts.POCKETTTS_AVAILABLE_VOICES

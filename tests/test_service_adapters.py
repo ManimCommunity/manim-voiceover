@@ -371,6 +371,46 @@ def test_azure_service_cache_skips_sdk(tmp_path, monkeypatch):
     assert service.generate_from_text("cached") == {"input_text": "cached", "original_audio": "cached.mp3"}
 
 
+def test_pockettts_service_generate(tmp_path, monkeypatch):
+    import numpy as np
+
+    from manim_voiceover.services.pockettts import PocketTTSService
+
+    class FakeTensor:
+        def __init__(self, array):
+            self._array = array
+
+        def detach(self):
+            return self
+
+        def cpu(self):
+            return self
+
+        def numpy(self):
+            return self._array
+
+    class FakeModel:
+        sample_rate = 24000
+
+        def get_state_for_audio_prompt(self, voice):
+            return {"voice": voice}
+
+        def generate_audio(self, voice_state, text, **kwargs):
+            return FakeTensor(np.zeros((1, 100), dtype="float32"))
+
+    class FakeTTSModel:
+        @classmethod
+        def load_model(cls, language=None, quantize=False):
+            return FakeModel()
+
+    monkeypatch.setattr("manim_voiceover.services.pockettts.TTSModel", FakeTTSModel)
+    service = PocketTTSService(cache_dir=tmp_path, transcription_model=None)
+    result = service.generate_from_text("hello <bookmark mark='x'/>", path="out.wav")
+    assert result["original_audio"] == "out.wav"
+    assert result["input_data"]["input_text"] == "hello "
+    assert (tmp_path / "out.wav").exists()
+
+
 def test_stitcher_split_on_silence_modified():
     from manim_voiceover.services.stitcher import split_on_silence_modified
 
