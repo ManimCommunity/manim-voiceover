@@ -3,5 +3,6 @@
 
 # from manim_voiceover.services.azure import AzureService
 # from manim_voiceover.services.gtts import GTTSService
+# from manim_voiceover.services.naijalingo import NaijaLingoService
 # from manim_voiceover.services.pyttsx3 import PyTTSX3Service
 # from manim_voiceover.services.stitcher import StitcherService
