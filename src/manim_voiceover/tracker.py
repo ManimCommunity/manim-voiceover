@@ -32,23 +32,26 @@ class TimeInterpolator:
 class VoiceoverTracker:
     """Class to track the progress of a voiceover in a scene."""
 
-    def __init__(self, scene: Scene, data: VoiceoverData, cache_dir: str | Path) -> None:
+    def __init__(self, scene: Scene, data: VoiceoverData, cache_dir: str | Path, time_offset: float = 0.0) -> None:
         """Initializes a VoiceoverTracker object.
 
         Args:
             scene (Scene): The scene to which the voiceover belongs.
             path (str): The path to the JSON file containing the voiceover data.
+            time_offset (float, optional): The time offset in seconds at which the audio
+                is scheduled to play. Defaults to 0.0.
         """
         self.scene = scene
         self.data = data
         self.cache_dir = cache_dir
+        self.time_offset = time_offset
         self.duration = get_duration(Path(cache_dir) / self.data["final_audio"])
         # last_t = scene.last_t
         last_t = scene.renderer.time
         if last_t is None:
             last_t = 0
-        self.start_t = last_t
-        self.end_t = last_t + self.duration
+        self.start_t = last_t + time_offset
+        self.end_t = self.start_t + self.duration
 
         if "word_boundaries" in self.data:
             self._process_bookmarks()

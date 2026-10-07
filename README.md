@@ -24,6 +24,7 @@ Currently supported TTS services (aside from the CLI that allows you to records 
 
 - [Gemini Text to Speech](https://ai.google.dev/gemini-api/docs/speech-generation) (Recommended for AI voices)
 - [Azure Text to Speech](https://azure.microsoft.com/en-us/services/cognitive-services/text-to-speech/)
+- [Edge TTS](https://github.com/rany2/edge-tts)
 - [gTTS](https://github.com/pndurette/gTTS/)
 - [pyttsx3](https://github.com/nateshmbhat/pyttsx3)
 

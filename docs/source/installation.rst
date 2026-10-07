@@ -35,6 +35,15 @@ If you want to install all of the dependencies, use the ``all`` extra:
 
    pip install --upgrade "manim-voiceover[all]"
 
+For Microsoft Edge text-to-speech, install the ``edge`` extra:
+
+.. code:: sh
+
+   pip install --upgrade "manim-voiceover[edge]"
+
+Note that Edge TTS is network-backed: it requires an internet connection
+because audio is synthesized by an external service.
+
 
 You can see other extras in the `pyproject.toml <https://github.com/ManimCommunity/manim-voiceover/blob/main/pyproject.toml>`__ file.
 

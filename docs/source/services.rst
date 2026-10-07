@@ -42,6 +42,11 @@ Manim Voiceover defines the :py:class:`~~base.SpeechService` class for adding ne
      - No
      - Yes
      - Requires ElevenLabs account. Click `here <https://elevenlabs.io/sign-up>`__ to sign up.
+   * - :py:class:`~edge.EdgeTTSService`
+     - Very good, human-like
+     - No
+     - No
+     - Uses the unofficial `edge-tts <https://github.com/rany2/edge-tts>`__ client for Microsoft Edge's online text-to-speech service. Requires an internet connection.
    * - :py:class:`~gtts.GTTSService`
      - Good
      - No
@@ -140,6 +145,56 @@ docs <https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/>
 for more details.
 
 Refer to the `example usage <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/azure-example.py>`__ to get started.
+
+:py:class:`~edge.EdgeTTSService`
+*********************************
+
+`edge-tts <https://github.com/rany2/edge-tts>`__ is an unofficial Python client for Microsoft Edge's online text-to-speech service. It provides high-quality voices without requiring API credentials, but it is network-backed: synthesis requires an internet connection and the narration text is sent to an external service.
+
+Install Manim Voiceover with the ``edge`` extra in order to use :py:class:`~edge.EdgeTTSService`:
+
+.. code:: sh
+
+   pip install "manim-voiceover[edge]"
+
+.. code:: python
+
+   self.set_speech_service(
+       EdgeTTSService(
+           voice="en-US-EmmaMultilingualNeural",
+           rate="+0%",
+           pitch="+0Hz",
+           volume="+0%",
+       )
+   )
+
+   with self.voiceover(text="This circle is drawn as I speak.") as tracker:
+       self.play(Create(circle), run_time=tracker.duration)
+
+You can schedule a voiceover to start later and wait for it explicitly:
+
+.. code:: python
+
+   tracker = self.add_voiceover_text(
+       "This circle is drawn as I speak.",
+       time_offset=1.0,
+       gain=-3.0,
+       wait_for_completion=True,
+   )
+
+The ``with self.voiceover(...)`` context manager always waits for the voiceover to finish when the block exits, even if the block raises.
+
+Generated audio is cached deterministically from the narration text and the voice/rate/pitch/volume configuration, so a cache hit does not use the network. A cache miss, a missing file, or an empty file triggers a new network synthesis.
+
+Edge TTS also ships a standalone command line interface, ``manim_voiceover_tts``:
+
+.. code:: sh
+
+   manim_voiceover_tts "This circle is drawn as I speak." -o narration.mp3
+   echo "This circle is drawn as I speak." | manim_voiceover_tts -o narration.mp3
+
+.. warning::
+    Edge TTS is an external service: narration text leaves your machine. Do not use it for confidential content.
 
 :py:class:`~gtts.GTTSService`
 *****************************

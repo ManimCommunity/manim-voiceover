@@ -127,14 +127,14 @@ def test_voiceover_scene_adds_audio_and_subcaptions(tmp_path, monkeypatch):
     scene.renderer = SimpleNamespace(time=0.0, skip_animations=False, _original_skipping_status=False)
     scene.added_sounds = []
     scene.subcaptions = []
-    scene.add_sound = lambda path: scene.added_sounds.append(path)
+    scene.add_sound = lambda path, time_offset=0.0, gain=None: scene.added_sounds.append((path, time_offset, gain))
     scene.add_subcaption = lambda text, duration, offset: scene.subcaptions.append((text, duration, offset))
     scene.speech_service = DummyService(tmp_path)
     scene.create_subcaption = True
 
     tracker = scene.add_voiceover_text("hello world", max_subcaption_len=6)
     assert tracker.duration == 2.0
-    assert scene.added_sounds
+    assert scene.added_sounds == [(str(tmp_path / "voice.mp3"), 0.0, None)]
     assert scene.subcaptions
 
 

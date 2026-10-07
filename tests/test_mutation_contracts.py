@@ -420,7 +420,7 @@ def test_voiceover_scene_default_subcaption_contract(monkeypatch, tmp_path):
     scene.renderer = SimpleNamespace(time=0.0, skip_animations=True, _original_skipping_status=False)
     scene.added_sounds = []
     scene.subcaptions = []
-    scene.add_sound = lambda path: scene.added_sounds.append(path)
+    scene.add_sound = lambda path, time_offset=0.0, gain=None: scene.added_sounds.append((path, time_offset, gain))
     scene.add_subcaption = lambda text, duration, offset: scene.subcaptions.append((text, duration, offset))
 
     monkeypatch.setattr("manim_voiceover.voiceover_scene.config.save_last_frame", False)
@@ -436,7 +436,7 @@ def test_voiceover_scene_default_subcaption_contract(monkeypatch, tmp_path):
 
     assert tracker is scene.current_tracker
     assert scene.renderer.skip_animations is False
-    assert scene.added_sounds == [str(tmp_path / "voice.mp3")]
+    assert scene.added_sounds == [(str(tmp_path / "voice.mp3"), 0.0, None)]
     assert scene.subcaptions == [("a" * 35, pytest.approx(0.9), 0), ("b" * 35, pytest.approx(0.9), 1.0)]
 
     scene.subcaptions = []
@@ -483,7 +483,7 @@ def test_voiceover_scene_forwards_generation_and_subcaption_parameters(monkeypat
     scene.renderer = SimpleNamespace(time=0.0, skip_animations=True, _original_skipping_status=False)
     scene.added_sounds = []
     scene.subcaptions = []
-    scene.add_sound = lambda path: scene.added_sounds.append(path)
+    scene.add_sound = lambda path, time_offset=0.0, gain=None: scene.added_sounds.append((path, time_offset, gain))
     scene.add_subcaption = lambda text, duration, offset: scene.subcaptions.append((text, duration, offset))
     scene.speech_service = RecordingService()
     scene.create_subcaption = True
@@ -520,7 +520,7 @@ def test_voiceover_scene_waits_context_and_type_pop_contracts(monkeypatch, tmp_p
     scene.renderer = SimpleNamespace(time=0.0, skip_animations=True, _original_skipping_status=False)
     scene.speech_service = service
     scene.create_subcaption = False
-    scene.add_sound = lambda path: None
+    scene.add_sound = lambda path, time_offset=0.0, gain=None: None
     monkeypatch.setattr("manim_voiceover.tracker.get_duration", lambda path: 1.0)
     with pytest.raises(Exception) as exc_info:
         VoiceoverScene._add_voiceover_text(VoiceoverScene.__new__(VoiceoverScene), "x", {})

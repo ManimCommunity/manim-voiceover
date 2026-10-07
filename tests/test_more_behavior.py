@@ -366,7 +366,7 @@ def test_voiceover_scene_setters_waits_and_context(tmp_path, monkeypatch):
     scene.renderer = SimpleNamespace(time=0.0, skip_animations=True, _original_skipping_status=False)
     scene.added_sounds = []
     scene.subcaptions = []
-    scene.add_sound = lambda path: scene.added_sounds.append(path)
+    scene.add_sound = lambda path, time_offset=0.0, gain=None: scene.added_sounds.append((path, time_offset, gain))
     scene.add_subcaption = lambda text, duration, offset: scene.subcaptions.append((text, duration, offset))
     scene.waits = []
     with scene.voiceover(

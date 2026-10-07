@@ -1,6 +1,6 @@
 from collections.abc import Generator
 from contextlib import contextmanager
-from math import ceil
+from math import ceil, isfinite
 from pathlib import Path
 from typing import NoReturn
 
@@ -48,6 +48,9 @@ class VoiceoverScene(Scene):
         subcaption: str | None = None,
         max_subcaption_len: int = 70,
         subcaption_buff: float = 0.1,
+        time_offset: float = 0.0,
+        gain: float | None = None,
+        wait_for_completion: bool = False,
         **kwargs: object,
     ) -> VoiceoverTracker:
         """Adds voiceover to the scene.
@@ -59,17 +62,27 @@ class VoiceoverScene(Scene):
             max_subcaption_len (int, optional): Maximum number of characters for a subcaption.
                 Longer subcaptions are split into smaller chunks. Defaults to 70.
             subcaption_buff (float, optional): The duration between split subcaption chunks in seconds. Defaults to 0.1.
+            time_offset (float, optional): The time offset in seconds at which the audio
+                is scheduled to play. Defaults to 0.0.
+            gain (Optional[float], optional): The gain in decibels to apply to the audio. Defaults to None.
+            wait_for_completion (bool, optional): Whether to wait until the voiceover
+                finishes before returning. Defaults to False.
 
         Returns:
             VoiceoverTracker: The tracker object for the voiceover.
         """
-        return self._add_voiceover_text(
+        tracker = self._add_voiceover_text(
             text,
             service_kwargs=kwargs,
             subcaption=subcaption,
             max_subcaption_len=max_subcaption_len,
             subcaption_buff=subcaption_buff,
+            time_offset=time_offset,
+            gain=gain,
         )
+        if wait_for_completion:
+            self.wait_for_voiceover()
+        return tracker
 
     def _add_voiceover_text(
         self,
@@ -78,14 +91,22 @@ class VoiceoverScene(Scene):
         subcaption: str | None = None,
         max_subcaption_len: int = 70,
         subcaption_buff: float = 0.1,
+        time_offset: float = 0.0,
+        gain: float | None = None,
     ) -> VoiceoverTracker:
+        if not isfinite(time_offset):
+            raise ValueError("time_offset must be finite")
         if not hasattr(self, "speech_service"):
             raise Exception("You need to call init_voiceover() before adding a voiceover.")
 
         dict_ = self.speech_service._wrap_generate_from_text(text, **service_kwargs)
-        tracker = VoiceoverTracker(self, dict_, Path(self.speech_service.cache_dir))
+        tracker = VoiceoverTracker(self, dict_, Path(self.speech_service.cache_dir), time_offset=time_offset)
         self.renderer.skip_animations = self.renderer._original_skipping_status
-        self.add_sound(str(Path(self.speech_service.cache_dir) / dict_["final_audio"]))
+        self.add_sound(
+            str(Path(self.speech_service.cache_dir) / dict_["final_audio"]),
+            time_offset=time_offset,
+            gain=gain,
+        )
         self.current_tracker = tracker
 
         # if self.create_script:
@@ -100,6 +121,7 @@ class VoiceoverScene(Scene):
                 tracker.duration,
                 subcaption_buff=subcaption_buff,
                 max_subcaption_len=max_subcaption_len,
+                time_offset=time_offset,
             )
 
         return tracker
@@ -110,6 +132,7 @@ class VoiceoverScene(Scene):
         duration: float,
         subcaption_buff: float = 0.1,
         max_subcaption_len: int = 70,
+        time_offset: float = 0.0,
     ) -> None:
         """Adds a subcaption to the scene.
 
@@ -121,6 +144,8 @@ class VoiceoverScene(Scene):
             max_subcaption_len (int, optional): Maximum number of characters for a subcaption.
                 Longer subcaptions are split into smaller chunks. Defaults to 70.
             subcaption_buff (float, optional): The duration between split subcaption chunks in seconds. Defaults to 0.1.
+            time_offset (float, optional): The time offset in seconds at which the subcaption
+                starts. Defaults to 0.0.
         """
         subcaption = " ".join(subcaption.split())
         n_chunk = ceil(len(subcaption) / max_subcaption_len)
@@ -130,7 +155,7 @@ class VoiceoverScene(Scene):
         subcaptions = [" ".join(i) for i in chunks_]
         subcaption_weights = [len(subcaption) / len("".join(subcaptions)) for subcaption in subcaptions]
 
-        current_offset = 0.0
+        current_offset = time_offset
         for idx, subcaption in enumerate(subcaptions):
             chunk_duration = duration * subcaption_weights[idx]
             self.add_subcaption(
@@ -183,6 +208,8 @@ class VoiceoverScene(Scene):
         self,
         text: str | None = None,
         ssml: str | None = None,
+        time_offset: float = 0.0,
+        gain: float | None = None,
         **kwargs: object,
     ) -> Generator[VoiceoverTracker, None, None]:
         """The main function to be used for adding voiceover to a scene.
@@ -190,6 +217,9 @@ class VoiceoverScene(Scene):
         Args:
             text (str, optional): The text to be spoken. Defaults to None.
             ssml (str, optional): The SSML to be spoken. Defaults to None.
+            time_offset (float, optional): The time offset in seconds at which the audio
+                is scheduled to play. Defaults to 0.0.
+            gain (Optional[float], optional): The gain in decibels to apply to the audio. Defaults to None.
 
         Yields:
             Generator[VoiceoverTracker, None, None]: The voiceover tracker object.
@@ -210,6 +240,8 @@ class VoiceoverScene(Scene):
                     subcaption=subcaption,
                     max_subcaption_len=max_subcaption_len,
                     subcaption_buff=subcaption_buff,
+                    time_offset=time_offset,
+                    gain=gain,
                 )
             elif ssml is not None:
                 yield self.add_voiceover_ssml(ssml, **service_kwargs)

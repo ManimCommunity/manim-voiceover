@@ -30,6 +30,10 @@ Speech services
    :members:
    :show-inheritance:
 
+.. automodule:: manim_voiceover.services.edge
+   :members:
+   :show-inheritance:
+
 .. automodule:: manim_voiceover.services.gtts
    :members:
    :show-inheritance:

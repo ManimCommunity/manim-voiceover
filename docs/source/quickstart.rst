@@ -84,6 +84,22 @@ The ``text`` argument is automatically reused for video subcaptions. Alternative
    ) as tracker:
        self.play(Create(circle))
 
+Both ``self.voiceover()`` and :py:meth:`VoiceoverScene.add_voiceover_text` accept
+``time_offset`` and ``gain`` to control when and how loudly the audio plays:
+
+.. code:: py
+
+   tracker = self.add_voiceover_text(
+       "This circle is drawn as I speak.",
+       time_offset=1.0,  # start the audio one second from now
+       gain=-3.0,        # lower the volume by 3 dB
+       wait_for_completion=True,  # block until the voiceover finishes
+   )
+
+``wait_for_completion`` is optional for ``add_voiceover_text``; the
+``with self.voiceover(...)`` context manager always waits for the voiceover
+to finish when the block exits, even if the block raises an exception.
+
 See :doc:`examples` and the `examples directory <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples>`__
 for more examples. We recommend starting with the `Gemini demo
 example <https://github.com/ManimCommunity/manim-voiceover/blob/main/examples/voiceover-demo.py>`__.
