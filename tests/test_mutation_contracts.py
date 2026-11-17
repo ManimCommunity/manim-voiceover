@@ -1,4 +1,6 @@
 import json
+import os
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -7,12 +9,14 @@ from pydub import AudioSegment
 from pydub.generators import Sine
 
 from manim_voiceover.helper import (
+    _lock_file,
     append_to_json_file,
     create_dotenv_file,
     detect_leading_silence,
     msg_box,
     prompt_ask_missing_extras,
     prompt_ask_missing_package,
+    read_json_file,
     trim_silence,
     wav2mp3,
 )
@@ -126,10 +130,21 @@ def test_wav2mp3_uses_default_output_bitrate_removal_and_log(tmp_path, monkeypat
     assert logs == [f"Saved {tmp_path / 'input.mp3'}"]
 
 
-def test_append_to_json_file_preserves_pretty_list_contract(tmp_path):
+def test_append_to_json_file_preserves_pretty_list_contract(tmp_path, monkeypatch):
     path = tmp_path / "cache.json"
+    replaced = []
+    real_replace = os.replace
+
+    def record_replace(source, target):
+        replaced.append((source, target, Path(source).read_text()))
+        real_replace(source, target)
+
+    monkeypatch.setattr("manim_voiceover.helper.os.replace", record_replace)
     append_to_json_file(path, {"input_text": "one"})
     assert path.read_text() == '[\n  {\n    "input_text": "one"\n  }\n]'
+    assert replaced == [(tmp_path / "cache.json.tmp", path, path.read_text())]
+    assert (tmp_path / "cache.json.lock").read_text() == ""
+    assert not (tmp_path / "cache.json.tmp").exists()
 
     append_to_json_file(path, {"input_text": "two", "duration": 2})
     assert json.loads(path.read_text()) == [{"input_text": "one"}, {"input_text": "two", "duration": 2}]
@@ -139,6 +154,42 @@ def test_append_to_json_file_preserves_pretty_list_contract(tmp_path):
     with pytest.raises(ValueError) as exc_info:
         append_to_json_file(path, {"input_text": "x"})
     assert str(exc_info.value) == "JSON file should be a list"
+
+
+def test_read_json_file_reads_under_cache_lock(tmp_path):
+    path = tmp_path / "cache.json"
+    path.write_text('[{"input_text": "one"}]')
+
+    assert read_json_file(path) == [{"input_text": "one"}]
+    assert (tmp_path / "cache.json.lock").read_text() == ""
+
+
+def test_file_lock_excludes_other_handles_until_unlocked(tmp_path):
+    fcntl = pytest.importorskip("fcntl")
+    lock_path = tmp_path / "cache.json.lock"
+    with open(lock_path, "a") as held, open(lock_path, "a") as other:
+        _lock_file(held)
+        with pytest.raises(BlockingIOError):
+            fcntl.flock(other.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        _lock_file(held, unlock=True)
+        fcntl.flock(other.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+def test_cache_json_takes_and_releases_msvcrt_byte_lock_on_windows(tmp_path, monkeypatch):
+    calls = []
+    fake_msvcrt = SimpleNamespace(
+        LK_LOCK="lock",
+        LK_UNLCK="unlock",
+        locking=lambda fd, mode, nbytes: calls.append((type(fd), mode, nbytes)),
+    )
+    monkeypatch.setattr("manim_voiceover.helper.sys.platform", "win32")
+    monkeypatch.setitem(sys.modules, "msvcrt", fake_msvcrt)
+    path = tmp_path / "cache.json"
+
+    append_to_json_file(path, {"input_text": "one"})
+    assert read_json_file(path) == [{"input_text": "one"}]
+
+    assert calls == [(int, "lock", 1), (int, "unlock", 1)] * 2
 
 
 def test_prompt_missing_package_logs_installs_and_errors(monkeypatch):
