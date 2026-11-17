@@ -1,4 +1,6 @@
 import json
+import sys
+import threading
 
 import pytest
 
@@ -188,3 +190,28 @@ def test_load_voiceover_cache_rejects_non_list_cache(tmp_path):
         load_voiceover_cache(cache_path)
 
     assert str(exc_info.value) == "Voiceover cache must be a JSON list"
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="msvcrt.locking retries only once a second")
+def test_parallel_cache_appends_and_loads_keep_every_entry(tmp_path):
+    cache_path = tmp_path / DEFAULT_VOICEOVER_CACHE_JSON_FILENAME
+    barrier = threading.Barrier(8)
+    errors = []
+
+    def append_entries(worker):
+        barrier.wait()
+        try:
+            for index in range(25):
+                load_voiceover_cache(cache_path)
+                append_voiceover_cache_entry(cache_path, {"input_text": f"{worker}-{index}"})
+        except Exception as exc:
+            errors.append(exc)
+
+    threads = [threading.Thread(target=append_entries, args=(worker,)) for worker in range(8)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert errors == []
+    assert len(load_voiceover_cache(cache_path)) == 200

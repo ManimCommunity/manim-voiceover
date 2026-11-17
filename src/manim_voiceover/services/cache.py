@@ -1,4 +1,3 @@
-import json
 import os
 from collections.abc import Mapping
 from pathlib import Path
@@ -8,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 from pydantic import JsonValue as PydanticJsonValue
 
 from manim_voiceover._typing import JsonValue, VoiceoverData, json_object
-from manim_voiceover.helper import append_to_json_file
+from manim_voiceover.helper import append_to_json_file, read_json_file
 
 PathLike = str | os.PathLike[str]
 
@@ -73,7 +72,7 @@ def load_voiceover_cache(json_file: PathLike) -> list[VoiceoverCacheEntryModel]:
     if not json_path.exists():
         return []
 
-    json_data = json.loads(json_path.read_text())
+    json_data = read_json_file(json_path)
     if not isinstance(json_data, list):
         raise ValueError("Voiceover cache must be a JSON list")
 

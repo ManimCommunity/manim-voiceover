@@ -6,7 +6,7 @@ import sys
 import textwrap
 from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
-from typing import TypeVar
+from typing import IO, TypeVar
 
 import pip
 from manim import logger
@@ -106,20 +106,49 @@ def trim_silence(
     return trimmed_sound
 
 
+def _lock_file(lock_file: IO[str], unlock: bool = False) -> None:
+    """Block until this process holds the lock on lock_file, or release it"""
+    # The lock file is never written, so its position stays 0 and msvcrt always locks the same byte
+    if sys.platform == "win32":
+        import msvcrt
+
+        msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK if unlock else msvcrt.LK_LOCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN if unlock else fcntl.LOCK_EX)
+
+
+def read_json_file(json_file: PathLike) -> object:
+    """Read json file, waiting for any write in progress"""
+    json_path = Path(json_file)
+    with open(f"{json_path}.lock", "a") as lock_file:
+        _lock_file(lock_file)
+        try:
+            return json.loads(json_path.read_text())
+        finally:
+            _lock_file(lock_file, unlock=True)
+
+
 def append_to_json_file(json_file: PathLike, data: Mapping[str, JsonValue] | VoiceoverData) -> None:
     """Append data to json file"""
     json_path = Path(json_file)
-    if not json_path.exists():
-        json_path.write_text(json.dumps([data], indent=2))
-        return
+    temp_path = Path(f"{json_path}.tmp")
+    # Hold the lock across read and write so parallel renders cannot drop each other's entries
+    with open(f"{json_path}.lock", "a") as lock_file:
+        _lock_file(lock_file)
+        try:
+            json_data = json.loads(json_path.read_text()) if json_path.exists() else []
 
-    json_data = json.loads(json_path.read_text())
+            if not isinstance(json_data, list):
+                raise ValueError("JSON file should be a list")
 
-    if not isinstance(json_data, list):
-        raise ValueError("JSON file should be a list")
-
-    json_data.append(data)
-    json_path.write_text(json.dumps(json_data, indent=2))
+            json_data.append(data)
+            # Swap in a complete file so readers and interrupted renders never see a partial one
+            temp_path.write_text(json.dumps(json_data, indent=2))
+            os.replace(temp_path, json_path)
+        finally:
+            _lock_file(lock_file, unlock=True)
 
 
 def prompt_ask_missing_package(target_module: str, package_name: str) -> None:
