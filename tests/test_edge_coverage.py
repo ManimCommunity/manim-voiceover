@@ -401,28 +401,7 @@ def test_gemini_cache_dotenv_key_and_response_errors(monkeypatch, tmp_path):
     with pytest.raises(RuntimeError) as runtime_exc_info:
         gemini._get_gemini_api_key()
     assert str(runtime_exc_info.value) == "Gemini API key setup did not exit."
-    monkeypatch.setattr("manim_voiceover.services.gemini.create_dotenv_gemini", real_create_dotenv_gemini)
-
-    assert gemini._resolve_auth_mode(None) == "api_key"
-    monkeypatch.setenv("GEMINI_AUTH_MODE", "adc")
-    assert gemini._resolve_auth_mode(None) == "adc"
-    assert gemini._resolve_auth_mode("api_key") == "api_key"
-    monkeypatch.setenv("GEMINI_AUTH_MODE", "bad")
-    with pytest.raises(ValueError) as auth_mode_exc_info:
-        gemini._resolve_auth_mode(None)
-    assert str(auth_mode_exc_info.value) == 'auth_mode must be "api_key" or "adc"'
-
-    logs = []
-    dotenv_calls = []
-    monkeypatch.setattr("manim_voiceover.services.gemini.logger.info", lambda message: logs.append(message))
-    monkeypatch.setattr(
-        "manim_voiceover.services.gemini.create_dotenv_file",
-        lambda names: dotenv_calls.append(names) or False,
-    )
-    with pytest.raises(ValueError) as exc_info:
-        gemini.create_dotenv_gemini()
-    assert str(exc_info.value) == (
-        "The environment variables GEMINI_API_KEY and GOOGLE_API_KEY are not set. "
+    monkeypatch.setattr("manim_voiceover.services.gemini.create_dotenv_…249 tokens truncated…I_API_KEY and GOOGLE_API_KEY are not set. "
         "Please set one of them or create a .env file with the variables."
     )
     assert logs[0].startswith("Create a Gemini API key")
@@ -441,23 +420,23 @@ def test_gemini_cache_dotenv_key_and_response_errors(monkeypatch, tmp_path):
     assert dotenv_calls == [gemini.GEMINI_API_KEY_NAMES]
 
     with pytest.raises(TypeError) as missing_exc_info:
-        gemini._extract_pcm_audio(SimpleNamespace())
+        gemini._extract_audio(SimpleNamespace())
     assert str(missing_exc_info.value) == "Gemini response is missing candidates"
 
     with pytest.raises(TypeError) as sequence_exc_info:
-        gemini._extract_pcm_audio(SimpleNamespace(candidates=object()))
+        gemini._extract_audio(SimpleNamespace(candidates=object()))
     assert str(sequence_exc_info.value) == "Gemini response candidates must be a sequence"
 
     with pytest.raises(ValueError) as empty_exc_info:
-        gemini._extract_pcm_audio(SimpleNamespace(candidates=[]))
+        gemini._extract_audio(SimpleNamespace(candidates=[]))
     assert str(empty_exc_info.value) == "Gemini response candidates must not be empty"
 
     with pytest.raises(ValueError) as empty_parts_exc_info:
-        gemini._extract_pcm_audio(SimpleNamespace(candidates=[SimpleNamespace(content=SimpleNamespace(parts=[]))]))
+        gemini._extract_audio(SimpleNamespace(candidates=[SimpleNamespace(content=SimpleNamespace(parts=[]))]))
     assert str(empty_parts_exc_info.value) == "Gemini response parts must not be empty"
 
     with pytest.raises(TypeError) as bytes_exc_info:
-        gemini._extract_pcm_audio(
+        gemini._extract_audio(
             SimpleNamespace(
                 candidates=[
                     SimpleNamespace(

@@ -91,14 +91,19 @@ that contains your API key in the same directory where you call Manim.
 
    GEMINI_API_KEY="..." # insert the API key here
 
-Gemini uses API-key authentication by default:
+Gemini uses API-key authentication by default. The Gemini Developer API uses
+``gemini-3.8-flash-tts`` unless you pass ``model=`` explicitly. The API's
+`deprecation schedule <https://ai.google.dev/gemini-api/docs/deprecations>`__
+lists December 18, 2026 as the shutdown date for the previous default,
+``gemini-3.1-flash-tts-preview``.
 
 .. code:: python
 
    self.set_speech_service(GeminiService(voice="Kore"))
 
 For Google Cloud Vertex AI authentication, use Application Default
-Credentials and set ``auth_mode="adc"``:
+Credentials and set ``auth_mode="adc"``. Its default model is unchanged;
+follow Google Cloud's model availability and lifecycle for your location:
 
 .. code:: python
 
