@@ -33,7 +33,9 @@ GEMINI_API_KEY_NAMES = ["GOOGLE_API_KEY", "GEMINI_API_KEY"]
 GEMINI_AUTH_MODE_NAME = "GEMINI_AUTH_MODE"
 GEMINI_PROJECT_NAMES = ["GOOGLE_CLOUD_PROJECT", "GEMINI_PROJECT"]
 GEMINI_LOCATION_NAMES = ["GOOGLE_CLOUD_LOCATION", "GEMINI_LOCATION"]
-DEFAULT_GEMINI_TTS_MODEL = "gemini-3.1-flash-tts-preview"
+DEFAULT_GEMINI_TTS_MODEL = "gemini-3.8-flash-tts"
+_LEGACY_GEMINI_TTS_MODEL = "gemini-3.1-flash-tts-preview"
+_GEMINI_38_TTS_MODELS = {"gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"}
 DEFAULT_GEMINI_VOICE = "Kore"
 DEFAULT_GEMINI_LOCATION = "global"
 GEMINI_SAMPLE_RATE = 24000
@@ -133,7 +135,7 @@ def _required_non_empty_sequence(value: object, name: str) -> object:
     return value[0]
 
 
-def _extract_pcm_audio(response: object) -> bytes:
+def _extract_audio(response: object) -> bytes:
     candidates = _required_object_attribute(response, "candidates")
     candidate = _required_non_empty_sequence(candidates, "candidates")
     content = _required_object_attribute(candidate, "content")
@@ -146,26 +148,30 @@ def _extract_pcm_audio(response: object) -> bytes:
     return data
 
 
-def _write_wave_file(path: Path, pcm_audio: bytes) -> None:
+def _write_wave_file(path: Path, audio: bytes) -> None:
+    # Gemini 3.8 unary results already have a WAV container.
+    if audio[:4] == b"RIFF" and audio[8:12] == b"WAVE":
+        path.write_bytes(audio)
+        return
     with wave.open(str(path), "wb") as wave_file:
         wave_file.setnchannels(GEMINI_CHANNELS)
         wave_file.setsampwidth(GEMINI_SAMPLE_WIDTH)
         wave_file.setframerate(GEMINI_SAMPLE_RATE)
-        wave_file.writeframes(pcm_audio)
+        wave_file.writeframes(audio)
 
 
 class GeminiService(SpeechService):
     """
     Speech service class for Gemini text-to-speech.
 
-    Gemini TTS uses the Google Gen AI SDK and returns raw PCM audio. This
-    service writes that audio as a mono 24 kHz WAV file.
+    Gemini TTS uses the Google Gen AI SDK. This service saves native WAV
+    data as-is and wraps legacy raw PCM as a mono 24 kHz WAV file.
     """
 
     def __init__(
         self,
         voice: str = DEFAULT_GEMINI_VOICE,
-        model: str = DEFAULT_GEMINI_TTS_MODEL,
+        model: str | None = None,
         transcription_model: str | None = None,
         auth_mode: GeminiAuthMode | None = None,
         project: str | None = None,
@@ -174,9 +180,17 @@ class GeminiService(SpeechService):
     ) -> None:
         prompt_ask_missing_extras("google.genai", "gemini", "GeminiService")
         self.voice = voice
+        resolved_auth_mode = _resolve_auth_mode(auth_mode)
+        self.client = _create_client(resolved_auth_mode, project, location)
+        self._uses_developer_api = (
+            resolved_auth_mode == "api_key"
+            and not getattr(self.client, "vertexai", False)
+            and not os.getenv("GOOGLE_GEMINI_BASE_URL")
+        )
+        if model is None:
+            model = DEFAULT_GEMINI_TTS_MODEL if self._uses_developer_api else _LEGACY_GEMINI_TTS_MODEL
         self.model = model
         initialize_speech_service(self, kwargs, transcription_model=transcription_model)
-        self.client = _create_client(auth_mode, project, location)
 
     def generate_from_text(
         self,
@@ -201,10 +215,16 @@ class GeminiService(SpeechService):
         else:
             audio_path = path_to_string(path)
 
+        http_options = (
+            types.HttpOptions(api_version="v1beta")
+            if self.model in _GEMINI_38_TTS_MODELS and self._uses_developer_api
+            else None
+        )
         response = self.client.models.generate_content(
             model=self.model,
             contents=input_text,
             config=types.GenerateContentConfig(
+                http_options=http_options,
                 response_modalities=["AUDIO"],
                 speech_config=types.SpeechConfig(
                     voice_config=types.VoiceConfig(
@@ -215,7 +235,7 @@ class GeminiService(SpeechService):
                 ),
             ),
         )
-        _write_wave_file(Path(cache_dir) / audio_path, _extract_pcm_audio(response))
+        _write_wave_file(Path(cache_dir) / audio_path, _extract_audio(response))
 
         json_dict: VoiceoverData = {
             "input_text": text,

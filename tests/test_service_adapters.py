@@ -233,7 +233,7 @@ def test_gemini_service_generate(tmp_path, monkeypatch):
     assert (tmp_path / "gemini-generated.wav").read_bytes().startswith(b"RIFF")
 
     assert (
-        gemini._extract_pcm_audio(
+        gemini._extract_audio(
             SimpleNamespace(
                 candidates=[
                     SimpleNamespace(content=SimpleNamespace(parts=[SimpleNamespace(inline_data=SimpleNamespace(data=b"pcm"))]))
@@ -249,7 +249,8 @@ def test_gemini_service_generate(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "manim_voiceover.services.gemini.google.auth.default", lambda scopes: (adc_credentials, "default-project")
     )
-    GeminiService(cache_dir=tmp_path, auth_mode="adc", project="cloud-project", location="us-central1")
+    service = GeminiService(cache_dir=tmp_path, auth_mode="adc", project="cloud-project", location="us-central1")
+    assert service.model == "gemini-3.1-flash-tts-preview"
     assert clients == [
         {
             "vertexai": True,
@@ -258,6 +259,88 @@ def test_gemini_service_generate(tmp_path, monkeypatch):
             "location": "us-central1",
         }
     ]
+
+
+@pytest.mark.parametrize("model", [None, "gemini-3.8-flash-tts"])
+def test_gemini_developer_api_writes_provider_wav(tmp_path, monkeypatch, model):
+    import base64
+    import io
+    import json
+    import wave
+
+    import httpx
+
+    import manim_voiceover.services.gemini as gemini
+
+    frames = b"\x00\x00\x01\x00"
+    wav = io.BytesIO()
+    with wave.open(wav, "wb") as audio:
+        audio.setnchannels(1)
+        audio.setsampwidth(2)
+        audio.setframerate(24000)
+        audio.writeframes(frames)
+    wav_bytes = wav.getvalue()
+
+    requests = []
+
+    def handle_request(request):
+        requests.append(request)
+        return httpx.Response(
+            200,
+            json={
+                "candidates": [
+                    {
+                        "content": {
+                            "role": "model",
+                            "parts": [
+                                {
+                                    "inlineData": {
+                                        "data": base64.b64encode(wav_bytes).decode(),
+                                        "mimeType": "audio/wav",
+                                    }
+                                }
+                            ],
+                        }
+                    }
+                ],
+            },
+        )
+
+    for name in (
+        "GOOGLE_API_KEY",
+        "GEMINI_AUTH_MODE",
+        "GOOGLE_GEMINI_BASE_URL",
+        "GOOGLE_GENAI_USE_VERTEXAI",
+        "GOOGLE_GENAI_USE_ENTERPRISE",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    client_factory = gemini.genai.Client
+    with httpx.Client(transport=httpx.MockTransport(handle_request), trust_env=False) as http_client:
+        monkeypatch.setattr(
+            gemini.genai,
+            "Client",
+            lambda **kwargs: client_factory(
+                **kwargs,
+                http_options=gemini.types.HttpOptions(httpx_client=http_client),
+            ),
+        )
+        options = {} if model is None else {"model": model}
+        service = gemini.GeminiService(cache_dir=tmp_path, **options)
+        result = service.generate_from_text("Hello", path="gemini.wav")
+
+    assert result["input_data"]["config"]["model"] == "gemini-3.8-flash-tts"
+    assert len(requests) == 1
+    request = requests[0]
+    assert request.url.host == "generativelanguage.googleapis.com"
+    assert request.url.path == "/v1beta/models/gemini-3.8-flash-tts:generateContent"
+    config = json.loads(request.content)["generationConfig"]
+    assert config["responseModalities"] == ["AUDIO"]
+    speech_config = gemini.types.SpeechConfig.model_validate(config["speechConfig"])
+    assert speech_config.voice_config.prebuilt_voice_config.voice_name == "Kore"
+    assert (tmp_path / "gemini.wav").read_bytes() == wav_bytes
+    with wave.open(str(tmp_path / "gemini.wav"), "rb") as audio:
+        assert audio.readframes(audio.getnframes()) == frames
 
 
 def test_azure_service_helpers_and_generate(tmp_path, monkeypatch):
